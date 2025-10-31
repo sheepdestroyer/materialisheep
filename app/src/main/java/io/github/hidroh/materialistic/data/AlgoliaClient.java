@@ -49,18 +49,13 @@ public class AlgoliaClient implements ItemManager {
     private static final String BASE_API_URL = "https://" + HOST + "/api/v1/";
     static final String MIN_CREATED_AT = "created_at_i>";
     RestService mRestService;
-    @Inject @Named(HN) ItemManager mHackerNewsClient;
+    ItemManager mHackerNewsClient; // No @Inject here
     @Inject @Named(DataModule.MAIN_THREAD) Scheduler mMainThreadScheduler;
 
-    /**
-     * Constructs a new {@code AlgoliaClient}.
-     *
-     * @param factory the {@link RestServiceFactory} to use for creating the REST service
-     */
     @Inject
-    public AlgoliaClient(RestServiceFactory factory) {
+    public AlgoliaClient(RestServiceFactory factory, @Named(HN) ItemManager hackerNewsClient) {
         mRestService = factory.rxEnabled(true).create(BASE_API_URL, RestService.class);
-        // TODO: Inject this properly
+        mHackerNewsClient = hackerNewsClient;
     }
 
     @Override

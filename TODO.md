@@ -32,7 +32,7 @@ A thorough review of all dependencies in `app/build.gradle` is the next logical 
 
 ### 2. Gradle Configuration Review
 
-- **`compileOptions` and `kotlinOptions`:** Double-check that the Java and Kotlin versions are correctly set to 11 in the `build.gradle` file, as this was a source of previous issues. Although the environment is Java 21, the source compatibility is set to 11.
+- **`compileOptions` and `kotlinOptions`:** Double-check that the Java and Kotlin versions are correctly set to 21 in the `build.gradle` file, as this was a source of previous issues.
 - **Namespace declaration:** Verify the `namespace 'io.github.hidroh.materialistic'` declaration is correct.
 
 ### 3. Resource File Inspection
