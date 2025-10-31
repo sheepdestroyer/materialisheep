@@ -4,7 +4,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * You may not obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -144,22 +144,24 @@ public interface ReadabilityClient {
                             }
                             return;
                         }
-                        view.evaluateJavascript(mReadabilityJs, s ->
-                                view.evaluateJavascript("new Readability(document).parse()",
-                                        value -> {
-                                            if (isFinished.compareAndSet(false, true)) {
-                                                String content = null;
-                                                if (value != null) {
-                                                    try {
-                                                        JSONObject json = new JSONObject(value);
-                                                        content = json.getString("content");
-                                                        mCache.putReadability(itemId, content);
-                                                    } catch (JSONException e) { /* content will be null */ }
-                                                }
-                                                subscriber.onNext(content);
-                                                subscriber.onCompleted();
-                                            }
-                                        }));
+                        String script = mReadabilityJs + "; new Readability(document).parse();";
+                        view.evaluateJavascript(script, value -> {
+                            if (isFinished.compareAndSet(false, true)) {
+                                String content = null;
+                                if (value != null && !value.equalsIgnoreCase("null")) {
+                                    try {
+                                        JSONObject json = new JSONObject(value);
+                                        content = json.getString("content");
+                                        mCache.putReadability(itemId, content);
+                                    } catch (JSONException e) {
+                                        Log.w("ReadabilityClient", "Failed to parse Readability output", e);
+                                        // content will be null
+                                    }
+                                }
+                                subscriber.onNext(content);
+                                subscriber.onCompleted();
+                            }
+                        });
                     }
 
                     @SuppressWarnings("deprecation")
