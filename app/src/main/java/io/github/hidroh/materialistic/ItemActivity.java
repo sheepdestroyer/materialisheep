@@ -566,7 +566,7 @@ public class ItemActivity extends ThemedActivity implements ItemFragment.ItemCha
 
         @Override
         public void onResponse(@Nullable Item response) {
-            if (mItemActivity.get() != null && !mItemActivity.get().isFinishing()) {
+            if (mItemActivity.get() != null && !mItemActivity.get().isDestroyed()) {
                 mItemActivity.get().onItemLoaded(response);
             }
         }
@@ -587,14 +587,14 @@ public class ItemActivity extends ThemedActivity implements ItemFragment.ItemCha
 
         @Override
         public void onDone(boolean successful) {
-            if (mItemActivity.get() != null && !mItemActivity.get().isFinishing()) {
+            if (mItemActivity.get() != null && !mItemActivity.get().isDestroyed()) {
                 mItemActivity.get().onVoted(successful);
             }
         }
 
         @Override
         public void onError(Throwable throwable) {
-            if (mItemActivity.get() != null && !mItemActivity.get().isFinishing()) {
+            if (mItemActivity.get() != null && !mItemActivity.get().isDestroyed()) {
                 mItemActivity.get().onVoted(null);
             }
         }

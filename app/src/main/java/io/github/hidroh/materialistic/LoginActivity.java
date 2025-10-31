@@ -158,14 +158,14 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 
         @Override
         public void onDone(boolean successful) {
-            if (mLoginActivity.get() != null && !mLoginActivity.get().isFinishing()) {
+            if (mLoginActivity.get() != null && !mLoginActivity.get().isDestroyed()) {
                 mLoginActivity.get().onLoggedIn(successful, null);
             }
         }
 
         @Override
         public void onError(Throwable throwable) {
-            if (mLoginActivity.get() != null && !mLoginActivity.get().isFinishing()) {
+            if (mLoginActivity.get() != null && !mLoginActivity.get().isDestroyed()) {
                 mLoginActivity.get().onLoggedIn(false, throwable != null ? throwable.getMessage() : null);
             }
         }

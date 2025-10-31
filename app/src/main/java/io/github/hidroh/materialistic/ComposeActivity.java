@@ -268,14 +268,14 @@ public class ComposeActivity extends ThemedActivity {
         @Override
         public void onDone(boolean successful) {
             Preferences.deleteDraft(mAppContext, mParentId);
-            if (mComposeActivity.get() != null && !mComposeActivity.get().isFinishing()) {
+            if (mComposeActivity.get() != null && !mComposeActivity.get().isDestroyed()) {
                 mComposeActivity.get().onSent(successful);
             }
         }
 
         @Override
         public void onError(Throwable throwable) {
-            if (mComposeActivity.get() != null && !mComposeActivity.get().isFinishing()) {
+            if (mComposeActivity.get() != null && !mComposeActivity.get().isDestroyed()) {
                 mComposeActivity.get().onSent(null);
             }
         }

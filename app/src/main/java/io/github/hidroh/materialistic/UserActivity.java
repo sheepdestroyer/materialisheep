@@ -331,14 +331,14 @@ public class UserActivity extends ThemedActivity implements Scrollable {
 
         @Override
         public void onResponse(@Nullable UserManager.User response) {
-            if (mUserActivity.get() != null && !mUserActivity.get().isFinishing()) {
+            if (mUserActivity.get() != null && !mUserActivity.get().isDestroyed()) {
                 mUserActivity.get().onUserLoaded(response);
             }
         }
 
         @Override
         public void onError(String errorMessage) {
-            if (mUserActivity.get() != null && !mUserActivity.get().isFinishing()) {
+            if (mUserActivity.get() != null && !mUserActivity.get().isDestroyed()) {
                 Toast.makeText(mUserActivity.get(), R.string.user_failed, Toast.LENGTH_SHORT).show();
             }
         }

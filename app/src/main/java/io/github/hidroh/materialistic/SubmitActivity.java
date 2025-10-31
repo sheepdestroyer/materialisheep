@@ -303,14 +303,14 @@ public class SubmitActivity extends ThemedActivity {
 
         @Override
         public void onDone(boolean successful) {
-            if (mSubmitActivity.get() != null && !mSubmitActivity.get().isFinishing()) {
+            if (mSubmitActivity.get() != null && !mSubmitActivity.get().isDestroyed()) {
                 mSubmitActivity.get().onSubmitted(successful);
             }
         }
 
         @Override
         public void onError(Throwable throwable) {
-            if (mSubmitActivity.get() != null && !mSubmitActivity.get().isFinishing()) {
+            if (mSubmitActivity.get() != null && !mSubmitActivity.get().isDestroyed()) {
                 if (throwable instanceof UserServices.Exception) {
                     UserServices.Exception e = (UserServices.Exception) throwable;
                     mSubmitActivity.get().onError(e.message, e.data);

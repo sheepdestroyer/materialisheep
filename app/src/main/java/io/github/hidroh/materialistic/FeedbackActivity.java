@@ -117,7 +117,7 @@ public class FeedbackActivity extends ThemedActivity {
 
         @Override
         public void onSent(boolean success) {
-            if (mFeedbackActivity.get() != null && !mFeedbackActivity.get().isFinishing()) {
+            if (mFeedbackActivity.get() != null && !mFeedbackActivity.get().isDestroyed()) {
                 mFeedbackActivity.get().onFeedbackSent(success);
             }
         }

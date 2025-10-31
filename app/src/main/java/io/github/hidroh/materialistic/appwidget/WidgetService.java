@@ -35,6 +35,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import static io.github.hidroh.materialistic.DataModule.HN;
+import static io.github.hidroh.materialistic.DataModule.ALGOLIA;
 import io.github.hidroh.materialistic.AppUtils;
 import io.github.hidroh.materialistic.MaterialisticApplication;
 import io.github.hidroh.materialistic.R;
@@ -47,7 +48,7 @@ public class WidgetService extends RemoteViewsService {
     static final String EXTRA_LIGHT_THEME = "extra:lightTheme";
     static final String EXTRA_CUSTOM_QUERY = "extra:customQuery";
     @Inject @Named(HN) ItemManager mItemManager;
-    @Inject @Named("algolia") ItemManager mSearchManager;
+    @Inject @Named(ALGOLIA) ItemManager mSearchManager;
 
     @Override
     public void onCreate() {
