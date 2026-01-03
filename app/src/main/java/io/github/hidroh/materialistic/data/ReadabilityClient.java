@@ -1,9 +1,10 @@
+
 /*
  * Copyright (c) 2015 Ha Duy Trung
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * You may not obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -16,33 +17,43 @@
 
 package io.github.hidroh.materialistic.data;
 
-import androidx.annotation.Keep;
+import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
+import android.webkit.WebResourceError;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.WorkerThread;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import io.github.hidroh.materialistic.AndroidUtils;
-import io.github.hidroh.materialistic.BuildConfig;
 import io.github.hidroh.materialistic.DataModule;
-import io.github.hidroh.materialistic.annotation.Synthetic;
-import retrofit2.http.GET;
-import retrofit2.http.Headers;
-import retrofit2.http.Query;
+import okio.Okio;
 import rx.Observable;
 import rx.Scheduler;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+import rx.subscriptions.Subscriptions;
 
 /**
  * A client for fetching readable content from a URL.
  */
 public interface ReadabilityClient {
-    /**
-     * The host of the Readability API.
-     */
-    String HOST = "mercury.postlight.com";
-
     /**
      * A callback interface for receiving the readable content.
      */
@@ -74,36 +85,25 @@ public interface ReadabilityClient {
     void parse(String itemId, String url);
 
     /**
-     * An implementation of {@link ReadabilityClient} that uses the Mercury Web Parser API.
+     * An implementation of {@link ReadabilityClient} that uses Mozilla's Readability.js.
      */
     class Impl implements ReadabilityClient {
-        private static final CharSequence EMPTY_CONTENT = "<div></div>";
-        private final MercuryService mMercuryService;
         private final LocalCache mCache;
+        private final Context mContext;
         @Inject @Named(DataModule.IO_THREAD) Scheduler mIoScheduler;
         @Inject @Named(DataModule.MAIN_THREAD) Scheduler mMainThreadScheduler;
-
-        interface MercuryService {
-            String MERCURY_API_URL = "https://" + HOST + "/";
-            String X_API_KEY = "x-api-key: ";
-
-            @Headers({RestServiceFactory.CACHE_CONTROL_MAX_AGE_24H,
-                    X_API_KEY + BuildConfig.MERCURY_TOKEN})
-            @GET("parser")
-            Observable<Readable> parse(@Query("url") String url);
-        }
-
-        class Readable {
-            @Keep @Synthetic
-            String content;
-        }
+        private String mReadabilityJs;
 
         @Inject
-        public Impl(LocalCache cache, RestServiceFactory factory) {
-            mMercuryService = factory.rxEnabled(true)
-                    .create(MercuryService.MERCURY_API_URL,
-                            MercuryService.class);
+        public Impl(Context context, LocalCache cache) {
+            mContext = context;
             mCache = cache;
+            try (InputStream inputStream = mContext.getAssets().open("Readability.js")) {
+                mReadabilityJs = Okio.buffer(Okio.source(inputStream)).readUtf8();
+            } catch (IOException e) {
+                Log.e("ReadabilityClient", "Failed to load Readability.js from assets", e);
+                // mReadabilityJs will be null, and fromNetwork will emit null
+            }
         }
 
         @Override
@@ -112,9 +112,8 @@ public interface ReadabilityClient {
                     .subscribeOn(mIoScheduler)
                     .flatMap(content -> content != null ?
                             Observable.just(content) : fromNetwork(itemId, url))
-                    .map(content -> AndroidUtils.TextUtils.equals(EMPTY_CONTENT, content) ? null : content)
                     .observeOn(mMainThreadScheduler)
-                    .subscribe(callback::onResponse);
+                    .subscribe(callback::onResponse, throwable -> callback.onResponse(null));
         }
 
         @WorkerThread
@@ -123,17 +122,76 @@ public interface ReadabilityClient {
             Observable.defer(() -> fromCache(itemId))
                     .subscribeOn(Schedulers.immediate())
                     .switchIfEmpty(fromNetwork(itemId, url))
-                    .map(content -> AndroidUtils.TextUtils.equals(EMPTY_CONTENT, content) ? null : content)
                     .observeOn(Schedulers.immediate())
                     .subscribe();
         }
 
         @NonNull
         private Observable<String> fromNetwork(String itemId, String url) {
-            return mMercuryService.parse(url)
-                    .onErrorReturn(throwable -> null)
-                    .map(readable -> readable == null ? null : readable.content)
-                    .doOnNext(content -> mCache.putReadability(itemId, content));
+            return Observable.create(subscriber -> new Handler(Looper.getMainLooper()).post(() -> {
+                WebView webView = new WebView(mContext);
+                subscriber.add(Subscriptions.create(() -> AndroidSchedulers.mainThread()
+                        .createWorker().schedule(webView::destroy)));
+                final AtomicBoolean isFinished = new AtomicBoolean(false);
+                webView.setWebViewClient(new WebViewClient() {
+                    @Override
+                    public void onPageFinished(WebView view, String url) {
+                        super.onPageFinished(view, url);
+                        if (mReadabilityJs == null) {
+                            if (isFinished.compareAndSet(false, true)) {
+                                subscriber.onNext(null);
+                                subscriber.onCompleted();
+                            }
+                            return;
+                        }
+                        String script = mReadabilityJs + "; new Readability(document).parse();";
+                        view.evaluateJavascript(script, value -> {
+                            if (isFinished.compareAndSet(false, true)) {
+                                String content = null;
+                                if (value != null && !value.equalsIgnoreCase("null")) {
+                                    try {
+                                        JSONObject json = new JSONObject(value);
+                                        content = json.getString("content");
+                                        mCache.putReadability(itemId, content);
+                                    } catch (JSONException e) {
+                                        Log.w("ReadabilityClient", "Failed to parse Readability output", e);
+                                        // content will be null
+                                    }
+                                }
+                                subscriber.onNext(content);
+                                subscriber.onCompleted();
+                            }
+                        });
+                    }
+
+                    @SuppressWarnings("deprecation")
+                    @Override
+                    public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+                        super.onReceivedError(view, errorCode, description, failingUrl);
+                        if (url.equals(failingUrl) && isFinished.compareAndSet(false, true)) {
+                            subscriber.onNext(null);
+                            subscriber.onCompleted();
+                        }
+                    }
+
+                    @Override
+                    public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+                        super.onReceivedError(view, request, error);
+                        if (request.isForMainFrame() && isFinished.compareAndSet(false, true)) {
+                            subscriber.onNext(null);
+                            subscriber.onCompleted();
+                        }
+                    }
+                });
+                WebSettings settings = webView.getSettings();
+                settings.setJavaScriptEnabled(true);
+                settings.setBlockNetworkImage(true);
+                settings.setLoadsImagesAutomatically(false);
+                settings.setAllowFileAccess(false);
+                settings.setAllowContentAccess(false);
+                settings.setGeolocationEnabled(false);
+                webView.loadUrl(url);
+            })).timeout(30, TimeUnit.SECONDS);
         }
 
         private Observable<String> fromCache(String itemId) {

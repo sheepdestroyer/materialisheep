@@ -13,7 +13,6 @@ android {
         versionName "3.3"
         buildConfigField "int", "LATEST_RELEASE", "77"
         buildConfigField "String", "GITHUB_TOKEN", "\"\""
-        buildConfigField "String", "MERCURY_TOKEN", "\"\""
         proguardFiles getDefaultProguardFile('proguard-android.txt'),
                 'proguard-rules.pro',
                 'proguard-square.pro',
