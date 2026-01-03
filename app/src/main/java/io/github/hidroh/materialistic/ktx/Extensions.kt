@@ -33,9 +33,7 @@ import java.io.File
 inline fun Closeable?.closeQuietly() {
     try {
         this?.close()
-    } catch (ignored: RuntimeException) {
-        throw ignored
-    } catch (ignored: Exception) {
+    } catch (ignored: java.io.IOException) {
     }
 }
 

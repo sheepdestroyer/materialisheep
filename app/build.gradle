@@ -12,7 +12,8 @@ android {
         versionCode 79
         def gitHash = { ->
             try {
-                "git rev-parse --short HEAD".execute().text.trim()
+                def hash = "git rev-parse --short HEAD".execute().text.trim()
+                return hash.isEmpty() ? "unknown" : hash
             } catch (Exception e) {
                 "unknown"
             }

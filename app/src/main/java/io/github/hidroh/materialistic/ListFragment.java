@@ -107,7 +107,7 @@ public class ListFragment extends BaseListFragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        ((MaterialisticApplication) getActivity().getApplication()).applicationComponent.inject(this);
+        ((MaterialisticApplication) context.getApplicationContext()).applicationComponent.inject(this);
         if (context instanceof RefreshCallback) {
             mRefreshCallback = (RefreshCallback) context;
         }
