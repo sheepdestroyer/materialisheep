@@ -26,7 +26,7 @@ The codebase is organized into the following packages:
 
 ### Requirements
 
-*   JDK 11
+*   JDK 21
 *   Latest Android SDK tools
 *   Latest Android platform tools
 *   AndroidX
