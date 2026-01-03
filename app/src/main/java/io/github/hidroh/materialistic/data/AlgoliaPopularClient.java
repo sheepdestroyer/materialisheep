@@ -40,8 +40,9 @@ public class AlgoliaPopularClient extends AlgoliaClient {
     /**
      * Constructs a new {@code AlgoliaPopularClient}.
      *
-     * @param factory the {@link RestServiceFactory} to use for creating the REST
-     *                service
+     * @param factory          the {@link RestServiceFactory} to use for creating
+     *                         the REST service
+     * @param hackerNewsClient the {@link ItemManager} for HackerNews items
      */
     @Inject
     public AlgoliaPopularClient(RestServiceFactory factory, @Named(DataModule.HN) ItemManager hackerNewsClient) {

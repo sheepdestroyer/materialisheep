@@ -12,9 +12,9 @@
 
 ### Added
 - Added GitHub Actions workflows for Continuous Integration and Release builds.
-- Added `CI.md` to document the new CI/CD pipeline.
-- Added `AGENTS.md` with instructions for setting up the development environment.
-- Added `TODO.md` to track the remaining build issues.
+- The `CI.md` file documents the new CI/CD pipeline.
+- `AGENTS.md` provides instructions for setting up the development environment.
+- `TODO.md` tracks the remaining build issues.
 - Created a new `MaterialisticApplication` class to initialize Dagger 2.
 - Created a new `ApplicationComponent` and `ApplicationModule` for Dagger 2.
 

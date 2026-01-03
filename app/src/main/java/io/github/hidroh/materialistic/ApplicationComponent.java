@@ -32,41 +32,81 @@ import io.github.hidroh.materialistic.widget.SubmissionRecyclerViewAdapter;
 import io.github.hidroh.materialistic.widget.ThreadPreviewRecyclerViewAdapter;
 
 @Singleton
-@Component(modules = {ApplicationModule.class, ActivityModule.class, UiModule.class})
+@Component(modules = { ApplicationModule.class, ActivityModule.class, UiModule.class })
 public interface ApplicationComponent {
+    // Application
     void inject(MaterialisticApplication application);
+
+    // Services
     void inject(ItemSyncService itemSyncService);
+
     void inject(WidgetService widgetService);
+
     void inject(ItemSyncJobService itemSyncJobService);
+
+    // Activities
     void inject(ItemActivity itemActivity);
+
     void inject(AccountAuthenticatorActivity accountAuthenticatorActivity);
+
     void inject(ComposeActivity composeActivity);
+
     void inject(SettingsActivity settingsActivity);
+
     void inject(FavoriteActivity favoriteActivity);
+
     void inject(PopularActivity popularActivity);
+
     void inject(SearchActivity searchActivity);
+
     void inject(AskActivity askActivity);
+
     void inject(BestActivity bestActivity);
+
     void inject(JobsActivity jobsActivity);
+
     void inject(ListActivity listActivity);
+
     void inject(NewActivity newActivity);
+
     void inject(ShowActivity showActivity);
+
     void inject(FeedbackActivity feedbackActivity);
+
     void inject(OfflineWebActivity offlineWebActivity);
+
     void inject(SubmitActivity submitActivity);
+
     void inject(ThreadPreviewActivity threadPreviewActivity);
+
     void inject(UserActivity userActivity);
+
     void inject(WidgetConfigActivity widgetConfigActivity);
-    void inject(ListFragment listFragment);
-    void inject(WebFragment webFragment);
-    void inject(ItemFragment itemFragment);
-    void inject(StoryRecyclerViewAdapter storyRecyclerViewAdapter);
-    void inject(AlgoliaClient algoliaClient);
+
     void inject(AboutActivity aboutActivity);
+
     void inject(ReleaseNotesActivity releaseNotesActivity);
+
     void inject(LoginActivity loginActivity);
+
+    // Fragments
+    void inject(ListFragment listFragment);
+
+    void inject(WebFragment webFragment);
+
+    void inject(ItemFragment itemFragment);
+
+    // Adapters
+    void inject(StoryRecyclerViewAdapter storyRecyclerViewAdapter);
+
     void inject(MultiPageItemRecyclerViewAdapter multiPageItemRecyclerViewAdapter);
+
     void inject(SinglePageItemRecyclerViewAdapter singlePageItemRecyclerViewAdapter);
+
     void inject(SubmissionRecyclerViewAdapter submissionRecyclerViewAdapter);
+
     void inject(ThreadPreviewRecyclerViewAdapter threadPreviewRecyclerViewAdapter);
+
+    // Clients
+    void inject(AlgoliaClient algoliaClient);
 }
