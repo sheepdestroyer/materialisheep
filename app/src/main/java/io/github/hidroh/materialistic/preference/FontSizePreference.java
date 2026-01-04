@@ -43,7 +43,7 @@ public class FontSizePreference extends SpinnerPreference {
 
     @Override
     protected View createDropDownView(int position, ViewGroup parent) {
-        return mLayoutInflater.inflate(android.R.layout.simple_spinner_dropdown_item, parent, false);
+        return mLayoutInflater.inflate(androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, parent, false);
     }
 
     @Override
