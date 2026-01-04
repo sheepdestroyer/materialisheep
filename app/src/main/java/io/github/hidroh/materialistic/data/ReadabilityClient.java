@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2015 Ha Duy Trung
  *
@@ -45,7 +44,6 @@ import io.github.hidroh.materialistic.DataModule;
 import okio.Okio;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Scheduler;
-import io.reactivex.rxjava3.core.ObservableEmitter;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
@@ -117,6 +115,7 @@ public interface ReadabilityClient {
                     .subscribeOn(mIoScheduler)
                     .switchIfEmpty(fromNetwork(itemId, url))
                     .observeOn(mMainThreadScheduler)
+                    .firstElement()
                     .subscribe(callback::onResponse, throwable -> {
                         android.util.Log.e("ReadabilityClient", "Failed to parse " + url, throwable);
                         callback.onResponse(null);
@@ -164,7 +163,9 @@ public interface ReadabilityClient {
                                         // content will be null
                                     }
                                 }
-                                emitter.onNext(content);
+                                if (content != null) {
+                                    emitter.onNext(content);
+                                }
                                 emitter.onComplete();
                             }
                         });
