@@ -174,12 +174,13 @@ public class AlgoliaClient implements ItemManager {
         /**
          * Asynchronously searches for stories created after a minimum timestamp.
          *
-         * @param timestampSeconds the minimum timestamp in seconds
-         * @param etag             the ETag for a conditional request, can be null
+         * @param numericFilters the numeric filter for creation timestamp (e.g.
+         *                       "created_at_i>12345")
+         * @param etag           the ETag for a conditional request, can be null
          * @return an Observable of search results
          */
         @GET("search?hitsPerPage=100&tags=story&attributesToRetrieve=objectID&attributesToHighlight=none")
-        Observable<AlgoliaHits> searchByMinTimestampRx(@Query("numericFilters") String timestampSeconds,
+        Observable<AlgoliaHits> searchByMinTimestampRx(@Query("numericFilters") String numericFilters,
                 @Header(HEADER_IF_NONE_MATCH) @Nullable String etag);
 
         /**
@@ -207,12 +208,13 @@ public class AlgoliaClient implements ItemManager {
         /**
          * Synchronously searches for stories created after a minimum timestamp.
          *
-         * @param timestampSeconds the minimum timestamp in seconds
-         * @param etag             the ETag for a conditional request, can be null
+         * @param numericFilters the numeric filter for creation timestamp (e.g.
+         *                       "created_at_i>12345")
+         * @param etag           the ETag for a conditional request, can be null
          * @return a {@link Call} of search results
          */
         @GET("search?hitsPerPage=100&tags=story&attributesToRetrieve=objectID&attributesToHighlight=none")
-        Call<AlgoliaHits> searchByMinTimestamp(@Query("numericFilters") String timestampSeconds,
+        Call<AlgoliaHits> searchByMinTimestamp(@Query("numericFilters") String numericFilters,
                 @Header(HEADER_IF_NONE_MATCH) @Nullable String etag);
     }
 
