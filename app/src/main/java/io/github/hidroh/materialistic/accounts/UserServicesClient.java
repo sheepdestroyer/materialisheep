@@ -203,9 +203,20 @@ public class UserServicesClient implements UserServices {
                 .flatMap(array -> !TextUtils.isEmpty(array[1]) ? Observable.just(array)
                         : Observable.error(new IOException()))
                 .flatMap(array -> execute(postSubmit(title, content, isUrl, array[0], array[1])))
-                .flatMap(response -> response.code() == HttpURLConnection.HTTP_MOVED_TEMP
-                        ? Observable.just(Uri.parse(response.header(HEADER_LOCATION)))
-                        : Observable.error(new IOException()))
+                .flatMap(response -> {
+                    try {
+                        if (response.code() == HttpURLConnection.HTTP_MOVED_TEMP) {
+                            String location = response.header(HEADER_LOCATION);
+                            if (!TextUtils.isEmpty(location)) {
+                                return Observable.just(Uri.parse(location));
+                            }
+                        }
+                        return Observable.error(
+                                new IOException("Unexpected redirect or missing Location header: " + response.code()));
+                    } finally {
+                        response.close();
+                    }
+                })
                 .flatMap(uri -> TextUtils.equals(uri.getPath(), DEFAULT_SUBMIT_REDIRECT) ? Observable.just(true)
                         : Observable.error(buildException(uri)))
                 .observeOn(AndroidSchedulers.mainThread())

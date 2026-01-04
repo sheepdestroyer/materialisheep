@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import androidx.core.util.Pair;
+import android.util.Log;
 
 import io.github.hidroh.materialistic.data.Item;
 import io.github.hidroh.materialistic.data.ItemManager;
@@ -43,7 +44,8 @@ public class StoryListViewModel extends ViewModel {
             Observable.fromCallable(() -> mItemManager.getStories(filter, cacheMode))
                     .subscribeOn(mIoThreadScheduler)
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(items -> setItems(items));
+                    .subscribe(items -> setItems(items),
+                            t -> Log.e("StoryListViewModel", "Error loading stories", t));
         }
         return mItems;
     }
@@ -61,7 +63,8 @@ public class StoryListViewModel extends ViewModel {
         Observable.fromCallable(() -> mItemManager.getStories(filter, cacheMode))
                 .subscribeOn(mIoThreadScheduler)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(items -> setItems(items));
+                .subscribe(items -> setItems(items),
+                        t -> Log.e("StoryListViewModel", "Error refreshing stories", t));
 
     }
 

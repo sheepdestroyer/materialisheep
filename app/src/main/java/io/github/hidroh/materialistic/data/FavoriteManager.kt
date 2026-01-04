@@ -209,7 +209,7 @@ class FavoriteManager @Inject constructor(
    */
   fun remove(context: Context, itemIds: Collection<String>?) {
     if (itemIds.orEmpty().isEmpty()) return
-    Observable.defer { Observable.fromIterable(itemIds!!) }
+    Observable.defer { Observable.fromIterable(itemIds.orEmpty()) }
         .subscribeOn(ioScheduler)
         .doOnNext { delete(it) }
         .map { buildRemoved().appendPath(it).build() }

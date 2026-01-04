@@ -115,12 +115,12 @@ public interface ReadabilityClient {
         public void parse(String itemId, String url, Callback callback) {
             Observable.defer(() -> fromCache(itemId))
                     .subscribeOn(mIoScheduler)
-                    .flatMap(content -> content != null ? Observable.just(content) : fromNetwork(itemId, url))
+                    .switchIfEmpty(fromNetwork(itemId, url))
                     .observeOn(mMainThreadScheduler)
                     .subscribe(callback::onResponse, throwable -> {
                         android.util.Log.e("ReadabilityClient", "Failed to parse " + url, throwable);
                         callback.onResponse(null);
-                    });
+                    }, () -> callback.onResponse(null));
         }
 
         @WorkerThread
@@ -146,7 +146,6 @@ public interface ReadabilityClient {
                         super.onPageFinished(view, url);
                         if (mReadabilityJs == null) {
                             if (isFinished.compareAndSet(false, true)) {
-                                emitter.onNext(null);
                                 emitter.onComplete();
                             }
                             return;
@@ -176,7 +175,6 @@ public interface ReadabilityClient {
                     public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
                         super.onReceivedError(view, errorCode, description, failingUrl);
                         if (url.equals(failingUrl) && isFinished.compareAndSet(false, true)) {
-                            emitter.onNext(null);
                             emitter.onComplete();
                         }
                     }
@@ -185,7 +183,6 @@ public interface ReadabilityClient {
                     public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
                         super.onReceivedError(view, request, error);
                         if (request.isForMainFrame() && isFinished.compareAndSet(false, true)) {
-                            emitter.onNext(null);
                             emitter.onComplete();
                         }
                     }
@@ -202,7 +199,8 @@ public interface ReadabilityClient {
         }
 
         private Observable<String> fromCache(String itemId) {
-            return Observable.just(mCache.getReadability(itemId));
+            String content = mCache.getReadability(itemId);
+            return content != null ? Observable.just(content) : Observable.empty();
         }
     }
 }
