@@ -100,7 +100,7 @@ public class AlgoliaClient implements ItemManager {
      */
     protected Observable<AlgoliaHits> searchRx(String filter) {
         // TODO add ETag header
-        return sSortByTime ? mRestService.searchByDateRx(filter) : mRestService.searchRx(filter);
+        return sSortByTime ? mRestService.searchByDateRx(filter, null) : mRestService.searchRx(filter, null);
     }
 
     /**
@@ -110,7 +110,7 @@ public class AlgoliaClient implements ItemManager {
      * @return a {@link Call} that can be used to execute the search
      */
     protected Call<AlgoliaHits> search(String filter) {
-        return sSortByTime ? mRestService.searchByDate(filter) : mRestService.search(filter);
+        return sSortByTime ? mRestService.searchByDate(filter, null) : mRestService.search(filter, null);
     }
 
     @NonNull
@@ -132,19 +132,22 @@ public class AlgoliaClient implements ItemManager {
 
     interface RestService {
         @GET("search_by_date?hitsPerPage=100&tags=story&attributesToRetrieve=objectID&attributesToHighlight=none")
-        Observable<AlgoliaHits> searchByDateRx(@Query("query") String query);
+        Observable<AlgoliaHits> searchByDateRx(@Query("query") String query,
+                @retrofit2.http.Header("If-None-Match") String etag);
 
         @GET("search?hitsPerPage=100&tags=story&attributesToRetrieve=objectID&attributesToHighlight=none")
-        Observable<AlgoliaHits> searchRx(@Query("query") String query);
+        Observable<AlgoliaHits> searchRx(@Query("query") String query,
+                @retrofit2.http.Header("If-None-Match") String etag);
 
         @GET("search?hitsPerPage=100&tags=story&attributesToRetrieve=objectID&attributesToHighlight=none")
         Observable<AlgoliaHits> searchByMinTimestampRx(@Query("numericFilters") String timestampSeconds);
 
         @GET("search_by_date?hitsPerPage=100&tags=story&attributesToRetrieve=objectID&attributesToHighlight=none")
-        Call<AlgoliaHits> searchByDate(@Query("query") String query);
+        Call<AlgoliaHits> searchByDate(@Query("query") String query,
+                @retrofit2.http.Header("If-None-Match") String etag);
 
         @GET("search?hitsPerPage=100&tags=story&attributesToRetrieve=objectID&attributesToHighlight=none")
-        Call<AlgoliaHits> search(@Query("query") String query);
+        Call<AlgoliaHits> search(@Query("query") String query, @retrofit2.http.Header("If-None-Match") String etag);
 
         @GET("search?hitsPerPage=100&tags=story&attributesToRetrieve=objectID&attributesToHighlight=none")
         Call<AlgoliaHits> searchByMinTimestamp(@Query("numericFilters") String timestampSeconds);
