@@ -29,6 +29,7 @@ import io.github.hidroh.materialistic.DataModule;
 import io.github.hidroh.materialistic.annotation.Synthetic;
 import retrofit2.Call;
 import retrofit2.http.GET;
+import retrofit2.http.Header;
 import retrofit2.http.Query;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Scheduler;
@@ -99,7 +100,7 @@ public class AlgoliaClient implements ItemManager {
      * @return an {@link Observable} that emits the search results
      */
     protected Observable<AlgoliaHits> searchRx(String filter) {
-        // TODO add ETag header
+        // TODO persist and use ETag values
         return sSortByTime ? mRestService.searchByDateRx(filter, null) : mRestService.searchRx(filter, null);
     }
 
@@ -110,6 +111,7 @@ public class AlgoliaClient implements ItemManager {
      * @return a {@link Call} that can be used to execute the search
      */
     protected Call<AlgoliaHits> search(String filter) {
+        // TODO persist and use ETag values
         return sSortByTime ? mRestService.searchByDate(filter, null) : mRestService.search(filter, null);
     }
 
@@ -133,21 +135,22 @@ public class AlgoliaClient implements ItemManager {
     interface RestService {
         @GET("search_by_date?hitsPerPage=100&tags=story&attributesToRetrieve=objectID&attributesToHighlight=none")
         Observable<AlgoliaHits> searchByDateRx(@Query("query") String query,
-                @retrofit2.http.Header("If-None-Match") String etag);
+                @Header("If-None-Match") String etag);
 
         @GET("search?hitsPerPage=100&tags=story&attributesToRetrieve=objectID&attributesToHighlight=none")
         Observable<AlgoliaHits> searchRx(@Query("query") String query,
-                @retrofit2.http.Header("If-None-Match") String etag);
+                @Header("If-None-Match") String etag);
 
         @GET("search?hitsPerPage=100&tags=story&attributesToRetrieve=objectID&attributesToHighlight=none")
         Observable<AlgoliaHits> searchByMinTimestampRx(@Query("numericFilters") String timestampSeconds);
 
         @GET("search_by_date?hitsPerPage=100&tags=story&attributesToRetrieve=objectID&attributesToHighlight=none")
         Call<AlgoliaHits> searchByDate(@Query("query") String query,
-                @retrofit2.http.Header("If-None-Match") String etag);
+                @Header("If-None-Match") String etag);
 
         @GET("search?hitsPerPage=100&tags=story&attributesToRetrieve=objectID&attributesToHighlight=none")
-        Call<AlgoliaHits> search(@Query("query") String query, @retrofit2.http.Header("If-None-Match") String etag);
+        Call<AlgoliaHits> search(@Query("query") String query,
+                @Header("If-None-Match") String etag);
 
         @GET("search?hitsPerPage=100&tags=story&attributesToRetrieve=objectID&attributesToHighlight=none")
         Call<AlgoliaHits> searchByMinTimestamp(@Query("numericFilters") String timestampSeconds);
