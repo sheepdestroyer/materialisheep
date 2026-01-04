@@ -23,14 +23,12 @@ import javax.inject.Named;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import static io.github.hidroh.materialistic.DataModule.HN;
 import io.github.hidroh.materialistic.ActivityModule;
 import io.github.hidroh.materialistic.DataModule;
 import io.github.hidroh.materialistic.annotation.Synthetic;
 import retrofit2.Call;
 import retrofit2.http.GET;
-import retrofit2.http.Header;
 import retrofit2.http.Query;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Scheduler;
@@ -49,7 +47,6 @@ public class AlgoliaClient implements ItemManager {
      */
     public static final String HOST = "hn.algolia.com";
     private static final String BASE_API_URL = "https://" + HOST + "/api/v1/";
-
     static final String MIN_CREATED_AT = "created_at_i>";
     protected final RestService mRestService;
     private final ItemManager mHackerNewsClient;
@@ -63,13 +60,6 @@ public class AlgoliaClient implements ItemManager {
         mMainThreadScheduler = mainThreadScheduler;
     }
 
-    /**
-     * Fetches stories from the Algolia API.
-     *
-     * @param filter    the filter to apply (e.g., query string or range)
-     * @param cacheMode the {@link CacheMode} to use
-     * @param listener  the {@link ResponseListener} to notify of the results
-     */
     @Override
     public void getStories(String filter, @CacheMode int cacheMode,
             final ResponseListener<Item[]> listener) {
@@ -88,13 +78,6 @@ public class AlgoliaClient implements ItemManager {
         mHackerNewsClient.getItem(itemId, cacheMode, listener);
     }
 
-    /**
-     * Fetches stories from the Algolia API synchronously.
-     *
-     * @param filter    the filter to apply
-     * @param cacheMode the {@link CacheMode} to use
-     * @return an array of {@link Item}s
-     */
     @Override
     public Item[] getStories(String filter, @CacheMode int cacheMode) {
         try {
@@ -116,7 +99,8 @@ public class AlgoliaClient implements ItemManager {
      * @return an {@link Observable} that emits the search results
      */
     protected Observable<AlgoliaHits> searchRx(String filter) {
-        return sSortByTime ? mRestService.searchByDateRx(filter, null) : mRestService.searchRx(filter, null);
+        // TODO add ETag header
+        return sSortByTime ? mRestService.searchByDateRx(filter) : mRestService.searchRx(filter);
     }
 
     /**
@@ -126,7 +110,7 @@ public class AlgoliaClient implements ItemManager {
      * @return a {@link Call} that can be used to execute the search
      */
     protected Call<AlgoliaHits> search(String filter) {
-        return sSortByTime ? mRestService.searchByDate(filter, null) : mRestService.search(filter, null);
+        return sSortByTime ? mRestService.searchByDate(filter) : mRestService.search(filter);
     }
 
     @NonNull
@@ -147,75 +131,23 @@ public class AlgoliaClient implements ItemManager {
     }
 
     interface RestService {
-        String HEADER_IF_NONE_MATCH = "If-None-Match";
-
-        /**
-         * Asynchronously searches for stories by date.
-         *
-         * @param query the search query
-         * @param etag  the ETag for a conditional request, can be null
-         * @return an Observable of search results
-         */
         @GET("search_by_date?hitsPerPage=100&tags=story&attributesToRetrieve=objectID&attributesToHighlight=none")
-        Observable<AlgoliaHits> searchByDateRx(@Query("query") String query,
-                @Header(HEADER_IF_NONE_MATCH) @Nullable String etag);
+        Observable<AlgoliaHits> searchByDateRx(@Query("query") String query);
 
-        /**
-         * Asynchronously searches for stories.
-         *
-         * @param query the search query
-         * @param etag  the ETag for a conditional request, can be null
-         * @return an Observable of search results
-         */
         @GET("search?hitsPerPage=100&tags=story&attributesToRetrieve=objectID&attributesToHighlight=none")
-        Observable<AlgoliaHits> searchRx(@Query("query") String query,
-                @Header(HEADER_IF_NONE_MATCH) @Nullable String etag);
+        Observable<AlgoliaHits> searchRx(@Query("query") String query);
 
-        /**
-         * Asynchronously searches for stories created after a minimum timestamp.
-         *
-         * @param numericFilters the numeric filter for creation timestamp (e.g.
-         *                       "created_at_i>12345")
-         * @param etag           the ETag for a conditional request, can be null
-         * @return an Observable of search results
-         */
         @GET("search?hitsPerPage=100&tags=story&attributesToRetrieve=objectID&attributesToHighlight=none")
-        Observable<AlgoliaHits> searchByMinTimestampRx(@Query("numericFilters") String numericFilters,
-                @Header(HEADER_IF_NONE_MATCH) @Nullable String etag);
+        Observable<AlgoliaHits> searchByMinTimestampRx(@Query("numericFilters") String timestampSeconds);
 
-        /**
-         * Synchronously searches for stories by date.
-         *
-         * @param query the search query
-         * @param etag  the ETag for a conditional request, can be null
-         * @return a {@link Call} of search results
-         */
         @GET("search_by_date?hitsPerPage=100&tags=story&attributesToRetrieve=objectID&attributesToHighlight=none")
-        Call<AlgoliaHits> searchByDate(@Query("query") String query,
-                @Header(HEADER_IF_NONE_MATCH) @Nullable String etag);
+        Call<AlgoliaHits> searchByDate(@Query("query") String query);
 
-        /**
-         * Synchronously searches for stories.
-         *
-         * @param query the search query
-         * @param etag  the ETag for a conditional request, can be null
-         * @return a {@link Call} of search results
-         */
         @GET("search?hitsPerPage=100&tags=story&attributesToRetrieve=objectID&attributesToHighlight=none")
-        Call<AlgoliaHits> search(@Query("query") String query,
-                @Header(HEADER_IF_NONE_MATCH) @Nullable String etag);
+        Call<AlgoliaHits> search(@Query("query") String query);
 
-        /**
-         * Synchronously searches for stories created after a minimum timestamp.
-         *
-         * @param numericFilters the numeric filter for creation timestamp (e.g.
-         *                       "created_at_i>12345")
-         * @param etag           the ETag for a conditional request, can be null
-         * @return a {@link Call} of search results
-         */
         @GET("search?hitsPerPage=100&tags=story&attributesToRetrieve=objectID&attributesToHighlight=none")
-        Call<AlgoliaHits> searchByMinTimestamp(@Query("numericFilters") String numericFilters,
-                @Header(HEADER_IF_NONE_MATCH) @Nullable String etag);
+        Call<AlgoliaHits> searchByMinTimestamp(@Query("numericFilters") String timestampSeconds);
     }
 
     static class AlgoliaHits {
