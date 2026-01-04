@@ -35,4 +35,16 @@ abstract class RecyclerViewAdapter<VH extends RecyclerView.ViewHolder> extends R
         mContext = null;
         mRecyclerView = null;
     }
+
+    @Override
+    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        attach(recyclerView.getContext(), recyclerView);
+    }
+
+    @Override
+    public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView);
+        detach(recyclerView.getContext(), recyclerView);
+    }
 }
