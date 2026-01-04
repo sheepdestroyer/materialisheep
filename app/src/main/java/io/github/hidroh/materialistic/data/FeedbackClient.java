@@ -28,8 +28,8 @@ import io.github.hidroh.materialistic.annotation.Synthetic;
 import retrofit2.http.Body;
 import retrofit2.http.Headers;
 import retrofit2.http.POST;
-import rx.Observable;
-import rx.Scheduler;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Scheduler;
 
 /**
  * A client for sending feedback.
@@ -42,7 +42,8 @@ public interface FeedbackClient {
         /**
          * Called when the feedback has been sent.
          *
-         * @param success `true` if the feedback was sent successfully, `false` otherwise
+         * @param success `true` if the feedback was sent successfully, `false`
+         *                otherwise
          */
         void onSent(boolean success);
     }
@@ -57,7 +58,8 @@ public interface FeedbackClient {
     void send(String title, String body, Callback callback);
 
     /**
-     * An implementation of {@link FeedbackClient} that sends feedback as a GitHub issue.
+     * An implementation of {@link FeedbackClient} that sends feedback as a GitHub
+     * issue.
      */
     class Impl implements FeedbackClient {
         private final FeedbackService mFeedbackService;
@@ -65,7 +67,7 @@ public interface FeedbackClient {
 
         @Inject
         public Impl(RestServiceFactory factory,
-                    @Named(DataModule.MAIN_THREAD) Scheduler mainThreadScheduler) {
+                @Named(DataModule.MAIN_THREAD) Scheduler mainThreadScheduler) {
             mFeedbackService = factory.rxEnabled(true)
                     .create(FeedbackService.GITHUB_API_URL, FeedbackService.class);
             mMainThreadScheduler = mainThreadScheduler;
@@ -97,18 +99,21 @@ public interface FeedbackClient {
         static class Issue {
             private static final String LABEL_FEEDBACK = "feedback";
 
-            @Keep @Synthetic
+            @Keep
+            @Synthetic
             final String title;
-            @Keep @Synthetic
+            @Keep
+            @Synthetic
             final String body;
-            @Keep @Synthetic
+            @Keep
+            @Synthetic
             final String[] labels;
 
             @Synthetic
             Issue(String title, String body) {
                 this.title = title;
                 this.body = body;
-                this.labels = new String[]{LABEL_FEEDBACK};
+                this.labels = new String[] { LABEL_FEEDBACK };
             }
         }
     }

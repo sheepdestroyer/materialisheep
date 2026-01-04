@@ -26,9 +26,9 @@ import javax.inject.Inject;
 
 import okhttp3.Call;
 import retrofit2.Retrofit;
-import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
+import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
-import rx.schedulers.Schedulers;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 /**
  * A factory for creating REST services.
@@ -43,7 +43,8 @@ public interface RestServiceFactory {
      */
     String CACHE_CONTROL_FORCE_NETWORK = "Cache-Control: no-cache";
     /**
-     * A cache control header that sets the maximum age of cached data to 30 minutes.
+     * A cache control header that sets the maximum age of cached data to 30
+     * minutes.
      */
     String CACHE_CONTROL_MAX_AGE_30M = "Cache-Control: max-age=" + (30 * 60);
     /**
@@ -107,12 +108,11 @@ public interface RestServiceFactory {
         public <T> T create(String baseUrl, Class<T> clazz, Executor callbackExecutor) {
             Retrofit.Builder builder = new Retrofit.Builder();
             if (mRxEnabled) {
-                builder.addCallAdapterFactory(RxJavaCallAdapterFactory
+                builder.addCallAdapterFactory(RxJava3CallAdapterFactory
                         .createWithScheduler(Schedulers.io()));
             }
             builder.callFactory(mCallFactory)
-                    .callbackExecutor(callbackExecutor != null ?
-                            callbackExecutor : new MainThreadExecutor());
+                    .callbackExecutor(callbackExecutor != null ? callbackExecutor : new MainThreadExecutor());
             return builder.baseUrl(baseUrl)
                     .addConverterFactory(GsonConverterFactory.create())
                     .build()
@@ -123,7 +123,8 @@ public interface RestServiceFactory {
     class MainThreadExecutor implements Executor {
         private final Handler handler = new Handler(Looper.getMainLooper());
 
-        @Override public void execute(@NonNull Runnable r) {
+        @Override
+        public void execute(@NonNull Runnable r) {
             handler.post(r);
         }
     }

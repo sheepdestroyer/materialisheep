@@ -45,7 +45,7 @@ import io.github.hidroh.materialistic.data.Item;
 import io.github.hidroh.materialistic.data.ItemManager;
 import io.github.hidroh.materialistic.data.MaterialisticDatabase;
 import io.github.hidroh.materialistic.widget.StoryRecyclerViewAdapter;
-import rx.Scheduler;
+import io.reactivex.rxjava3.core.Scheduler;
 
 /**
  * A fragment that displays a list of stories.

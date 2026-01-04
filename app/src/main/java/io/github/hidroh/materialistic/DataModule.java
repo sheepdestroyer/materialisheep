@@ -38,9 +38,9 @@ import io.github.hidroh.materialistic.data.SyncScheduler;
 import io.github.hidroh.materialistic.data.UserManager;
 import io.github.hidroh.materialistic.data.android.Cache;
 import okhttp3.Call;
-import rx.Scheduler;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import io.reactivex.rxjava3.core.Scheduler;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 /**
  * Dagger module for data-related dependencies.
@@ -59,7 +59,9 @@ public class DataModule {
      * @param client The {@link HackerNewsClient} instance.
      * @return The singleton instance of {@link HackerNewsClient}.
      */
-    @Provides @Singleton @Named(HN)
+    @Provides
+    @Singleton
+    @Named(HN)
     public ItemManager provideHackerNewsClient(HackerNewsClient client) {
         return client;
     }
@@ -70,7 +72,9 @@ public class DataModule {
      * @param client The {@link AlgoliaClient} instance.
      * @return The singleton instance of {@link AlgoliaClient}.
      */
-    @Provides @Singleton @Named(ALGOLIA)
+    @Provides
+    @Singleton
+    @Named(ALGOLIA)
     public ItemManager provideAlgoliaClient(AlgoliaClient client) {
         return client;
     }
@@ -81,7 +85,9 @@ public class DataModule {
      * @param client The {@link AlgoliaPopularClient} instance.
      * @return The singleton instance of {@link AlgoliaPopularClient}.
      */
-    @Provides @Singleton @Named(POPULAR)
+    @Provides
+    @Singleton
+    @Named(POPULAR)
     public ItemManager provideAlgoliaPopularClient(AlgoliaPopularClient client) {
         return client;
     }
@@ -92,7 +98,8 @@ public class DataModule {
      * @param client The {@link HackerNewsClient} instance.
      * @return The singleton instance of {@link UserManager}.
      */
-    @Provides @Singleton
+    @Provides
+    @Singleton
     public UserManager provideUserManager(HackerNewsClient client) {
         return client;
     }
@@ -103,7 +110,8 @@ public class DataModule {
      * @param client The {@link FeedbackClient.Impl} instance.
      * @return The singleton instance of {@link FeedbackClient}.
      */
-    @Provides @Singleton
+    @Provides
+    @Singleton
     public FeedbackClient provideFeedbackClient(FeedbackClient.Impl client) {
         return client;
     }
@@ -114,7 +122,8 @@ public class DataModule {
      * @param client The {@link ReadabilityClient.Impl} instance.
      * @return The singleton instance of {@link ReadabilityClient}.
      */
-    @Provides @Singleton
+    @Provides
+    @Singleton
     public ReadabilityClient provideReadabilityClient(ReadabilityClient.Impl client) {
         return client;
     }
@@ -126,9 +135,10 @@ public class DataModule {
      * @param ioScheduler The IO scheduler.
      * @return The singleton instance of {@link UserServices}.
      */
-    @Provides @Singleton
+    @Provides
+    @Singleton
     public UserServices provideUserServices(Call.Factory callFactory,
-                                            @Named(IO_THREAD) Scheduler ioScheduler) {
+            @Named(IO_THREAD) Scheduler ioScheduler) {
         return new UserServicesClient(callFactory, ioScheduler);
     }
 
@@ -137,7 +147,9 @@ public class DataModule {
      *
      * @return The IO scheduler.
      */
-    @Provides @Singleton @Named(IO_THREAD)
+    @Provides
+    @Singleton
+    @Named(IO_THREAD)
     public Scheduler provideIoScheduler() {
         return Schedulers.io();
     }
@@ -147,7 +159,9 @@ public class DataModule {
      *
      * @return The main thread scheduler.
      */
-    @Provides @Singleton @Named(MAIN_THREAD)
+    @Provides
+    @Singleton
+    @Named(MAIN_THREAD)
     public Scheduler provideMainThreadScheduler() {
         return AndroidSchedulers.mainThread();
     }
@@ -157,7 +171,8 @@ public class DataModule {
      *
      * @return The singleton instance of {@link SyncScheduler}.
      */
-    @Provides @Singleton
+    @Provides
+    @Singleton
     public SyncScheduler provideSyncScheduler() {
         return new SyncScheduler();
     }
@@ -168,7 +183,8 @@ public class DataModule {
      * @param cache The {@link Cache} instance.
      * @return The singleton instance of {@link LocalCache}.
      */
-    @Provides @Singleton
+    @Provides
+    @Singleton
     public LocalCache provideLocalCache(Cache cache) {
         return cache;
     }
@@ -179,16 +195,19 @@ public class DataModule {
      * @param context The application context.
      * @return The singleton instance of {@link MaterialisticDatabase}.
      */
-    @Provides @Singleton
+    @Provides
+    @Singleton
     public MaterialisticDatabase provideDatabase(Context context) {
         return MaterialisticDatabase.getInstance(context);
     }
 
     /**
-     * Provides a singleton instance of {@link MaterialisticDatabase.SavedStoriesDao}.
+     * Provides a singleton instance of
+     * {@link MaterialisticDatabase.SavedStoriesDao}.
      *
      * @param database The {@link MaterialisticDatabase} instance.
-     * @return The singleton instance of {@link MaterialisticDatabase.SavedStoriesDao}.
+     * @return The singleton instance of
+     *         {@link MaterialisticDatabase.SavedStoriesDao}.
      */
     @Provides
     public MaterialisticDatabase.SavedStoriesDao provideSavedStoriesDao(MaterialisticDatabase database) {
@@ -196,10 +215,12 @@ public class DataModule {
     }
 
     /**
-     * Provides a singleton instance of {@link MaterialisticDatabase.ReadStoriesDao}.
+     * Provides a singleton instance of
+     * {@link MaterialisticDatabase.ReadStoriesDao}.
      *
      * @param database The {@link MaterialisticDatabase} instance.
-     * @return The singleton instance of {@link MaterialisticDatabase.ReadStoriesDao}.
+     * @return The singleton instance of
+     *         {@link MaterialisticDatabase.ReadStoriesDao}.
      */
     @Provides
     public MaterialisticDatabase.ReadStoriesDao provideReadStoriesDao(MaterialisticDatabase database) {

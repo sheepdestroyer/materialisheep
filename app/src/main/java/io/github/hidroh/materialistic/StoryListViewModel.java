@@ -7,9 +7,9 @@ import androidx.core.util.Pair;
 
 import io.github.hidroh.materialistic.data.Item;
 import io.github.hidroh.materialistic.data.ItemManager;
-import rx.Observable;
-import rx.Scheduler;
-import rx.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Scheduler;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 
 /**
  * A view model that provides a list of stories.
@@ -22,7 +22,7 @@ public class StoryListViewModel extends ViewModel {
     /**
      * Injects the dependencies.
      *
-     * @param itemManager      The item manager.
+     * @param itemManager       The item manager.
      * @param ioThreadScheduler The I/O thread scheduler.
      */
     public void inject(ItemManager itemManager, Scheduler ioThreadScheduler) {

@@ -22,7 +22,7 @@ import android.graphics.Typeface;
 import androidx.appcompat.app.AppCompatDelegate;
 import android.os.StrictMode;
 import io.github.hidroh.materialistic.data.AlgoliaClient;
-import rx.schedulers.Schedulers;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class MaterialisticApplication extends android.app.Application {
     public static Typeface TYPE_FACE = null;

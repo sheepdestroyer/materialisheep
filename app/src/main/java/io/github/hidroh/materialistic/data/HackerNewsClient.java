@@ -28,8 +28,8 @@ import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Headers;
 import retrofit2.http.Path;
-import rx.Observable;
-import rx.Scheduler;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Scheduler;
 
 /**
  * A client that retrieves content from the Hacker News API.
@@ -48,8 +48,12 @@ public class HackerNewsClient implements ItemManager, UserManager {
      */
     public static final String WEB_ITEM_PATH = BASE_WEB_URL + "/item?id=%s";
     static final String BASE_API_URL = "https://" + HOST + "/v0/";
-    @Inject @Named(DataModule.IO_THREAD) Scheduler mIoScheduler;
-    @Inject @Named(DataModule.MAIN_THREAD) Scheduler mMainThreadScheduler;
+    @Inject
+    @Named(DataModule.IO_THREAD)
+    Scheduler mIoScheduler;
+    @Inject
+    @Named(DataModule.MAIN_THREAD)
+    Scheduler mMainThreadScheduler;
     private final RestService mRestService;
     private final SessionManager mSessionManager;
     private final FavoriteManager mFavoriteManager;
@@ -57,14 +61,17 @@ public class HackerNewsClient implements ItemManager, UserManager {
     /**
      * Constructs a new {@code HackerNewsClient}.
      *
-     * @param factory         the {@link RestServiceFactory} to use for creating the REST service
-     * @param sessionManager  the {@link SessionManager} to use for managing user sessions
-     * @param favoriteManager the {@link FavoriteManager} to use for managing favorite items
+     * @param factory         the {@link RestServiceFactory} to use for creating the
+     *                        REST service
+     * @param sessionManager  the {@link SessionManager} to use for managing user
+     *                        sessions
+     * @param favoriteManager the {@link FavoriteManager} to use for managing
+     *                        favorite items
      */
     @Inject
     public HackerNewsClient(RestServiceFactory factory,
-                            SessionManager sessionManager,
-                            FavoriteManager favoriteManager) {
+            SessionManager sessionManager,
+            FavoriteManager favoriteManager) {
         mRestService = factory.rxEnabled(true).create(BASE_API_URL, RestService.class);
         mSessionManager = sessionManager;
         mFavoriteManager = favoriteManager;
@@ -72,7 +79,7 @@ public class HackerNewsClient implements ItemManager, UserManager {
 
     @Override
     public void getStories(@FetchMode String filter, @CacheMode int cacheMode,
-                           final ResponseListener<Item[]> listener) {
+            final ResponseListener<Item[]> listener) {
         if (listener == null) {
             return;
         }
@@ -99,7 +106,7 @@ public class HackerNewsClient implements ItemManager, UserManager {
                 break;
             case MODE_CACHE:
                 itemObservable = mRestService.cachedItemRx(itemId)
-                        .onErrorResumeNext(mRestService.itemRx(itemId));
+                        .onErrorResumeNext(t -> mRestService.itemRx(itemId));
                 break;
         }
         Observable.defer(() -> Observable.zip(
@@ -173,28 +180,28 @@ public class HackerNewsClient implements ItemManager, UserManager {
         Observable<int[]> observable;
         switch (filter) {
             case NEW_FETCH_MODE:
-                observable = cacheMode == MODE_NETWORK ?
-                        mRestService.networkNewStoriesRx() : mRestService.newStoriesRx();
+                observable = cacheMode == MODE_NETWORK ? mRestService.networkNewStoriesRx()
+                        : mRestService.newStoriesRx();
                 break;
             case SHOW_FETCH_MODE:
-                observable = cacheMode == MODE_NETWORK ?
-                        mRestService.networkShowStoriesRx() : mRestService.showStoriesRx();
+                observable = cacheMode == MODE_NETWORK ? mRestService.networkShowStoriesRx()
+                        : mRestService.showStoriesRx();
                 break;
             case ASK_FETCH_MODE:
-                observable = cacheMode == MODE_NETWORK ?
-                        mRestService.networkAskStoriesRx() : mRestService.askStoriesRx();
+                observable = cacheMode == MODE_NETWORK ? mRestService.networkAskStoriesRx()
+                        : mRestService.askStoriesRx();
                 break;
             case JOBS_FETCH_MODE:
-                observable = cacheMode == MODE_NETWORK ?
-                        mRestService.networkJobStoriesRx() : mRestService.jobStoriesRx();
+                observable = cacheMode == MODE_NETWORK ? mRestService.networkJobStoriesRx()
+                        : mRestService.jobStoriesRx();
                 break;
             case BEST_FETCH_MODE:
-                observable = cacheMode == MODE_NETWORK ?
-                        mRestService.networkBestStoriesRx() : mRestService.bestStoriesRx();
+                observable = cacheMode == MODE_NETWORK ? mRestService.networkBestStoriesRx()
+                        : mRestService.bestStoriesRx();
                 break;
             default:
-                observable = cacheMode == MODE_NETWORK ?
-                        mRestService.networkTopStoriesRx() : mRestService.topStoriesRx();
+                observable = cacheMode == MODE_NETWORK ? mRestService.networkTopStoriesRx()
+                        : mRestService.topStoriesRx();
                 break;
         }
         return observable.map(this::toItems);
@@ -205,33 +212,26 @@ public class HackerNewsClient implements ItemManager, UserManager {
         Call<int[]> call;
         if (filter == null) {
             // for legacy 'new stories' widgets
-            return cacheMode == MODE_NETWORK ?
-                    mRestService.networkNewStories() : mRestService.newStories();
+            return cacheMode == MODE_NETWORK ? mRestService.networkNewStories() : mRestService.newStories();
         }
         switch (filter) {
             case NEW_FETCH_MODE:
-                call = cacheMode == MODE_NETWORK ?
-                        mRestService.networkNewStories() : mRestService.newStories();
+                call = cacheMode == MODE_NETWORK ? mRestService.networkNewStories() : mRestService.newStories();
                 break;
             case SHOW_FETCH_MODE:
-                call = cacheMode == MODE_NETWORK ?
-                        mRestService.networkShowStories() : mRestService.showStories();
+                call = cacheMode == MODE_NETWORK ? mRestService.networkShowStories() : mRestService.showStories();
                 break;
             case ASK_FETCH_MODE:
-                call = cacheMode == MODE_NETWORK ?
-                        mRestService.networkAskStories() : mRestService.askStories();
+                call = cacheMode == MODE_NETWORK ? mRestService.networkAskStories() : mRestService.askStories();
                 break;
             case JOBS_FETCH_MODE:
-                call = cacheMode == MODE_NETWORK ?
-                        mRestService.networkJobStories() : mRestService.jobStories();
+                call = cacheMode == MODE_NETWORK ? mRestService.networkJobStories() : mRestService.jobStories();
                 break;
             case BEST_FETCH_MODE:
-                call = cacheMode == MODE_NETWORK ?
-                        mRestService.networkBestStories() : mRestService.bestStories();
+                call = cacheMode == MODE_NETWORK ? mRestService.networkBestStories() : mRestService.bestStories();
                 break;
             default:
-                call = cacheMode == MODE_NETWORK ?
-                        mRestService.networkTopStories() : mRestService.topStories();
+                call = cacheMode == MODE_NETWORK ? mRestService.networkTopStories() : mRestService.topStories();
                 break;
         }
         return call;
@@ -239,7 +239,7 @@ public class HackerNewsClient implements ItemManager, UserManager {
 
     private HackerNewsItem[] toItems(int[] ids) {
         if (ids == null) {
-            return null;
+            return new HackerNewsItem[0];
         }
         HackerNewsItem[] items = new HackerNewsItem[ids.length];
         for (int i = 0; i < items.length; i++) {

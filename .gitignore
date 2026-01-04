@@ -48,3 +48,6 @@ git_*.txt
 status_output.txt
 *_err.txt
 .DS_Store
+
+.gemini/
+gha-creds-*.json

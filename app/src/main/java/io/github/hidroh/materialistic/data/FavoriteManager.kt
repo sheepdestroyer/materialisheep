@@ -37,9 +37,9 @@ import io.github.hidroh.materialistic.ktx.toSendIntentChooser
 import okio.Okio
 import okio.buffer
 import okio.sink
-import rx.Observable
-import rx.Scheduler
-import rx.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import java.io.File
 import java.io.IOException
 import javax.inject.Inject
@@ -135,23 +135,23 @@ class FavoriteManager @Inject constructor(
   fun export(context: Context, query: String?) {
     val appContext = context.applicationContext
     notifyExportStart(appContext)
-    Observable.defer { Observable.just(query) }
+    Observable.defer { Observable.just(query ?: "") }
         .map { query(it) }
         .filter { it != null && it.moveToFirst() }
         .map {
           try {
-            toFile(appContext, Cursor(it))
+            toFile(appContext, Cursor(it))?.let { uri -> listOf(uri) } ?: emptyList()
           } catch (e: IOException) {
-            null
+            emptyList<Uri>()
           } finally {
             it.close()
           }
         }
-        .onErrorReturn { null }
-        .defaultIfEmpty(null)
+        .onErrorReturn { emptyList() }
+        .defaultIfEmpty(emptyList())
         .subscribeOn(ioScheduler)
         .observeOn(AndroidSchedulers.mainThread())
-        .subscribe { notifyExportDone(appContext, it) }
+        .subscribe { notifyExportDone(appContext, it.firstOrNull()) }
   }
 
   /**
@@ -178,7 +178,7 @@ class FavoriteManager @Inject constructor(
    * @param query   a query to filter stories to be cleared
    */
   fun clear(context: Context, query: String?) {
-    Observable.defer { Observable.just(query) }
+    Observable.defer { Observable.just(query ?: "") }
         .map { deleteMultiple(it) }
         .subscribeOn(ioScheduler)
         .observeOn(AndroidSchedulers.mainThread())
@@ -209,7 +209,7 @@ class FavoriteManager @Inject constructor(
    */
   fun remove(context: Context, itemIds: Collection<String>?) {
     if (itemIds.orEmpty().isEmpty()) return
-    Observable.defer { Observable.from(itemIds) }
+    Observable.defer { Observable.fromIterable(itemIds!!) }
         .subscribeOn(ioScheduler)
         .doOnNext { delete(it) }
         .map { buildRemoved().appendPath(it).build() }
@@ -354,7 +354,7 @@ class FavoriteManager @Inject constructor(
                                  private val observer: LocalItemManager.Observer) {
     @AnyThread
     fun load() {
-      Observable.defer { Observable.just(filter) }
+      Observable.defer { Observable.just(filter ?: "") }
           .map { query(it) }
           .subscribeOn(ioScheduler)
           .observeOn(AndroidSchedulers.mainThread())

@@ -43,12 +43,11 @@ import javax.inject.Named;
 
 import io.github.hidroh.materialistic.DataModule;
 import okio.Okio;
-import rx.Observable;
-import rx.Scheduler;
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
-import rx.subscriptions.Subscriptions;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Scheduler;
+import io.reactivex.rxjava3.core.ObservableEmitter;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 /**
  * A client for fetching readable content from a URL.
@@ -128,18 +127,18 @@ public interface ReadabilityClient {
         @Override
         public void parse(String itemId, String url) {
             Observable.defer(() -> fromCache(itemId))
-                    .subscribeOn(Schedulers.immediate())
+                    .subscribeOn(Schedulers.trampoline())
                     .switchIfEmpty(fromNetwork(itemId, url))
-                    .observeOn(Schedulers.immediate())
+                    .observeOn(Schedulers.trampoline())
                     .subscribe();
         }
 
         @NonNull
         private Observable<String> fromNetwork(String itemId, String url) {
-            return Observable.<String>create(subscriber -> new Handler(Looper.getMainLooper()).post(() -> {
+            return Observable.<String>create(emitter -> new Handler(Looper.getMainLooper()).post(() -> {
                 WebView webView = new WebView(mContext);
-                subscriber.add(Subscriptions.create(() -> AndroidSchedulers.mainThread()
-                        .createWorker().schedule(webView::destroy)));
+                emitter.setCancellable(() -> AndroidSchedulers.mainThread()
+                        .createWorker().schedule(webView::destroy));
                 final AtomicBoolean isFinished = new AtomicBoolean(false);
                 webView.setWebViewClient(new WebViewClient() {
                     @Override
@@ -147,8 +146,8 @@ public interface ReadabilityClient {
                         super.onPageFinished(view, url);
                         if (mReadabilityJs == null) {
                             if (isFinished.compareAndSet(false, true)) {
-                                subscriber.onNext(null);
-                                subscriber.onCompleted();
+                                emitter.onNext(null);
+                                emitter.onComplete();
                             }
                             return;
                         }
@@ -166,8 +165,8 @@ public interface ReadabilityClient {
                                         // content will be null
                                     }
                                 }
-                                subscriber.onNext(content);
-                                subscriber.onCompleted();
+                                emitter.onNext(content);
+                                emitter.onComplete();
                             }
                         });
                     }
@@ -177,8 +176,8 @@ public interface ReadabilityClient {
                     public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
                         super.onReceivedError(view, errorCode, description, failingUrl);
                         if (url.equals(failingUrl) && isFinished.compareAndSet(false, true)) {
-                            subscriber.onNext(null);
-                            subscriber.onCompleted();
+                            emitter.onNext(null);
+                            emitter.onComplete();
                         }
                     }
 
@@ -186,8 +185,8 @@ public interface ReadabilityClient {
                     public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
                         super.onReceivedError(view, request, error);
                         if (request.isForMainFrame() && isFinished.compareAndSet(false, true)) {
-                            subscriber.onNext(null);
-                            subscriber.onCompleted();
+                            emitter.onNext(null);
+                            emitter.onComplete();
                         }
                     }
                 });

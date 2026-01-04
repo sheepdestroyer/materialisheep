@@ -28,8 +28,8 @@ import io.github.hidroh.materialistic.DataModule;
 
 import androidx.annotation.StringDef;
 import retrofit2.Call;
-import rx.Observable;
-import rx.Scheduler;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Scheduler;
 
 /**
  * An {@link ItemManager} that uses the Algolia REST API to fetch popular

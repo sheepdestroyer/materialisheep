@@ -36,9 +36,9 @@ import okhttp3.FormBody;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
 import okhttp3.Response;
-import rx.Observable;
-import rx.Scheduler;
-import rx.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Scheduler;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 
 /**
  * A client that provides user-related services.
@@ -82,8 +82,8 @@ public class UserServicesClient implements UserServices {
     /**
      * Constructs a new UserServicesClient.
      *
-     * @param callFactory    The call factory.
-     * @param ioScheduler    The I/O scheduler.
+     * @param callFactory The call factory.
+     * @param ioScheduler The I/O scheduler.
      */
     @Inject
     public UserServicesClient(Call.Factory callFactory, Scheduler ioScheduler) {
@@ -158,10 +158,10 @@ public class UserServicesClient implements UserServices {
     /**
      * Submits a new story.
      *
-     * @param context The context.
-     * @param title   The title of the story.
-     * @param content The content of the story.
-     * @param isUrl   True if the content is a URL, false otherwise.
+     * @param context  The context.
+     * @param title    The title of the story.
+     * @param content  The content of the story.
+     * @param isUrl    True if the content is a URL, false otherwise.
      * @param callback The callback to be invoked when the call is complete.
      */
     @Override
@@ -172,22 +172,21 @@ public class UserServicesClient implements UserServices {
             return;
         }
         /*
-          The flow:
-          POST /submit with acc, pw
-           if 302 to /login, considered failed
-          POST /r with fnid, fnop, title, url or text
-           if 302 to /newest, considered successful
-           if 302 to /x, considered error, maybe duplicate or invalid input
-           if 200 or anything else, considered error
+         * The flow:
+         * POST /submit with acc, pw
+         * if 302 to /login, considered failed
+         * POST /r with fnid, fnop, title, url or text
+         * if 302 to /newest, considered successful
+         * if 302 to /x, considered error, maybe duplicate or invalid input
+         * if 200 or anything else, considered error
          */
         // fetch submit page with given credentials
         execute(postSubmitForm(credentials.first, credentials.second))
-                .flatMap(response -> response.code() != HttpURLConnection.HTTP_MOVED_TEMP ?
-                        Observable.just(response) :
-                        Observable.error(new IOException()))
+                .flatMap(response -> response.code() != HttpURLConnection.HTTP_MOVED_TEMP ? Observable.just(response)
+                        : Observable.error(new IOException()))
                 .flatMap(response -> {
                     try {
-                        return Observable.just(new String[]{
+                        return Observable.just(new String[] {
                                 response.header(HEADER_SET_COOKIE),
                                 response.body().string()
                         });
@@ -201,16 +200,14 @@ public class UserServicesClient implements UserServices {
                     array[1] = getInputValue(array[1], SUBMIT_PARAM_FNID);
                     return array;
                 })
-                .flatMap(array -> !TextUtils.isEmpty(array[1]) ?
-                        Observable.just(array) :
-                        Observable.error(new IOException()))
+                .flatMap(array -> !TextUtils.isEmpty(array[1]) ? Observable.just(array)
+                        : Observable.error(new IOException()))
                 .flatMap(array -> execute(postSubmit(title, content, isUrl, array[0], array[1])))
-                .flatMap(response -> response.code() == HttpURLConnection.HTTP_MOVED_TEMP ?
-                        Observable.just(Uri.parse(response.header(HEADER_LOCATION))) :
-                        Observable.error(new IOException()))
-                .flatMap(uri -> TextUtils.equals(uri.getPath(), DEFAULT_SUBMIT_REDIRECT) ?
-                        Observable.just(true) :
-                        Observable.error(buildException(uri)))
+                .flatMap(response -> response.code() == HttpURLConnection.HTTP_MOVED_TEMP
+                        ? Observable.just(Uri.parse(response.header(HEADER_LOCATION)))
+                        : Observable.error(new IOException()))
+                .flatMap(uri -> TextUtils.equals(uri.getPath(), DEFAULT_SUBMIT_REDIRECT) ? Observable.just(true)
+                        : Observable.error(buildException(uri)))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(callback::onDone, callback::onError);
     }

@@ -19,8 +19,8 @@ package io.github.hidroh.materialistic.data.android
 import io.github.hidroh.materialistic.DataModule
 import io.github.hidroh.materialistic.data.LocalCache
 import io.github.hidroh.materialistic.data.MaterialisticDatabase
-import rx.Observable
-import rx.Scheduler
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Scheduler
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -43,6 +43,7 @@ class Cache @Inject constructor(
   override fun isViewed(itemId: String?) = readStoriesDao.selectByItemId(itemId) != null
 
   override fun setViewed(itemId: String?) {
+    if (itemId == null) return
     readStoriesDao.insert(MaterialisticDatabase.ReadStory(itemId))
     Observable.just(itemId)
         .map { database.createReadUri(it) }

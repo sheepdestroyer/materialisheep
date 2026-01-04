@@ -30,8 +30,8 @@ import io.github.hidroh.materialistic.annotation.Synthetic;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
-import rx.Observable;
-import rx.Scheduler;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Scheduler;
 
 /**
  * An {@link ItemManager} that uses the Algolia REST API forHN Search.
