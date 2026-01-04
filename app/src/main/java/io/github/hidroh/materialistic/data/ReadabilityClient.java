@@ -129,7 +129,8 @@ public interface ReadabilityClient {
                     .subscribeOn(Schedulers.trampoline())
                     .switchIfEmpty(fromNetwork(itemId, url))
                     .observeOn(Schedulers.trampoline())
-                    .subscribe();
+                    .subscribe(() -> {
+                    }, throwable -> android.util.Log.w("ReadabilityClient", "Failed to pre-parse " + url, throwable));
         }
 
         @NonNull
