@@ -68,12 +68,12 @@ public class AlgoliaPopularClient extends AlgoliaClient {
 
     @Override
     protected Observable<AlgoliaHits> searchRx(@Range String filter) {
-        return mRestService.searchByMinTimestampRx(MIN_CREATED_AT + toTimestamp(filter) / 1000);
+        return mRestService.searchByMinTimestampRx(MIN_CREATED_AT + toTimestamp(filter) / 1000, null);
     }
 
     @Override
     protected Call<AlgoliaHits> search(@Range String filter) {
-        return mRestService.searchByMinTimestamp(MIN_CREATED_AT + toTimestamp(filter) / 1000);
+        return mRestService.searchByMinTimestamp(MIN_CREATED_AT + toTimestamp(filter) / 1000, null);
     }
 
     private long toTimestamp(@Range String filter) {

@@ -134,27 +134,31 @@ public class AlgoliaClient implements ItemManager {
     }
 
     interface RestService {
+        String HEADER_IF_NONE_MATCH = "If-None-Match";
+
         @GET("search_by_date?hitsPerPage=100&tags=story&attributesToRetrieve=objectID&attributesToHighlight=none")
         Observable<AlgoliaHits> searchByDateRx(@Query("query") String query,
-                @Header("If-None-Match") @Nullable String etag);
+                @Header(HEADER_IF_NONE_MATCH) @Nullable String etag);
 
         @GET("search?hitsPerPage=100&tags=story&attributesToRetrieve=objectID&attributesToHighlight=none")
         Observable<AlgoliaHits> searchRx(@Query("query") String query,
-                @Header("If-None-Match") @Nullable String etag);
+                @Header(HEADER_IF_NONE_MATCH) @Nullable String etag);
 
         @GET("search?hitsPerPage=100&tags=story&attributesToRetrieve=objectID&attributesToHighlight=none")
-        Observable<AlgoliaHits> searchByMinTimestampRx(@Query("numericFilters") String timestampSeconds);
+        Observable<AlgoliaHits> searchByMinTimestampRx(@Query("numericFilters") String timestampSeconds,
+                @Header(HEADER_IF_NONE_MATCH) @Nullable String etag);
 
         @GET("search_by_date?hitsPerPage=100&tags=story&attributesToRetrieve=objectID&attributesToHighlight=none")
         Call<AlgoliaHits> searchByDate(@Query("query") String query,
-                @Header("If-None-Match") @Nullable String etag);
+                @Header(HEADER_IF_NONE_MATCH) @Nullable String etag);
 
         @GET("search?hitsPerPage=100&tags=story&attributesToRetrieve=objectID&attributesToHighlight=none")
         Call<AlgoliaHits> search(@Query("query") String query,
-                @Header("If-None-Match") @Nullable String etag);
+                @Header(HEADER_IF_NONE_MATCH) @Nullable String etag);
 
         @GET("search?hitsPerPage=100&tags=story&attributesToRetrieve=objectID&attributesToHighlight=none")
-        Call<AlgoliaHits> searchByMinTimestamp(@Query("numericFilters") String timestampSeconds);
+        Call<AlgoliaHits> searchByMinTimestamp(@Query("numericFilters") String timestampSeconds,
+                @Header(HEADER_IF_NONE_MATCH) @Nullable String etag);
     }
 
     static class AlgoliaHits {
