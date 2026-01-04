@@ -129,7 +129,10 @@ public interface ReadabilityClient {
                     .subscribeOn(Schedulers.trampoline())
                     .switchIfEmpty(fromNetwork(itemId, url))
                     .observeOn(Schedulers.trampoline())
-                    .subscribe();
+                    .ignoreElements()
+                    .subscribe(() -> {
+                    }, throwable -> Log.w(ReadabilityClient.class.getSimpleName(), "Failed to pre-parse " + url,
+                            throwable));
         }
 
         @NonNull
