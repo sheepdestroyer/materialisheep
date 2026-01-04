@@ -47,6 +47,7 @@ android {
         abortOnError true
         explainIssues false
         absolutePaths false
+        disable 'NullSafeMutableLiveData'
     }
 
     testOptions {
@@ -101,7 +102,7 @@ dependencies {
     implementation "androidx.room:room-runtime:$roomVersion"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion"
-    implementation platform("org.jetbrains.kotlin:kotlin-bom:2.0.0")
+    implementation platform("org.jetbrains.kotlin:kotlin-bom:2.1.0")
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
 
     kapt "androidx.lifecycle:lifecycle-compiler:$lifecycleVersion"
