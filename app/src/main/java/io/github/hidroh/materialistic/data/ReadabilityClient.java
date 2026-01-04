@@ -131,7 +131,8 @@ public interface ReadabilityClient {
                     .observeOn(Schedulers.trampoline())
                     .ignoreElements()
                     .subscribe(() -> {
-                    }, throwable -> Log.w("ReadabilityClient", "Failed to pre-parse " + url, throwable));
+                    }, throwable -> Log.w(ReadabilityClient.class.getSimpleName(), "Failed to pre-parse " + url,
+                            throwable));
         }
 
         @NonNull
