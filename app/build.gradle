@@ -49,6 +49,12 @@ android {
         absolutePaths false
     }
 
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
+
     buildFeatures {
         buildConfig true
     }
