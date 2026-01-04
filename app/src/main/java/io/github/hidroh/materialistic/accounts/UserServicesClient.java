@@ -183,7 +183,7 @@ public class UserServicesClient implements UserServices {
         // fetch submit page with given credentials
         execute(postSubmitForm(credentials.first, credentials.second))
                 .flatMap(response -> response.code() != HttpURLConnection.HTTP_MOVED_TEMP ? Observable.just(response)
-                        : Observable.error(new IOException()))
+                        : Observable.error(new IOException("Login failed, received redirect")))
                 .flatMap(response -> {
                     try {
                         return Observable.just(new String[] {
@@ -201,7 +201,7 @@ public class UserServicesClient implements UserServices {
                     return array;
                 })
                 .flatMap(array -> !TextUtils.isEmpty(array[1]) ? Observable.just(array)
-                        : Observable.error(new IOException()))
+                        : Observable.error(new IOException("Failed to get fnid for submission")))
                 .flatMap(array -> execute(postSubmit(title, content, isUrl, array[0], array[1])))
                 .flatMap(response -> {
                     try {
