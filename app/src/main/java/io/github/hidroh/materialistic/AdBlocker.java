@@ -41,7 +41,7 @@ import io.reactivex.rxjava3.core.Scheduler;
  */
 public class AdBlocker {
     private static final String AD_HOSTS_FILE = "pgl.yoyo.org.txt";
-    private static final Set<String> AD_HOSTS = new HashSet<>();
+    private static final Set<String> AD_HOSTS = java.util.Collections.synchronizedSet(new HashSet<>());
 
     /**
      * Initializes the ad blocker by loading the ad hosts from the assets file.
@@ -51,9 +51,10 @@ public class AdBlocker {
      */
     public static void init(Context context, Scheduler scheduler) {
         Observable.fromCallable(() -> loadFromAssets(context))
-                .onErrorReturn(throwable -> null)
                 .subscribeOn(scheduler)
-                .subscribe();
+                .subscribe(result -> {
+                },
+                        t -> android.util.Log.e(AdBlocker.class.getSimpleName(), "Error loading ad hosts", t));
     }
 
     /**
@@ -78,16 +79,15 @@ public class AdBlocker {
     }
 
     @WorkerThread
-    private static Void loadFromAssets(Context context) throws IOException {
-        InputStream stream = context.getAssets().open(AD_HOSTS_FILE);
-        BufferedSource buffer = Okio.buffer(Okio.source(stream));
-        String line;
-        while ((line = buffer.readUtf8Line()) != null) {
-            AD_HOSTS.add(line);
+    private static Boolean loadFromAssets(Context context) throws IOException {
+        try (InputStream stream = context.getAssets().open(AD_HOSTS_FILE);
+                BufferedSource buffer = Okio.buffer(Okio.source(stream))) {
+            String line;
+            while ((line = buffer.readUtf8Line()) != null) {
+                AD_HOSTS.add(line);
+            }
         }
-        buffer.close();
-        stream.close();
-        return null;
+        return true;
     }
 
     /**
