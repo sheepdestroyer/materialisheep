@@ -173,7 +173,7 @@ public class HackerNewsClient implements ItemManager, UserManager {
                 .subscribeOn(mIoScheduler)
                 .observeOn(mMainThreadScheduler)
                 .subscribe(optionalUser -> listener.onResponse(optionalUser.orElse(null)),
-                        t -> listener.onError(t != null ? t.getMessage() : ""));
+                        t -> listener.onError(t.getMessage() != null ? t.getMessage() : ""));
     }
 
     @NonNull
