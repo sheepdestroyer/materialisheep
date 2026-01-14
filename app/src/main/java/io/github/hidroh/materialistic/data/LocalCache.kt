@@ -16,7 +16,7 @@
 
 package io.github.hidroh.materialistic.data
 
-import androidx.annotation.Nullable
+
 import androidx.annotation.WorkerThread
 
 /**
@@ -30,7 +30,6 @@ interface LocalCache {
    * @param itemId the ID of the item
    * @return the readable content, or `null` if it is not cached
    */
-  @Nullable
   fun getReadability(itemId: String?): String?
 
   /**
