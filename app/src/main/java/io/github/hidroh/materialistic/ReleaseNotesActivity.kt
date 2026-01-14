@@ -64,7 +64,12 @@ class ReleaseNotesActivity : ThemedActivity() {
    */
   override fun finish() {
     super.finish()
-    overridePendingTransition(0, R.anim.slide_out_down)
+    if (android.os.Build.VERSION.SDK_INT >= 34) {
+      overrideActivityTransition(android.app.Activity.OVERRIDE_TRANSITION_CLOSE, 0, R.anim.slide_out_down)
+    } else {
+      @Suppress("DEPRECATION")
+      overridePendingTransition(0, R.anim.slide_out_down)
+    }
   }
 
   /**

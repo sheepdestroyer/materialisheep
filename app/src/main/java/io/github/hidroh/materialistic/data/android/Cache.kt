@@ -31,10 +31,6 @@ import javax.inject.Named
  */
 class Cache @Inject constructor(
     private val database: MaterialisticDatabase,
-
-
-// ... imports ...
-
     private val savedStoriesDao: SavedStoriesDao,
     private val readStoriesDao: MaterialisticDatabase.ReadStoriesDao,
     private val readableDao: MaterialisticDatabase.ReadableDao,

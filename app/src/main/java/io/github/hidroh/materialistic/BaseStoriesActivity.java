@@ -28,21 +28,24 @@ import io.github.hidroh.materialistic.data.HackerNewsClient;
 import io.github.hidroh.materialistic.data.ItemManager;
 
 /**
- * An abstract base activity for displaying a list of stories. This activity handles common
- * functionality for story lists, such as refreshing the list and displaying the last updated time.
+ * An abstract base activity for displaying a list of stories. This activity
+ * handles common
+ * functionality for story lists, such as refreshing the list and displaying the
+ * last updated time.
  */
 public abstract class BaseStoriesActivity extends BaseListActivity
         implements ListFragment.RefreshCallback {
 
     private static final String STATE_LAST_UPDATED = "state:lastUpdated";
-    @Synthetic Long mLastUpdated;
+    @Synthetic
+    Long mLastUpdated;
     private final Runnable mLastUpdateTask = new Runnable() {
         @Override
         public void run() {
             if (mLastUpdated == null) {
                 return;
             }
-            //noinspection ConstantConditions
+            // noinspection ConstantConditions
             if (getSupportActionBar() == null) {
                 return;
             }
@@ -58,14 +61,17 @@ public abstract class BaseStoriesActivity extends BaseListActivity
             }
         }
     };
-    @Synthetic final Handler mHandler = new Handler();
+    @Synthetic
+    final Handler mHandler = new Handler(android.os.Looper.getMainLooper());
 
     /**
      * Called when the activity is first created.
      *
      * @param savedInstanceState If the activity is being re-initialized after
-     *                           previously being shut down then this Bundle contains the data it most
-     *                           recently supplied in {@link #onSaveInstanceState(Bundle)}.
+     *                           previously being shut down then this Bundle
+     *                           contains the data it most
+     *                           recently supplied in
+     *                           {@link #onSaveInstanceState(Bundle)}.
      *                           Otherwise it is null.
      */
     @Override
@@ -77,7 +83,8 @@ public abstract class BaseStoriesActivity extends BaseListActivity
     }
 
     /**
-     * Called after {@link #onRestoreInstanceState(Bundle)}, {@link #onRestart()}, or
+     * Called after {@link #onRestoreInstanceState(Bundle)}, {@link #onRestart()},
+     * or
      * {@link #onPause()}, for your activity to start interacting with the user.
      */
     @Override

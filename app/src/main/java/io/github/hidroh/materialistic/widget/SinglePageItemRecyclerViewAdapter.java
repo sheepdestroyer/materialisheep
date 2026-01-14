@@ -94,7 +94,7 @@ public class SinglePageItemRecyclerViewAdapter
 
             @Override
             public int getSwipeDirs(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
-                Item item = getItem(viewHolder.getAdapterPosition());
+                Item item = getItem(viewHolder.getBindingAdapterPosition());
                 if (item == null || item.getKidCount() == 0) {
                     return 0;
                 }
@@ -103,7 +103,7 @@ public class SinglePageItemRecyclerViewAdapter
 
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-                int position = viewHolder.getAdapterPosition();
+                int position = viewHolder.getBindingAdapterPosition();
                 Item item = getItem(position);
                 if (item != null) {
                     notifyItemChanged(position);
@@ -276,7 +276,7 @@ public class SinglePageItemRecyclerViewAdapter
         }
         holder.mPostedTextView.setText(item.getDisplayedTime(mContext));
         holder.mPostedTextView.append(item.getDisplayedAuthor(mContext, true,
-                getThreadColor(getItemViewType(holder.getAdapterPosition()))));
+                getThreadColor(getItemViewType(holder.getBindingAdapterPosition()))));
         bindKids(holder, item);
     }
 

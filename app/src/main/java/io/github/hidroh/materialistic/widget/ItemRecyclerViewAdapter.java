@@ -56,9 +56,12 @@ public abstract class ItemRecyclerViewAdapter<VH extends ItemRecyclerViewAdapter
     private static final int DURATION_PER_LINE_MILLIS = 20;
     LayoutInflater mLayoutInflater;
     private ItemManager mItemManager;
-    @Inject UserServices mUserServices;
-    @Inject PopupMenu mPopupMenu;
-    @Inject AlertDialogBuilder mAlertDialogBuilder;
+    @Inject
+    UserServices mUserServices;
+    @Inject
+    PopupMenu mPopupMenu;
+    @Inject
+    AlertDialogBuilder mAlertDialogBuilder;
     private int mTertiaryTextColorResId;
     private int mSecondaryTextColorResId;
     private int mCardBackgroundColorResId;
@@ -81,7 +84,7 @@ public abstract class ItemRecyclerViewAdapter<VH extends ItemRecyclerViewAdapter
     public void attach(Context context, RecyclerView recyclerView) {
         super.attach(context, recyclerView);
         mLayoutInflater = AppUtils.createLayoutInflater(mContext);
-        TypedArray ta = mContext.obtainStyledAttributes(new int[]{
+        TypedArray ta = mContext.obtainStyledAttributes(new int[] {
                 android.R.attr.textColorTertiary,
                 android.R.attr.textColorSecondary,
                 R.attr.colorCardBackground,
@@ -102,7 +105,7 @@ public abstract class ItemRecyclerViewAdapter<VH extends ItemRecyclerViewAdapter
         }
         clear(holder);
         if (item.getLocalRevision() < 0) {
-            load(holder.getAdapterPosition(), item);
+            load(holder.getBindingAdapterPosition(), item);
         } else if (item.getLocalRevision() > 0) {
             bind(holder, item);
         }
@@ -135,7 +138,8 @@ public abstract class ItemRecyclerViewAdapter<VH extends ItemRecyclerViewAdapter
         }
     }
 
-    public void lockBinding(int[] lock) { }
+    public void lockBinding(int[] lock) {
+    }
 
     @Nullable
     protected abstract Item getItem(int position);
@@ -193,13 +197,11 @@ public abstract class ItemRecyclerViewAdapter<VH extends ItemRecyclerViewAdapter
     private void highlightUserItem(VH holder, Item item) {
         boolean highlight = !TextUtils.isEmpty(mUsername) &&
                 TextUtils.equals(mUsername, item.getBy());
-        holder.mContentView.setBackgroundColor(highlight ?
-                mCardHighlightColorResId : mCardBackgroundColorResId);
+        holder.mContentView.setBackgroundColor(highlight ? mCardHighlightColorResId : mCardBackgroundColorResId);
     }
 
     private void decorateDead(VH holder, Item item) {
-        holder.mContentTextView.setTextColor(item.isDead() ?
-                mSecondaryTextColorResId : mTertiaryTextColorResId);
+        holder.mContentTextView.setTextColor(item.isDead() ? mSecondaryTextColorResId : mTertiaryTextColorResId);
     }
 
     private void toggleCollapsibleContent(final VH holder, final Item item, int lineCount) {
@@ -226,8 +228,7 @@ public abstract class ItemRecyclerViewAdapter<VH extends ItemRecyclerViewAdapter
             return;
         }
         holder.mMoreButton.setVisibility(View.VISIBLE);
-        holder.mMoreButton.setOnClickListener(v ->
-            mPopupMenu.create(mContext, holder.mMoreButton, Gravity.NO_GRAVITY)
+        holder.mMoreButton.setOnClickListener(v -> mPopupMenu.create(mContext, holder.mMoreButton, Gravity.NO_GRAVITY)
                 .inflate(R.menu.menu_contextual_comment)
                 .setOnMenuItemClickListener(menuItem -> {
                     if (menuItem.getItemId() == R.id.menu_contextual_vote) {
@@ -243,9 +244,8 @@ public abstract class ItemRecyclerViewAdapter<VH extends ItemRecyclerViewAdapter
                     if (menuItem.getItemId() == R.id.menu_contextual_share) {
                         AppUtils.share(mContext,
                                 item.isStoryType() ? item.getDisplayedTitle() : null,
-                                item.isStoryType() ? item.getUrl() :
-                                        item.getDisplayedText() == null ?
-                                                null : item.getDisplayedText().toString());
+                                item.isStoryType() ? item.getUrl()
+                                        : item.getDisplayedText() == null ? null : item.getDisplayedText().toString());
                         return true;
                     }
                     return false;
@@ -306,7 +306,7 @@ public abstract class ItemRecyclerViewAdapter<VH extends ItemRecyclerViewAdapter
 
         @Synthetic
         ItemResponseListener(ItemRecyclerViewAdapter adapter, int position,
-                                    Item partialItem) {
+                Item partialItem) {
             mAdapter = new WeakReference<>(adapter);
             mPosition = position;
             mPartialItem = partialItem;
