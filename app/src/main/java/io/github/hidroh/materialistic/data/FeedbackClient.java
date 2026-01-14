@@ -74,6 +74,7 @@ public interface FeedbackClient {
         }
 
         @Override
+        @android.annotation.SuppressLint("CheckResult")
         public void send(String title, String body, final Callback callback) {
             body = String.format("%s\nDevice: %s %s, SDK: %s, app version: %s",
                     body,

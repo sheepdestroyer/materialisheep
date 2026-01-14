@@ -100,6 +100,7 @@ public class UserServicesClient implements UserServices {
      * @param callback      The callback to be invoked when the call is complete.
      */
     @Override
+    @android.annotation.SuppressLint("CheckResult")
     public void login(String username, String password, boolean createAccount, Callback callback) {
         execute(postLogin(username, password, createAccount))
                 .flatMap(response -> {
@@ -121,6 +122,7 @@ public class UserServicesClient implements UserServices {
      * @return True if the vote was successful, false otherwise.
      */
     @Override
+    @android.annotation.SuppressLint("CheckResult")
     public boolean voteUp(Context context, String itemId, Callback callback) {
         Pair<String, String> credentials = AppUtils.getCredentials(context);
         if (credentials == null) {
@@ -143,6 +145,7 @@ public class UserServicesClient implements UserServices {
      * @param callback The callback to be invoked when the call is complete.
      */
     @Override
+    @android.annotation.SuppressLint("CheckResult")
     public void reply(Context context, String parentId, String text, Callback callback) {
         Pair<String, String> credentials = AppUtils.getCredentials(context);
         if (credentials == null) {
@@ -165,6 +168,7 @@ public class UserServicesClient implements UserServices {
      * @param callback The callback to be invoked when the call is complete.
      */
     @Override
+    @android.annotation.SuppressLint("CheckResult")
     public void submit(Context context, String title, String content, boolean isUrl, Callback callback) {
         Pair<String, String> credentials = AppUtils.getCredentials(context);
         if (credentials == null) {

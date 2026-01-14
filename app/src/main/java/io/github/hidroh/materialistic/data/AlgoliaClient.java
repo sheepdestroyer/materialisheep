@@ -71,6 +71,7 @@ public class AlgoliaClient implements ItemManager {
      * @param listener  the {@link ResponseListener} to notify of the results
      */
     @Override
+    @android.annotation.SuppressLint("CheckResult")
     public void getStories(String filter, @CacheMode int cacheMode,
             final ResponseListener<Item[]> listener) {
         if (listener == null) {
@@ -164,7 +165,7 @@ public class AlgoliaClient implements ItemManager {
          * Asynchronously searches for stories.
          *
          * @param query the search query
-         * @param etag the ETag for a conditional request, can be null
+         * @param etag  the ETag for a conditional request, can be null
          * @return an Observable of search results
          */
         @GET("search?hitsPerPage=100&tags=story&attributesToRetrieve=objectID&attributesToHighlight=none")
@@ -174,8 +175,9 @@ public class AlgoliaClient implements ItemManager {
         /**
          * Asynchronously searches for stories created after a minimum timestamp.
          *
-         * @param numericFilters the numeric filter for creation timestamp (e.g. "created_at_i>12345")
-         * @param etag the ETag for a conditional request, can be null
+         * @param numericFilters the numeric filter for creation timestamp (e.g.
+         *                       "created_at_i>12345")
+         * @param etag           the ETag for a conditional request, can be null
          * @return an Observable of search results
          */
         @GET("search?hitsPerPage=100&tags=story&attributesToRetrieve=objectID&attributesToHighlight=none")
@@ -207,8 +209,9 @@ public class AlgoliaClient implements ItemManager {
         /**
          * Synchronously searches for stories created after a minimum timestamp.
          *
-         * @param numericFilters the numeric filter for creation timestamp (e.g. "created_at_i>12345")
-         * @param etag the ETag for a conditional request, can be null
+         * @param numericFilters the numeric filter for creation timestamp (e.g.
+         *                       "created_at_i>12345")
+         * @param etag           the ETag for a conditional request, can be null
          * @return a {@link Call} of search results
          */
         @GET("search?hitsPerPage=100&tags=story&attributesToRetrieve=objectID&attributesToHighlight=none")

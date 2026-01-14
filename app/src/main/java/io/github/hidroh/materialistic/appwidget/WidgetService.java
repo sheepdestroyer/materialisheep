@@ -42,13 +42,16 @@ import io.github.hidroh.materialistic.R;
 import io.github.hidroh.materialistic.data.Item;
 import io.github.hidroh.materialistic.data.ItemManager;
 
-@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class WidgetService extends RemoteViewsService {
     static final String EXTRA_SECTION = "extra:section";
     static final String EXTRA_LIGHT_THEME = "extra:lightTheme";
     static final String EXTRA_CUSTOM_QUERY = "extra:customQuery";
-    @Inject @Named(HN) ItemManager mItemManager;
-    @Inject @Named(ALGOLIA) ItemManager mSearchManager;
+    @Inject
+    @Named(HN)
+    ItemManager mItemManager;
+    @Inject
+    @Named(ALGOLIA)
+    ItemManager mSearchManager;
 
     @Override
     public void onCreate() {
@@ -175,7 +178,7 @@ public class WidgetService extends RemoteViewsService {
             SpannableString spannable = new SpannableString(text);
             if (value >= hotThreshold) {
                 spannable.setSpan(new ForegroundColorSpan(
-                                ContextCompat.getColor(mContext, R.color.orange500)),
+                        ContextCompat.getColor(mContext, R.color.orange500)),
                         0, text.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
             return spannable;

@@ -37,7 +37,6 @@ public class AdBlockWebViewClient extends WebViewClient {
         mAdBlockEnabled = adBlockEnabled;
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     public final WebResourceResponse shouldInterceptRequest(WebView view, String url) {
         if (!mAdBlockEnabled) {
@@ -50,11 +49,9 @@ public class AdBlockWebViewClient extends WebViewClient {
         } else {
             ad = mLoadedUrls.get(url);
         }
-        return ad ? AdBlocker.createEmptyResource() :
-                super.shouldInterceptRequest(view, url);
+        return ad ? AdBlocker.createEmptyResource() : super.shouldInterceptRequest(view, url);
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Nullable
     @Override
     public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
@@ -69,7 +66,6 @@ public class AdBlockWebViewClient extends WebViewClient {
         } else {
             ad = mLoadedUrls.get(url);
         }
-        return ad ? AdBlocker.createEmptyResource() :
-                super.shouldInterceptRequest(view, request);
+        return ad ? AdBlocker.createEmptyResource() : super.shouldInterceptRequest(view, request);
     }
 }

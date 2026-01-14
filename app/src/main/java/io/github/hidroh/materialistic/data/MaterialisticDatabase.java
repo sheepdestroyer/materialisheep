@@ -24,15 +24,14 @@ import androidx.annotation.VisibleForTesting;
 
 import java.util.List;
 
-@Database(
-        entities = {
-                MaterialisticDatabase.SavedStory.class,
-                MaterialisticDatabase.ReadStory.class,
-                MaterialisticDatabase.Readable.class
-        },
-        version = 4)
+@Database(entities = {
+        MaterialisticDatabase.SavedStory.class,
+        MaterialisticDatabase.ReadStory.class,
+        MaterialisticDatabase.Readable.class
+}, version = 4, exportSchema = false)
 /**
- * A Room database for storing saved stories, read stories, and readable content.
+ * A Room database for storing saved stories, read stories, and readable
+ * content.
  */
 public abstract class MaterialisticDatabase extends RoomDatabase {
 
@@ -169,12 +168,15 @@ public abstract class MaterialisticDatabase extends RoomDatabase {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o)
+                return true;
+            if (o == null || getClass() != o.getClass())
+                return false;
 
             ReadStory readStory = (ReadStory) o;
 
-            if (id != readStory.id) return false;
+            if (id != readStory.id)
+                return false;
             return itemId != null ? itemId.equals(readStory.itemId) : readStory.itemId == null;
         }
 
@@ -235,12 +237,15 @@ public abstract class MaterialisticDatabase extends RoomDatabase {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o)
+                return true;
+            if (o == null || getClass() != o.getClass())
+                return false;
 
             Readable readable = (Readable) o;
 
-            if (id != readable.id) return false;
+            if (id != readable.id)
+                return false;
             if (itemId != null ? !itemId.equals(readable.itemId) : readable.itemId != null)
                 return false;
             return content != null ? content.equals(readable.content) : readable.content == null;
@@ -280,9 +285,8 @@ public abstract class MaterialisticDatabase extends RoomDatabase {
             savedStory.itemId = story.getId();
             savedStory.url = story.getUrl();
             savedStory.title = story.getDisplayedTitle();
-            savedStory.time = String.valueOf(story instanceof Favorite ?
-                    ((Favorite) story).getTime() :
-                    String.valueOf(System.currentTimeMillis()));
+            savedStory.time = String.valueOf(story instanceof Favorite ? ((Favorite) story).getTime()
+                    : String.valueOf(System.currentTimeMillis()));
             return savedStory;
         }
 
@@ -384,12 +388,9 @@ public abstract class MaterialisticDatabase extends RoomDatabase {
 
     static class DbConstants {
         static final String DB_NAME = "Materialistic.db";
-        static final String SQL_CREATE_READ_TABLE =
-                "CREATE TABLE read (_id INTEGER NOT NULL PRIMARY KEY, itemid TEXT)";
-        static final String SQL_CREATE_READABLE_TABLE =
-                "CREATE TABLE readable (_id INTEGER NOT NULL PRIMARY KEY, itemid TEXT, content TEXT)";
-        static final String SQL_CREATE_SAVED_TABLE =
-                "CREATE TABLE saved (_id INTEGER NOT NULL PRIMARY KEY, itemid TEXT, url TEXT, title TEXT, time TEXT)";
+        static final String SQL_CREATE_READ_TABLE = "CREATE TABLE read (_id INTEGER NOT NULL PRIMARY KEY, itemid TEXT)";
+        static final String SQL_CREATE_READABLE_TABLE = "CREATE TABLE readable (_id INTEGER NOT NULL PRIMARY KEY, itemid TEXT, content TEXT)";
+        static final String SQL_CREATE_SAVED_TABLE = "CREATE TABLE saved (_id INTEGER NOT NULL PRIMARY KEY, itemid TEXT, url TEXT, title TEXT, time TEXT)";
         static final String SQL_INSERT_FAVORITE_SAVED = "INSERT INTO saved SELECT * FROM favorite";
         static final String SQL_INSERT_VIEWED_READ = "INSERT INTO read SELECT * FROM viewed";
         static final String SQL_INSERT_READABILITY_READABLE = "INSERT INTO readable SELECT * FROM readability";

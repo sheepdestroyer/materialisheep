@@ -36,6 +36,22 @@
 
     <uses-sdk tools:overrideLibrary="androidx.browser" />
 
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="http" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="https" />
+        </intent>
+        <intent>
+            <action android:name="android.support.customtabs.action.CustomTabsService" />
+        </intent>
+    </queries>
+
     <application
         android:name=".MaterialisticApplication"
         android:supportsRtl="false"
@@ -68,7 +84,7 @@
             android:name=".ItemActivity"
             android:label="@string/title_activity_item"
             android:exported="true">
-            <intent-filter android:label="@string/filter_title_item" >
+            <intent-filter android:label="@string/filter_title_item" android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />

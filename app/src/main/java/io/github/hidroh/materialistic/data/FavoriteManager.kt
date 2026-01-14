@@ -133,12 +133,13 @@ class FavoriteManager @Inject constructor(
    * @param context an instance of [Context]
    * @param query   a query to filter stories to be retrieved
    */
+  @SuppressLint("CheckResult")
   fun export(context: Context, query: String?) {
     val appContext = context.applicationContext
     notifyExportStart(appContext)
     Observable.defer { Observable.just(query ?: "") }
         .map { query(it) }
-        .filter { it != null && it.moveToFirst() }
+        .filter { it.moveToFirst() }
         .map {
           try {
             toFile(appContext, Cursor(it))?.let { uri -> listOf(uri) } ?: emptyList()
@@ -161,6 +162,7 @@ class FavoriteManager @Inject constructor(
    * @param context an instance of [Context]
    * @param story   the story to be added as a favorite
    */
+  @SuppressLint("CheckResult")
   fun add(context: Context, story: WebItem) {
     Observable.defer { Observable.just(story) }
         .doOnNext { insert(it) }
@@ -178,6 +180,7 @@ class FavoriteManager @Inject constructor(
    * @param context an instance of [Context]
    * @param query   a query to filter stories to be cleared
    */
+  @SuppressLint("CheckResult")
   fun clear(context: Context, query: String?) {
     Observable.defer { Observable.just(query ?: "") }
         .map { deleteMultiple(it) }
@@ -192,6 +195,7 @@ class FavoriteManager @Inject constructor(
    * @param context an instance of [Context]
    * @param itemId  the ID of the story to be removed from favorites
    */
+  @SuppressLint("CheckResult")
   fun remove(context: Context, itemId: String?) {
     if (itemId == null) return
     Observable.defer { Observable.just(itemId) }
@@ -208,6 +212,7 @@ class FavoriteManager @Inject constructor(
    * @param context an instance of [Context]
    * @param itemIds a collection of story IDs to be removed from favorites
    */
+  @SuppressLint("CheckResult")
   fun remove(context: Context, itemIds: Collection<String>?) {
     if (itemIds.orEmpty().isEmpty()) return
     Observable.defer { Observable.fromIterable(itemIds.orEmpty()) }
@@ -270,10 +275,7 @@ class FavoriteManager @Inject constructor(
               context, 0,
               Intent(context, FavoriteActivity::class.java)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-              when {
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.M -> PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-                else -> PendingIntent.FLAG_UPDATE_CURRENT
-              }
+              PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
           )
           .build()
@@ -296,10 +298,7 @@ class FavoriteManager @Inject constructor(
             PendingIntent.getActivity(
               context, 0,
               uri.toSendIntentChooser(context).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-              when {
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.M -> PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-                else -> PendingIntent.FLAG_UPDATE_CURRENT
-              }
+              PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
           )
           .build()
@@ -356,13 +355,14 @@ class FavoriteManager @Inject constructor(
   inner class FavoriteRoomLoader(private val filter: String?,
                                  private val observer: LocalItemManager.Observer) {
     @AnyThread
+    @SuppressLint("CheckResult")
     fun load() {
       Observable.defer { Observable.just(filter ?: "") }
           .map { query(it) }
           .subscribeOn(ioScheduler)
           .observeOn(AndroidSchedulers.mainThread())
           .subscribe {
-            cursor = if (it == null) null else Cursor(it)
+            cursor = Cursor(it)
             observer.onChanged()
           }
     }

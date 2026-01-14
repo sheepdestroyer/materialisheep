@@ -79,6 +79,7 @@ public class HackerNewsClient implements ItemManager, UserManager {
     }
 
     @Override
+    @android.annotation.SuppressLint("CheckResult")
     public void getStories(@FetchMode String filter, @CacheMode int cacheMode,
             final ResponseListener<Item[]> listener) {
         if (listener == null) {
@@ -92,6 +93,7 @@ public class HackerNewsClient implements ItemManager, UserManager {
     }
 
     @Override
+    @android.annotation.SuppressLint("CheckResult")
     public void getItem(final String itemId, @CacheMode int cacheMode, ResponseListener<Item> listener) {
         if (listener == null) {
             return;
@@ -159,6 +161,7 @@ public class HackerNewsClient implements ItemManager, UserManager {
     }
 
     @Override
+    @android.annotation.SuppressLint("CheckResult")
     public void getUser(String username, final ResponseListener<User> listener) {
         if (listener == null) {
             return;
