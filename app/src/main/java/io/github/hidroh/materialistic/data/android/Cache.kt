@@ -22,7 +22,6 @@ import io.github.hidroh.materialistic.data.MaterialisticDatabase
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Scheduler
 import javax.inject.Inject
-import android.annotation.SuppressLint
 import javax.inject.Named
 
 /**
@@ -43,14 +42,13 @@ class Cache @Inject constructor(
 
   override fun isViewed(itemId: String?) = readStoriesDao.selectByItemId(itemId) != null
 
-  @SuppressLint("CheckResult")
   override fun setViewed(itemId: String?) {
     if (itemId == null) return
     readStoriesDao.insert(MaterialisticDatabase.ReadStory(itemId))
     Observable.just(itemId)
         .map { database.createReadUri(it) }
         .observeOn(mainScheduler)
-        .subscribe { database.setLiveValue(it) }
+        .subscribe({ database.setLiveValue(it) }, { })
   }
 
   override fun isFavorite(itemId: String?) = savedStoriesDao.selectByItemId(itemId) != null

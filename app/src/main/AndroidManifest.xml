@@ -84,7 +84,7 @@
             android:name=".ItemActivity"
             android:label="@string/title_activity_item"
             android:exported="true">
-            <intent-filter android:label="@string/filter_title_item" android:autoVerify="true">
+            <intent-filter android:label="@string/title_activity_item" android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
@@ -95,7 +95,7 @@
                     android:pathPrefix="/item"
                     android:scheme="https" />
             </intent-filter>
-            <intent-filter android:label="@string/filter_title_item" android:autoVerify="true">
+            <intent-filter android:label="@string/title_activity_item" android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
