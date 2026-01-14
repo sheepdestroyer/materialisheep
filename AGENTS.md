@@ -20,16 +20,16 @@ The project has been upgraded to a modern Android build environment. Strict adhe
 
 ### 2. Android SDK
 
-- **`compileSdk`:** 33
-- **`targetSdk`:** 33
+- **`compileSdk`:** 36
+- **`targetSdk`:** 36
 - **`minSdk`:** 21
 - **`buildToolsVersion`:** The Android Gradle Plugin will automatically download the required version. Ensure the `ANDROID_HOME` environment variable is correctly set to your SDK location.
 
 ### 3. Gradle
 
-- **Gradle Version:** 8.9
-- **Android Gradle Plugin (AGP) Version:** 8.4.0
-- **Kotlin Version:** 2.0.0
+- **Gradle Version:** 8.12
+- **Android Gradle Plugin (AGP) Version:** 8.9.1
+- **Kotlin Version:** 2.1.0
 - The Gradle wrapper (`./gradlew`) is included in the repository and should be used for all build commands. It will automatically download the correct Gradle version.
 
 ## Building the Project
