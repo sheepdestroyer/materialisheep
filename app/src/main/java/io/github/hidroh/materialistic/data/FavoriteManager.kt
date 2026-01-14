@@ -329,6 +329,7 @@ class FavoriteManager @Inject constructor(
 
   @WorkerThread
   private fun delete(itemId: String?) {
+    if (itemId == null) return
     dao.deleteByItemId(itemId)
     loader?.load()
   }

@@ -211,6 +211,7 @@ public class DataModule {
      *         {@link SavedStoriesDao}.
      */
     @Provides
+    @Singleton
     public SavedStoriesDao provideSavedStoriesDao(MaterialisticDatabase database) {
         return database.getSavedStoriesDao();
     }

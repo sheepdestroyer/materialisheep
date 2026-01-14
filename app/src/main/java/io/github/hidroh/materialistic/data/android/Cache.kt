@@ -54,5 +54,5 @@ class Cache @Inject constructor(
         .subscribe({ database.setLiveValue(it) }, { t -> android.util.Log.e("Cache", "Failed to set live value", t) })
   }
 
-  override fun isFavorite(itemId: String?) = savedStoriesDao.selectByItemId(itemId) != null
+  override fun isFavorite(itemId: String?) = itemId != null && savedStoriesDao.selectByItemId(itemId) != null
 }

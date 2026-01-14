@@ -182,7 +182,7 @@ public class FavoriteRecyclerViewAdapter
 
     @Override
     protected void bindItem(final ItemViewHolder holder, int position) {
-        final Favorite favorite = getItem(holder.getBindingAdapterPosition());
+        final Favorite favorite = getItem(position);
         holder.setOnLongClickListener(v -> {
             if (mActionModeDelegate.startActionMode(mActionModeCallback)) {
                 toggle(favorite.getId(), holder.getBindingAdapterPosition());
