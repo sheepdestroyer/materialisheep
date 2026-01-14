@@ -110,6 +110,7 @@ public interface ReadabilityClient {
         }
 
         @Override
+        @android.annotation.SuppressLint("CheckResult")
         public void parse(String itemId, String url, Callback callback) {
             Observable.defer(() -> fromCache(itemId))
                     .subscribeOn(mIoScheduler)
@@ -124,6 +125,7 @@ public interface ReadabilityClient {
 
         @WorkerThread
         @Override
+        @android.annotation.SuppressLint("CheckResult")
         public void parse(String itemId, String url) {
             Observable.defer(() -> fromCache(itemId))
                     .subscribeOn(Schedulers.trampoline())

@@ -110,7 +110,6 @@ class WidgetHelper {
      *
      * @param appWidgetId the ID of the widget to refresh
      */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     void refresh(int appWidgetId) {
         mAppWidgetManager.notifyAppWidgetViewDataChanged(appWidgetId, android.R.id.list);
         update(appWidgetId);
@@ -128,8 +127,8 @@ class WidgetHelper {
 
     private void scheduleUpdate(int appWidgetId) {
         String frequency = getConfig(appWidgetId, R.string.pref_widget_frequency);
-        long frequencyHourMillis = DateUtils.HOUR_IN_MILLIS * (TextUtils.isEmpty(frequency) ?
-                DEFAULT_FREQUENCY_HOUR : Integer.valueOf(frequency));
+        long frequencyHourMillis = DateUtils.HOUR_IN_MILLIS
+                * (TextUtils.isEmpty(frequency) ? DEFAULT_FREQUENCY_HOUR : Integer.valueOf(frequency));
         getJobScheduler().schedule(new JobInfo.Builder(appWidgetId,
                 new ComponentName(mContext.getPackageName(), WidgetRefreshJobService.class.getName()))
                 .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
@@ -141,7 +140,6 @@ class WidgetHelper {
         getJobScheduler().cancel(appWidgetId);
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private JobScheduler getJobScheduler() {
         return (JobScheduler) mContext.getSystemService(Context.JOB_SCHEDULER_SERVICE);
     }
@@ -161,16 +159,11 @@ class WidgetHelper {
     private void updateTitle(RemoteViews remoteViews, WidgetConfig config) {
         remoteViews.setTextViewText(R.id.title, config.title);
         remoteViews.setOnClickPendingIntent(R.id.title,
-                PendingIntent.getActivity(mContext, 0, config.customQuery ?
-                        new Intent(mContext, config.destination)
-                                .putExtra(SearchManager.QUERY, config.title) :
-                        new Intent(mContext, config.destination),
-                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ?
-                                PendingIntent.FLAG_IMMUTABLE :
-                                0));
+                PendingIntent.getActivity(mContext, 0, config.customQuery ? new Intent(mContext, config.destination)
+                        .putExtra(SearchManager.QUERY, config.title) : new Intent(mContext, config.destination),
+                        PendingIntent.FLAG_IMMUTABLE));
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     private void updateCollection(int appWidgetId, RemoteViews remoteViews, WidgetConfig config) {
         remoteViews.setTextViewText(R.id.subtitle,
                 DateUtils.formatDateTime(mContext, System.currentTimeMillis(),
@@ -187,9 +180,7 @@ class WidgetHelper {
         remoteViews.setEmptyView(android.R.id.list, R.id.empty);
         remoteViews.setPendingIntentTemplate(android.R.id.list,
                 PendingIntent.getActivity(mContext, 0, new Intent(Intent.ACTION_VIEW),
-                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ?
-                                PendingIntent.FLAG_IMMUTABLE :
-                                0));
+                        PendingIntent.FLAG_IMMUTABLE));
     }
 
     private PendingIntent createRefreshPendingIntent(int appWidgetId) {
@@ -197,9 +188,7 @@ class WidgetHelper {
                 new Intent(WidgetProvider.ACTION_REFRESH_WIDGET)
                         .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
                         .setPackage(mContext.getPackageName()),
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ?
-                        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE :
-                        PendingIntent.FLAG_UPDATE_CURRENT);
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
     }
 
     /**
@@ -255,7 +244,7 @@ class WidgetHelper {
         }
 
         private WidgetConfig(Class<? extends Activity> destination, String title, String section,
-                             boolean isLightTheme, int widgetLayout) {
+                boolean isLightTheme, int widgetLayout) {
             this.destination = destination;
             this.title = title;
             this.section = section;

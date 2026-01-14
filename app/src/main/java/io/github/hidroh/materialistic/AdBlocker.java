@@ -49,6 +49,7 @@ public class AdBlocker {
      * @param context   The application context.
      * @param scheduler The RxJava scheduler to perform the operation on.
      */
+    @SuppressLint("CheckResult")
     public static void init(Context context, Scheduler scheduler) {
         Observable.fromCallable(() -> loadFromAssets(context))
                 .subscribeOn(scheduler)
@@ -73,7 +74,6 @@ public class AdBlocker {
      *
      * @return An empty WebResourceResponse.
      */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static WebResourceResponse createEmptyResource() {
         return new WebResourceResponse("text/plain", "utf-8", new ByteArrayInputStream("".getBytes()));
     }

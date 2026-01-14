@@ -20,6 +20,8 @@ public class StoryListViewModel extends ViewModel {
     private Scheduler mIoThreadScheduler;
     private MutableLiveData<Pair<Item[], Item[]>> mItems; // first = last updated, second = current
 
+    private final io.reactivex.rxjava3.disposables.CompositeDisposable mDisposables = new io.reactivex.rxjava3.disposables.CompositeDisposable();
+
     /**
      * Injects the dependencies.
      *
@@ -29,6 +31,12 @@ public class StoryListViewModel extends ViewModel {
     public void inject(ItemManager itemManager, Scheduler ioThreadScheduler) {
         mItemManager = itemManager;
         mIoThreadScheduler = ioThreadScheduler;
+    }
+
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        mDisposables.clear();
     }
 
     /**
@@ -41,11 +49,11 @@ public class StoryListViewModel extends ViewModel {
     public LiveData<Pair<Item[], Item[]>> getStories(String filter, @ItemManager.CacheMode int cacheMode) {
         if (mItems == null) {
             mItems = new MutableLiveData<>();
-            Observable.fromCallable(() -> mItemManager.getStories(filter, cacheMode))
+            mDisposables.add(Observable.fromCallable(() -> mItemManager.getStories(filter, cacheMode))
                     .subscribeOn(mIoThreadScheduler)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(items -> setItems(items),
-                            t -> Log.e("StoryListViewModel", "Error loading stories", t));
+                            t -> Log.e("StoryListViewModel", "Error loading stories", t)));
         }
         return mItems;
     }
@@ -60,11 +68,11 @@ public class StoryListViewModel extends ViewModel {
         if (mItems == null || mItems.getValue() == null) {
             return;
         }
-        Observable.fromCallable(() -> mItemManager.getStories(filter, cacheMode))
+        mDisposables.add(Observable.fromCallable(() -> mItemManager.getStories(filter, cacheMode))
                 .subscribeOn(mIoThreadScheduler)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(items -> setItems(items),
-                        t -> Log.e("StoryListViewModel", "Error refreshing stories", t));
+                        t -> Log.e("StoryListViewModel", "Error refreshing stories", t)));
 
     }
 

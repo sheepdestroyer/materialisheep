@@ -33,7 +33,8 @@ public class WebView extends android.webkit.WebView {
     static final String BLANK = "about:blank";
     static final String FILE = "file:///";
     private final HistoryWebViewClient mClient = new HistoryWebViewClient();
-    @Synthetic String mPendingUrl, mPendingHtml;
+    @Synthetic
+    String mPendingUrl, mPendingHtml;
 
     public WebView(Context context) {
         this(context, null);
@@ -109,19 +110,17 @@ public class WebView extends android.webkit.WebView {
             }
         }
 
-        @TargetApi(Build.VERSION_CODES.HONEYCOMB)
         @SuppressWarnings("deprecation")
         @Override
         public WebResourceResponse shouldInterceptRequest(android.webkit.WebView view, String url) {
-            return mClient != null ? mClient.shouldInterceptRequest(view, url) :
-                    super.shouldInterceptRequest(view, url);
+            return mClient != null ? mClient.shouldInterceptRequest(view, url)
+                    : super.shouldInterceptRequest(view, url);
         }
 
-        @TargetApi(Build.VERSION_CODES.LOLLIPOP)
         @Override
         public WebResourceResponse shouldInterceptRequest(android.webkit.WebView view, WebResourceRequest request) {
-            return mClient != null ? mClient.shouldInterceptRequest(view, request) :
-                    super.shouldInterceptRequest(view, request);
+            return mClient != null ? mClient.shouldInterceptRequest(view, request)
+                    : super.shouldInterceptRequest(view, request);
         }
 
         @Synthetic

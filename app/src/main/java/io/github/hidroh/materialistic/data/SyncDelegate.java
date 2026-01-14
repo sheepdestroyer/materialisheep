@@ -83,18 +83,21 @@ public class SyncDelegate {
     private final Context mContext;
     private ProgressListener mListener;
     private Job mJob;
-    @VisibleForTesting CacheableWebView mWebView;
+    @VisibleForTesting
+    CacheableWebView mWebView;
 
     /**
      * Constructs a new {@code SyncDelegate}.
      *
      * @param context           the application context
-     * @param factory           the {@link RestServiceFactory} to use for creating REST services
-     * @param readabilityClient the {@link ReadabilityClient} to use for fetching readable content
+     * @param factory           the {@link RestServiceFactory} to use for creating
+     *                          REST services
+     * @param readabilityClient the {@link ReadabilityClient} to use for fetching
+     *                          readable content
      */
     @Inject
     SyncDelegate(Context context, RestServiceFactory factory,
-                 ReadabilityClient readabilityClient) {
+            ReadabilityClient readabilityClient) {
         mContext = context;
         mSharedPreferences = context.getSharedPreferences(
                 context.getPackageName() + SYNC_PREFERENCES_FILE, Context.MODE_PRIVATE);
@@ -110,7 +113,7 @@ public class SyncDelegate {
             mNotificationManager.createNotificationChannel(channel);
             mNotificationBuilder = new NotificationCompat.Builder(context, DOWNLOADS_CHANNEL_ID);
         } else {
-            //noinspection deprecation
+            // noinspection deprecation
             mNotificationBuilder = new NotificationCompat.Builder(context);
         }
         mNotificationBuilder
@@ -138,9 +141,8 @@ public class SyncDelegate {
             JobInfo.Builder builder = new JobInfo.Builder(Long.valueOf(job.id).intValue(),
                     new ComponentName(context.getPackageName(),
                             ItemSyncJobService.class.getName()))
-                    .setRequiredNetworkType(Preferences.Offline.isWifiOnly(context) ?
-                            JobInfo.NETWORK_TYPE_UNMETERED :
-                            JobInfo.NETWORK_TYPE_ANY)
+                    .setRequiredNetworkType(Preferences.Offline.isWifiOnly(context) ? JobInfo.NETWORK_TYPE_UNMETERED
+                            : JobInfo.NETWORK_TYPE_ANY)
                     .setExtras(job.toPersistableBundle());
             if (Preferences.Offline.currentConnectionEnabled(context)) {
                 builder.setOverrideDeadline(0);
@@ -202,7 +204,7 @@ public class SyncDelegate {
             mHnRestService.networkItem(itemId).enqueue(new Callback<HackerNewsItem>() {
                 @Override
                 public void onResponse(Call<HackerNewsItem> call,
-                                       retrofit2.Response<HackerNewsItem> response) {
+                        retrofit2.Response<HackerNewsItem> response) {
                     HackerNewsItem item;
                     if ((item = response.body()) != null) {
                         sync(item);
@@ -339,9 +341,7 @@ public class SyncDelegate {
                         .setData(AppUtils.createItemUri(itemId))
                         .putExtra(ItemActivity.EXTRA_CACHE_MODE, ItemManager.MODE_CACHE)
                         .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ?
-                        PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE :
-                        PendingIntent.FLAG_ONE_SHOT);
+                PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
     }
 
     private static class SyncProgress {
@@ -370,12 +370,12 @@ public class SyncDelegate {
         }
 
         int getProgress() {
-            return (self != null ? 1 : 0) + finishedKids + (readability != null && readability ? 1 :0) + webProgress;
+            return (self != null ? 1 : 0) + finishedKids + (readability != null && readability ? 1 : 0) + webProgress;
         }
 
         @Synthetic
         void finishItem(@NonNull String id, @Nullable HackerNewsItem item,
-                        boolean kidsEnabled, boolean readabilityEnabled) {
+                boolean kidsEnabled, boolean readabilityEnabled) {
             if (TextUtils.equals(id, this.id)) {
                 finishSelf(item, kidsEnabled, readabilityEnabled);
             } else {
@@ -395,7 +395,7 @@ public class SyncDelegate {
         }
 
         private void finishSelf(@Nullable HackerNewsItem item, boolean kidsEnabled,
-                                boolean readabilityEnabled) {
+                boolean readabilityEnabled) {
             self = item != null;
             title = item != null ? item.getTitle() : null;
             if (kidsEnabled && item != null && item.getKids() != null) {
@@ -416,7 +416,9 @@ public class SyncDelegate {
 
     private static class BackgroundThreadExecutor implements Executor {
 
-        @Synthetic BackgroundThreadExecutor() { }
+        @Synthetic
+        BackgroundThreadExecutor() {
+        }
 
         @Override
         public void execute(@NonNull Runnable r) {
@@ -447,7 +449,6 @@ public class SyncDelegate {
             this.id = id;
         }
 
-        @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
         Job(PersistableBundle bundle) {
             id = bundle.getString(EXTRA_ID);
             connectionEnabled = bundle.getInt(EXTRA_CONNECTION_ENABLED) == 1;
@@ -466,8 +467,8 @@ public class SyncDelegate {
             notificationEnabled = bundle.getBoolean(EXTRA_NOTIFICATION_ENABLED);
         }
 
-        @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-        @Synthetic PersistableBundle toPersistableBundle() {
+        @Synthetic
+        PersistableBundle toPersistableBundle() {
             PersistableBundle bundle = new PersistableBundle();
             bundle.putString(EXTRA_ID, id);
             bundle.putInt(EXTRA_CONNECTION_ENABLED, connectionEnabled ? 1 : 0);
@@ -478,7 +479,8 @@ public class SyncDelegate {
             return bundle;
         }
 
-        @Synthetic Bundle toBundle() {
+        @Synthetic
+        Bundle toBundle() {
             Bundle bundle = new Bundle();
             bundle.putString(EXTRA_ID, id);
             bundle.putBoolean(EXTRA_CONNECTION_ENABLED, connectionEnabled);

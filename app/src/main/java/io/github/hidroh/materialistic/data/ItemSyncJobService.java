@@ -34,10 +34,11 @@ import io.github.hidroh.materialistic.MaterialisticApplication;
 /**
  * A {@link JobService} that syncs items.
  */
-@TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public class ItemSyncJobService extends JobService {
-    @Inject RestServiceFactory mFactory;
-    @Inject ReadabilityClient mReadabilityClient;
+    @Inject
+    RestServiceFactory mFactory;
+    @Inject
+    ReadabilityClient mReadabilityClient;
     private final Map<String, SyncDelegate> mSyncDelegates = new HashMap<>();
 
     @Override

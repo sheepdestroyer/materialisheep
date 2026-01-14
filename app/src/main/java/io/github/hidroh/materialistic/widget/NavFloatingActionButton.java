@@ -62,14 +62,18 @@ public class NavFloatingActionButton extends FloatingActionButton implements Vie
             Navigable.DIRECTION_RIGHT,
             DOUBLE_TAP
     };
-    @Synthetic final Vibrator mVibrator;
+    @Synthetic
+    final Vibrator mVibrator;
     private final Preferences.Observable mPreferenceObservable = new Preferences.Observable();
-    @Synthetic Navigable mNavigable;
-    @Synthetic boolean mMoved;
+    @Synthetic
+    Navigable mNavigable;
+    @Synthetic
+    boolean mMoved;
     private int mNextKonamiCode = 0;
     private SharedPreferences mPreferences;
     private String mPreferenceX, mPreferenceY;
-    @Synthetic boolean mVibrationEnabled;
+    @Synthetic
+    boolean mVibrationEnabled;
 
     public static void resetPosition(Context context) {
         getSharedPreferences(context).edit().clear().apply();
@@ -98,8 +102,8 @@ public class NavFloatingActionButton extends FloatingActionButton implements Vie
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
         getViewTreeObserver().addOnGlobalLayoutListener(this);
-        mPreferenceObservable.subscribe(getContext(), (key, contextChanged) ->
-                mVibrationEnabled = Preferences.navigationVibrationEnabled(getContext()),
+        mPreferenceObservable.subscribe(getContext(),
+                (key, contextChanged) -> mVibrationEnabled = Preferences.navigationVibrationEnabled(getContext()),
                 R.string.pref_navigation_vibrate);
     }
 
@@ -143,14 +147,12 @@ public class NavFloatingActionButton extends FloatingActionButton implements Vie
 
                     @Override
                     public boolean onFling(MotionEvent motionEvent, MotionEvent motionEvent1,
-                                           float velocityX, float velocityY) {
+                            float velocityX, float velocityY) {
                         int direction;
                         if (Math.abs(velocityX) > Math.abs(velocityY)) {
-                            direction = velocityX < 0 ?
-                                    Navigable.DIRECTION_LEFT : Navigable.DIRECTION_RIGHT;
+                            direction = velocityX < 0 ? Navigable.DIRECTION_LEFT : Navigable.DIRECTION_RIGHT;
                         } else {
-                            direction = velocityY < 0 ?
-                                    Navigable.DIRECTION_UP : Navigable.DIRECTION_DOWN;
+                            direction = velocityY < 0 ? Navigable.DIRECTION_UP : Navigable.DIRECTION_DOWN;
                         }
                         mNavigable.onNavigate(direction);
                         if (mVibrationEnabled) {
@@ -168,7 +170,7 @@ public class NavFloatingActionButton extends FloatingActionButton implements Vie
                         startDrag(e.getX(), e.getY());
                     }
                 });
-        //noinspection Convert2Lambda
+        // noinspection Convert2Lambda
         super.setOnTouchListener(new OnTouchListener() {
             @SuppressLint("ClickableViewAccessibility")
             @Override
@@ -184,10 +186,8 @@ public class NavFloatingActionButton extends FloatingActionButton implements Vie
             mVibrator.vibrate(VIBRATE_DURATION_MS * 2);
         }
         Toast.makeText(getContext(), R.string.hint_drag, Toast.LENGTH_SHORT).show();
-        //noinspection Convert2Lambda
+        // noinspection Convert2Lambda
         super.setOnTouchListener(new OnTouchListener() {
-            @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-            @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 switch (motionEvent.getAction()) {
                     case MotionEvent.ACTION_MOVE:
@@ -218,13 +218,13 @@ public class NavFloatingActionButton extends FloatingActionButton implements Vie
         } else if (mNextKonamiCode == KONAMI_CODE.length - 1) {
             mNextKonamiCode = 0;
             if (mVibrationEnabled) {
-                mVibrator.vibrate(new long[]{0, VIBRATE_DURATION_MS * 2,
-                        100, VIBRATE_DURATION_MS * 2}, -1);
+                mVibrator.vibrate(new long[] { 0, VIBRATE_DURATION_MS * 2,
+                        100, VIBRATE_DURATION_MS * 2 }, -1);
             }
             new AlertDialog.Builder(getContext())
                     .setView(R.layout.dialog_konami)
-                    .setPositiveButton(android.R.string.ok, (dialogInterface, i) ->
-                            AppUtils.openPlayStore(getContext()))
+                    .setPositiveButton(android.R.string.ok,
+                            (dialogInterface, i) -> AppUtils.openPlayStore(getContext()))
                     .create()
                     .show();
             return true;
@@ -245,8 +245,8 @@ public class NavFloatingActionButton extends FloatingActionButton implements Vie
     }
 
     @SuppressLint("CommitPrefEdits")
-    @RequiresApi(api = Build.VERSION_CODES.HONEYCOMB)
-    @Synthetic void persistPosition() {
+    @Synthetic
+    void persistPosition() {
         getPreferences()
                 .edit()
                 .putFloat(mPreferenceX, getX())
@@ -254,7 +254,6 @@ public class NavFloatingActionButton extends FloatingActionButton implements Vie
                 .apply();
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.HONEYCOMB)
     private void restorePosition() {
         setX(getPreferences().getFloat(mPreferenceX, getX()));
         setY(getPreferences().getFloat(mPreferenceY, getY()));
