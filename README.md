@@ -51,11 +51,10 @@ The codebase is organized into the following packages:
     git clone https://github.com/hidroh/materialistic.git
     ```
 2.  Build the project:
-3.  Build the project:
     ```
     ./gradlew assembleDebug
     ```
-4.  To build with LeakCanary enabled, run:
+3.  To build with LeakCanary enabled, run:
     ```
     ./gradlew assembleDebug -Pleak
     ```
