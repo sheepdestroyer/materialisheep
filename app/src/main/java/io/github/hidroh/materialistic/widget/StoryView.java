@@ -262,7 +262,7 @@ public class StoryView extends RelativeLayout implements Checkable {
 
             @Override
             public void onAnimationEnd(Animation animation) {
-                new Handler().postDelayed(mVoteSwitcher::showNext, VOTE_DELAY_MILLIS);
+                new Handler(android.os.Looper.getMainLooper()).postDelayed(mVoteSwitcher::showNext, VOTE_DELAY_MILLIS);
                 mScoreTextView.setText(getContext().getResources()
                         .getQuantityString(R.plurals.score, newScore, newScore));
                 mVoteSwitcher.getInAnimation().setAnimationListener(null);

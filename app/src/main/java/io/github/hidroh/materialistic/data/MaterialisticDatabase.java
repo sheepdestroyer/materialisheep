@@ -332,37 +332,6 @@ public abstract class MaterialisticDatabase extends RoomDatabase {
     }
 
     /**
-     * A DAO for accessing saved stories.
-     */
-    @Dao
-    public interface SavedStoriesDao {
-        @Query("SELECT * FROM saved ORDER BY time DESC")
-        LiveData<List<SavedStory>> selectAll();
-
-        @Query("SELECT * FROM saved ORDER BY time DESC")
-        Cursor selectAllToCursor();
-
-        @Query("SELECT * FROM saved WHERE title LIKE '%' || :query || '%' ORDER BY time DESC")
-        Cursor searchToCursor(String query);
-
-        @Insert(onConflict = OnConflictStrategy.REPLACE)
-        void insert(SavedStory... savedStories);
-
-        @Query("DELETE FROM saved")
-        int deleteAll();
-
-        @Query("DELETE FROM saved WHERE itemid = :itemId")
-        int deleteByItemId(String itemId);
-
-        @Query("DELETE FROM saved WHERE title LIKE '%' || :query || '%'")
-        int deleteByTitle(String query);
-
-        @Query("SELECT * FROM saved WHERE itemid = :itemId")
-        @Nullable
-        SavedStory selectByItemId(String itemId);
-    }
-
-    /**
      * A DAO for accessing read stories.
      */
     @Dao

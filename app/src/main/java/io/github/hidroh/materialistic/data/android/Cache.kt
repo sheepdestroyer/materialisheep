@@ -19,6 +19,7 @@ package io.github.hidroh.materialistic.data.android
 import io.github.hidroh.materialistic.DataModule
 import io.github.hidroh.materialistic.data.LocalCache
 import io.github.hidroh.materialistic.data.MaterialisticDatabase
+import io.github.hidroh.materialistic.data.SavedStoriesDao
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Scheduler
 import javax.inject.Inject
@@ -30,7 +31,7 @@ import javax.inject.Named
  */
 class Cache @Inject constructor(
     private val database: MaterialisticDatabase,
-    private val savedStoriesDao: MaterialisticDatabase.SavedStoriesDao,
+    private val savedStoriesDao: SavedStoriesDao,
     private val readStoriesDao: MaterialisticDatabase.ReadStoriesDao,
     private val readableDao: MaterialisticDatabase.ReadableDao,
     @Named(DataModule.MAIN_THREAD) private val mainScheduler: Scheduler) : LocalCache {
@@ -53,5 +54,5 @@ class Cache @Inject constructor(
         .subscribe({ database.setLiveValue(it) }, { t -> android.util.Log.e("Cache", "Failed to set live value", t) })
   }
 
-  override fun isFavorite(itemId: String?) = savedStoriesDao.selectByItemId(itemId) != null
+  override fun isFavorite(itemId: String?) = itemId != null && savedStoriesDao.selectByItemId(itemId) != null
 }

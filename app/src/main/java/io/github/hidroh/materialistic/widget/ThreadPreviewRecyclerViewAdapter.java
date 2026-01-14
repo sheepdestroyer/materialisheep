@@ -95,7 +95,7 @@ public class ThreadPreviewRecyclerViewAdapter extends ItemRecyclerViewAdapter<Su
         holder.mContentTextView.setVisibility(holder.mContentTextView.length() > 0 ? View.VISIBLE : View.GONE);
         if (!mExpanded.contains(item.getId()) && item.getParentItem() != null) {
             mExpanded.add(item.getId());
-            new Handler().post(() -> {
+            new Handler(android.os.Looper.getMainLooper()).post(() -> {
                 mItems.add(0, item.getParentItem()); // recursive
                 notifyItemInserted(0);
                 notifyItemRangeChanged(1, mItems.size());

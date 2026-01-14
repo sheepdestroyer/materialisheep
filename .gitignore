@@ -53,3 +53,4 @@ status_output.txt
 gha-creds-*.json
 tests/artifacts/
 
+build_log*.txt

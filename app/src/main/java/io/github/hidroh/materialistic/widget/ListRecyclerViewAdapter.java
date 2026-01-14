@@ -44,11 +44,12 @@ import io.github.hidroh.materialistic.data.WebItem;
 
 /**
  * Base {@link RecyclerView.Adapter} class for list items
- * @param <VH>  view holder type, should contain title, posted, source and comment views
- * @param <T>   item type, should provide title, posted, source
+ * 
+ * @param <VH> view holder type, should contain title, posted, source and
+ *             comment views
+ * @param <T>  item type, should provide title, posted, source
  */
-public abstract class ListRecyclerViewAdapter
-        <VH extends ListRecyclerViewAdapter.ItemViewHolder, T extends WebItem>
+public abstract class ListRecyclerViewAdapter<VH extends ListRecyclerViewAdapter.ItemViewHolder, T extends WebItem>
         extends RecyclerView.Adapter<VH> {
 
     private static final String STATE_LAST_SELECTION_POSITION = "state:lastSelectedPosition";
@@ -58,10 +59,14 @@ public abstract class ListRecyclerViewAdapter
     protected Context mContext;
     private MultiPaneListener mMultiPaneListener;
     LayoutInflater mInflater;
-    @Inject PopupMenu mPopupMenu;
-    @Inject AlertDialogBuilder mAlertDialogBuilder;
-    @Inject UserServices mUserServices;
-    @Inject FavoriteManager mFavoriteManager;
+    @Inject
+    PopupMenu mPopupMenu;
+    @Inject
+    AlertDialogBuilder mAlertDialogBuilder;
+    @Inject
+    UserServices mUserServices;
+    @Inject
+    FavoriteManager mFavoriteManager;
     private int mLastSelectedPosition = -1;
     private boolean mCardViewEnabled = true;
     private int mHotThreshold = Integer.MAX_VALUE;
@@ -78,8 +83,8 @@ public abstract class ListRecyclerViewAdapter
     @Override
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
-        mPreferenceObservable.subscribe(mContext, (key, contextChanged) ->
-                mMultiWindowEnabled = Preferences.multiWindowEnabled(mContext),
+        mPreferenceObservable.subscribe(mContext,
+                (key, contextChanged) -> mMultiWindowEnabled = Preferences.multiWindowEnabled(mContext),
                 R.string.pref_multi_window);
     }
 
@@ -103,7 +108,10 @@ public abstract class ListRecyclerViewAdapter
         final T item = getItem(position);
         clearViewHolder(holder);
         if (!isItemAvailable(item)) {
-            loadItem(holder.getAdapterPosition());
+            int adapterPosition = holder.getBindingAdapterPosition();
+            if (adapterPosition != RecyclerView.NO_POSITION) {
+                loadItem(adapterPosition);
+            }
             return;
         }
         // TODO naive launch priority for now
@@ -178,8 +186,9 @@ public abstract class ListRecyclerViewAdapter
 
     /**
      * Checks if item with given ID has been selected
-     * @param itemId    item ID to check
-     * @return  true if selected, false otherwise or if selection is disabled
+     * 
+     * @param itemId item ID to check
+     * @return true if selected, false otherwise or if selection is disabled
      */
     protected boolean isSelected(String itemId) {
         return mMultiPaneListener.isMultiPane() &&
@@ -189,24 +198,30 @@ public abstract class ListRecyclerViewAdapter
 
     /**
      * Gets item at position
-     * @param position    item position
+     * 
+     * @param position item position
      * @return item at given position or null
      */
     protected abstract T getItem(int position);
 
     /**
      * Handles item click
-     * @param item      clicked item
-     * @param holder    clicked item view holder
+     * 
+     * @param item   clicked item
+     * @param holder clicked item view holder
      */
     protected void handleItemClick(T item, VH holder) {
         mMultiPaneListener.onItemSelected(item);
         if (isSelected(item.getId())) {
-            notifyItemChanged(holder.getAdapterPosition());
+            int position = holder.getBindingAdapterPosition();
+            if (position == RecyclerView.NO_POSITION) {
+                return;
+            }
+            notifyItemChanged(position);
             if (mLastSelectedPosition >= 0) {
                 notifyItemChanged(mLastSelectedPosition);
             }
-            mLastSelectedPosition = holder.getAdapterPosition();
+            mLastSelectedPosition = position;
         }
     }
 
@@ -223,8 +238,7 @@ public abstract class ListRecyclerViewAdapter
                 .putExtra(ItemActivity.EXTRA_CACHE_MODE, getItemCacheMode())
                 .putExtra(ItemActivity.EXTRA_ITEM, item)
                 .putExtra(ItemActivity.EXTRA_OPEN_COMMENTS, true);
-        mContext.startActivity(mMultiWindowEnabled ?
-                AppUtils.multiWindowIntent((Activity) mContext, intent) : intent);
+        mContext.startActivity(mMultiWindowEnabled ? AppUtils.multiWindowIntent((Activity) mContext, intent) : intent);
     }
 
     /**
@@ -248,13 +262,12 @@ public abstract class ListRecyclerViewAdapter
         }
 
         public void bind(WebItem item,
-                         int hotThreshold,
-                         boolean selected,
-                         boolean cardViewEnabled,
-                         View.OnClickListener itemClickListener,
-                         View.OnClickListener commentClickListener) {
-            mCardView.setCardElevation(selected ? mCardElevation * 2 :
-                    (cardViewEnabled ? mCardElevation : 0));
+                int hotThreshold,
+                boolean selected,
+                boolean cardViewEnabled,
+                View.OnClickListener itemClickListener,
+                View.OnClickListener commentClickListener) {
+            mCardView.setCardElevation(selected ? mCardElevation * 2 : (cardViewEnabled ? mCardElevation : 0));
             mStoryView.setStory(item, hotThreshold);
             mStoryView.setChecked(selected);
             itemView.setOnClickListener(itemClickListener);

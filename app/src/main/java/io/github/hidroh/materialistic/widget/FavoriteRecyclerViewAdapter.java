@@ -50,15 +50,18 @@ import io.github.hidroh.materialistic.data.Favorite;
 import io.github.hidroh.materialistic.data.ItemManager;
 import io.github.hidroh.materialistic.data.SyncScheduler;
 
-public class FavoriteRecyclerViewAdapter extends ListRecyclerViewAdapter
-        <ListRecyclerViewAdapter.ItemViewHolder, Favorite> {
+public class FavoriteRecyclerViewAdapter
+        extends ListRecyclerViewAdapter<ListRecyclerViewAdapter.ItemViewHolder, Favorite> {
 
-    @Inject SyncScheduler mSyncScheduler;
+    @Inject
+    SyncScheduler mSyncScheduler;
 
     public interface ActionModeDelegate {
 
         boolean startActionMode(ActionMode.Callback callback);
+
         boolean isInActionMode();
+
         void stopActionMode();
     }
 
@@ -117,9 +120,12 @@ public class FavoriteRecyclerViewAdapter extends ListRecyclerViewAdapter
             notifyDataSetChanged();
         }
     };
-    @Synthetic final ActionModeDelegate mActionModeDelegate;
-    @Synthetic final MenuTintDelegate mMenuTintDelegate;
-    @Synthetic final ArrayMap<Integer, String> mSelected = new ArrayMap<>();
+    @Synthetic
+    final ActionModeDelegate mActionModeDelegate;
+    @Synthetic
+    final MenuTintDelegate mMenuTintDelegate;
+    @Synthetic
+    final ArrayMap<Integer, String> mSelected = new ArrayMap<>();
     private int mPendingAdd = -1;
 
     public FavoriteRecyclerViewAdapter(Context context, ActionModeDelegate actionModeDelegate) {
@@ -130,7 +136,7 @@ public class FavoriteRecyclerViewAdapter extends ListRecyclerViewAdapter
         mItemTouchHelper = new ItemTouchHelper(new ItemTouchHelperCallback(mContext) {
             @Override
             public int getSwipeDirs(RecyclerView recyclerView,
-                                    RecyclerView.ViewHolder viewHolder) {
+                    RecyclerView.ViewHolder viewHolder) {
                 if (mActionModeDelegate != null && mActionModeDelegate.isInActionMode()) {
                     return 0;
                 }
@@ -139,14 +145,18 @@ public class FavoriteRecyclerViewAdapter extends ListRecyclerViewAdapter
 
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                int position = viewHolder.getBindingAdapterPosition();
+                if (position == RecyclerView.NO_POSITION) {
+                    return;
+                }
                 if (direction == ItemTouchHelper.LEFT) {
-                    dismiss(viewHolder.itemView, viewHolder.getAdapterPosition());
+                    dismiss(viewHolder.itemView, position);
                 } else {
-                    Favorite item = getItem(viewHolder.getAdapterPosition());
+                    Favorite item = getItem(position);
                     if (item != null) {
                         mSyncScheduler.scheduleSync(mContext, item.getId());
                     }
-                    notifyItemChanged(viewHolder.getAdapterPosition());
+                    notifyItemChanged(position);
                 }
             }
         });
@@ -176,13 +186,14 @@ public class FavoriteRecyclerViewAdapter extends ListRecyclerViewAdapter
 
     @Override
     protected void bindItem(final ItemViewHolder holder, int position) {
-        final Favorite favorite = getItem(holder.getAdapterPosition());
+        final Favorite favorite = getItem(position);
         holder.setOnLongClickListener(v -> {
-            if (mActionModeDelegate.startActionMode(mActionModeCallback)) {
-                toggle(favorite.getId(), holder.getAdapterPosition());
+            int adapterPosition = holder.getBindingAdapterPosition();
+            if (adapterPosition != RecyclerView.NO_POSITION
+                    && mActionModeDelegate.startActionMode(mActionModeCallback)) {
+                toggle(favorite.getId(), adapterPosition);
                 return true;
             }
-
             return false;
         });
         holder.bindMoreOptions(v -> showMoreOptions(v, favorite), false);
@@ -198,7 +209,10 @@ public class FavoriteRecyclerViewAdapter extends ListRecyclerViewAdapter
         if (!mActionModeDelegate.isInActionMode()) {
             super.handleItemClick(item, holder);
         } else {
-            toggle(item.getId(), holder.getAdapterPosition());
+            int position = holder.getBindingAdapterPosition();
+            if (position != RecyclerView.NO_POSITION) {
+                toggle(item.getId(), position);
+            }
         }
     }
 
@@ -349,7 +363,8 @@ public class FavoriteRecyclerViewAdapter extends ListRecyclerViewAdapter
         }
 
         @Override
-        public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+        public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX,
+                float dY, int actionState, boolean isCurrentlyActive) {
             float alpha = 1 - Math.abs(dX) / viewHolder.itemView.getWidth();
             viewHolder.itemView.setAlpha(alpha);
             super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);

@@ -30,7 +30,7 @@ import java.io.File
 /**
  * Closes this [Closeable] quietly.
  */
-inline fun Closeable?.closeQuietly() {
+fun Closeable?.closeQuietly() {
     try {
         this?.close()
     } catch (ignored: java.io.IOException) {
@@ -44,7 +44,7 @@ inline fun Closeable?.closeQuietly() {
  * @param authority the authority of the file provider
  * @return a content URI for this file
  */
-inline fun File.getUri(context: Context, authority: String) =
+fun File.getUri(context: Context, authority: String) =
     FileProvider.getUriForFile(context, authority, this)!!
 
 /**
@@ -53,7 +53,7 @@ inline fun File.getUri(context: Context, authority: String) =
  * @param context the context
  * @return a chooser intent for sending this URI
  */
-inline fun Uri.toSendIntentChooser(context: Context) =
+fun Uri.toSendIntentChooser(context: Context) =
     AppUtils.makeSendIntentChooser(context, this)!!
 
 /**

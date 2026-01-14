@@ -74,9 +74,10 @@ public class StoryRecyclerViewAdapter extends
     private final RecyclerView.OnScrollListener mAutoViewScrollListener = new RecyclerView.OnScrollListener() {
         @Override
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-            if (dy > 0) { // scrolling down
-                markAsViewed(((LinearLayoutManager) recyclerView.getLayoutManager())
-                        .findFirstVisibleItemPosition() - 1);
+            if (dy > 0) { // scrolling
+                          // down
+                markAsViewed(
+                        ((LinearLayoutManager) recyclerView.getLayoutManager()).findFirstVisibleItemPosition() - 1);
             }
         }
     };
@@ -97,18 +98,26 @@ public class StoryRecyclerViewAdapter extends
             return item1.getLongId() == item2.getLongId();
         }
     };
-    @Inject @Named(HN) ItemManager mItemManager;
-    @Inject SessionManager mSessionManager;
-    @Synthetic final SortedList<Item> mItems = new SortedList<>(Item.class, mSortedListCallback);
-    @Synthetic final ArraySet<Item> mAdded = new ArraySet<>();
-    @Synthetic final ArrayMap<String, Integer> mPromoted = new ArrayMap<>();
-    @Synthetic int mFavoriteRevision = 1;
+    @Inject
+    @Named(HN)
+    ItemManager mItemManager;
+    @Inject
+    SessionManager mSessionManager;
+    @Synthetic
+    final SortedList<Item> mItems = new SortedList<>(Item.class, mSortedListCallback);
+    @Synthetic
+    final ArraySet<Item> mAdded = new ArraySet<>();
+    @Synthetic
+    final ArrayMap<String, Integer> mPromoted = new ArrayMap<>();
+    @Synthetic
+    int mFavoriteRevision = 1;
     private String mUsername;
     private boolean mHighlightUpdated = true;
     private boolean mShowAll = true;
     private int mCacheMode = ItemManager.MODE_DEFAULT;
     private ItemTouchHelper mItemTouchHelper;
-    @Synthetic ItemTouchHelperCallback mCallback;
+    @Synthetic
+    ItemTouchHelperCallback mCallback;
     @SuppressLint("NotifyDataSetChanged")
     private final Observer<Uri> mObserver = uri -> {
         if (uri == null) {
@@ -154,7 +163,11 @@ public class StoryRecyclerViewAdapter extends
                 Preferences.getListSwipePreferences(context)) {
             @Override
             public int getSwipeDirs(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
-                Item item = getItem(viewHolder.getAdapterPosition());
+                int position = viewHolder.getBindingAdapterPosition();
+                if (position == NO_POSITION) {
+                    return 0;
+                }
+                Item item = getItem(position);
                 if (item == null) {
                     return 0;
                 }
@@ -165,9 +178,13 @@ public class StoryRecyclerViewAdapter extends
 
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-                Preferences.SwipeAction action = direction == ItemTouchHelper.LEFT ?
-                        getLeftSwipeAction() : getRightSwipeAction();
-                Item item = getItem(viewHolder.getAdapterPosition());
+                Preferences.SwipeAction action = direction == ItemTouchHelper.LEFT ? getLeftSwipeAction()
+                        : getRightSwipeAction();
+                int position = viewHolder.getBindingAdapterPosition();
+                if (position == NO_POSITION) {
+                    return;
+                }
+                Item item = getItem(position);
                 if (item == null) {
                     return;
                 }
@@ -179,11 +196,15 @@ public class StoryRecyclerViewAdapter extends
                         refresh(item, viewHolder);
                         break;
                     case Vote:
-                        notifyItemChanged(viewHolder.getAdapterPosition());
+                        int votePosition = viewHolder.getBindingAdapterPosition();
+                        if (votePosition == NO_POSITION) {
+                            return;
+                        }
+                        notifyItemChanged(votePosition);
                         vote(item, viewHolder);
                         break;
                     case Share:
-                        notifyItemChanged(viewHolder.getAdapterPosition());
+                        notifyItemChanged(viewHolder.getBindingAdapterPosition());
                         AppUtils.share(mContext, item.getDisplayedTitle(), item.getUrl());
                         break;
                 }
@@ -204,6 +225,7 @@ public class StoryRecyclerViewAdapter extends
                 }
                 return swipeDirs;
             }
+
         };
         mItemTouchHelper = new ItemTouchHelper(mCallback);
     }
@@ -276,6 +298,11 @@ public class StoryRecyclerViewAdapter extends
 
     public void setUpdateListener(UpdateListener updateListener) {
         mUpdateListener = updateListener;
+    }
+
+    @Synthetic
+    int getPosition(Item item) {
+        return mItems.indexOf(item);
     }
 
     public SortedList<Item> getItems() {
@@ -388,8 +415,7 @@ public class StoryRecyclerViewAdapter extends
 
             @Override
             public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-                return mItems.get(oldItemPosition).getLongId() ==
-                        items[newItemPosition].getLongId();
+                return mItems.get(oldItemPosition).getLongId() == items[newItemPosition].getLongId();
             }
 
             @Override
@@ -500,14 +526,18 @@ public class StoryRecyclerViewAdapter extends
 
     @Synthetic
     void refresh(Item story, RecyclerView.ViewHolder holder) {
+        int position = holder.getBindingAdapterPosition();
+        if (position == NO_POSITION) {
+            return;
+        }
         story.setLocalRevision(-1);
-        notifyItemChanged(holder.getAdapterPosition());
+        notifyItemChanged(position);
     }
 
     @Synthetic
     void vote(final Item story, final RecyclerView.ViewHolder holder) {
         if (!mUserServices.voteUp(mContext, story.getId(),
-                new VoteCallback(this, holder.getAdapterPosition(), story))) {
+                new VoteCallback(this, story))) {
             AppUtils.showLogin(mContext, mAlertDialogBuilder);
         }
     }
@@ -518,7 +548,7 @@ public class StoryRecyclerViewAdapter extends
             Toast.makeText(mContext, R.string.vote_failed, Toast.LENGTH_SHORT).show();
         } else if (successful) {
             Toast.makeText(mContext, R.string.voted, Toast.LENGTH_SHORT).show();
-            if (position < getItemCount()) {
+            if (position != NO_POSITION && position < getItemCount()) {
                 notifyItemChanged(position, VOTED);
             }
         }
@@ -533,8 +563,7 @@ public class StoryRecyclerViewAdapter extends
         if (position < 0) {
             return;
         }
-        Item item = mItems != null && position < mItems.size() ?
-                mItems.get(position) : null;
+        Item item = mItems != null && position < mItems.size() ? mItems.get(position) : null;
         if (item == null || !isItemAvailable(item) || item.isViewed()) {
             return;
         }
@@ -555,7 +584,7 @@ public class StoryRecyclerViewAdapter extends
 
         @Synthetic
         ItemResponseListener(StoryRecyclerViewAdapter adapter,
-                                    Item partialItem) {
+                Item partialItem) {
             mAdapter = new WeakReference<>(adapter);
             mPartialItem = partialItem;
         }
@@ -576,14 +605,11 @@ public class StoryRecyclerViewAdapter extends
 
     static class VoteCallback extends UserServices.Callback {
         private final WeakReference<StoryRecyclerViewAdapter> mAdapter;
-        private final int mPosition;
         private final Item mItem;
 
         @Synthetic
-        VoteCallback(StoryRecyclerViewAdapter adapter, int position,
-                            Item item) {
+        VoteCallback(StoryRecyclerViewAdapter adapter, Item item) {
             mAdapter = new WeakReference<>(adapter);
-            mPosition = position;
             mItem = item;
         }
 
@@ -592,15 +618,17 @@ public class StoryRecyclerViewAdapter extends
             // TODO update locally only, as API does not update instantly
             mItem.incrementScore();
             mItem.clearPendingVoted();
-            if (mAdapter.get() != null && mAdapter.get().isAttached()) {
-                mAdapter.get().onVoted(mPosition, successful);
+            StoryRecyclerViewAdapter adapter = mAdapter.get();
+            if (adapter != null && adapter.isAttached()) {
+                adapter.onVoted(adapter.getPosition(mItem), successful);
             }
         }
 
         @Override
         public void onError(Throwable throwable) {
-            if (mAdapter.get() != null && mAdapter.get().isAttached()) {
-                mAdapter.get().onVoted(mPosition, null);
+            StoryRecyclerViewAdapter adapter = mAdapter.get();
+            if (adapter != null && adapter.isAttached()) {
+                adapter.onVoted(adapter.getPosition(mItem), null);
             }
         }
     }

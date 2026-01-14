@@ -36,6 +36,7 @@ import io.github.hidroh.materialistic.data.MaterialisticDatabase;
 import io.github.hidroh.materialistic.data.ReadabilityClient;
 import io.github.hidroh.materialistic.data.SyncScheduler;
 import io.github.hidroh.materialistic.data.UserManager;
+import io.github.hidroh.materialistic.data.SavedStoriesDao;
 import io.github.hidroh.materialistic.data.android.Cache;
 import okhttp3.Call;
 import io.reactivex.rxjava3.core.Scheduler;
@@ -203,14 +204,15 @@ public class DataModule {
 
     /**
      * Provides a singleton instance of
-     * {@link MaterialisticDatabase.SavedStoriesDao}.
+     * {@link SavedStoriesDao}.
      *
      * @param database The {@link MaterialisticDatabase} instance.
      * @return The singleton instance of
-     *         {@link MaterialisticDatabase.SavedStoriesDao}.
+     *         {@link SavedStoriesDao}.
      */
     @Provides
-    public MaterialisticDatabase.SavedStoriesDao provideSavedStoriesDao(MaterialisticDatabase database) {
+    @Singleton
+    public SavedStoriesDao provideSavedStoriesDao(MaterialisticDatabase database) {
         return database.getSavedStoriesDao();
     }
 
