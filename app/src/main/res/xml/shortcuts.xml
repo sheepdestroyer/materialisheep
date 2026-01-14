@@ -17,13 +17,14 @@
 
 <shortcuts
     xmlns:tools="http://schemas.android.com/tools"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    tools:targetApi="25">
     <shortcut
         android:shortcutId="top"
         android:icon="@drawable/sc_trending"
         android:shortcutShortLabel="@string/title_activity_list"
         android:shortcutLongLabel="@string/title_activity_list"
-        tools:targetApi="n_mr1">
+        >
         <intent
             android:action="android.intent.action.VIEW"
             android:targetPackage="io.github.hidroh.materialistic"
@@ -34,7 +35,7 @@
         android:icon="@drawable/sc_new_releases"
         android:shortcutShortLabel="@string/title_activity_new"
         android:shortcutLongLabel="@string/title_activity_new"
-        tools:targetApi="n_mr1">
+        >
         <intent
             android:action="android.intent.action.VIEW"
             android:targetPackage="io.github.hidroh.materialistic"
@@ -45,7 +46,7 @@
         android:icon="@drawable/sc_bookmark"
         android:shortcutShortLabel="@string/title_activity_favorite"
         android:shortcutLongLabel="@string/title_activity_favorite"
-        tools:targetApi="n_mr1">
+        >
         <intent
             android:action="android.intent.action.VIEW"
             android:targetPackage="io.github.hidroh.materialistic"
@@ -56,7 +57,7 @@
         android:icon="@drawable/sc_add"
         android:shortcutShortLabel="@string/title_activity_submit"
         android:shortcutLongLabel="@string/title_activity_submit"
-        tools:targetApi="n_mr1">
+        >
         <intent
             android:action="android.intent.action.VIEW"
             android:targetPackage="io.github.hidroh.materialistic"

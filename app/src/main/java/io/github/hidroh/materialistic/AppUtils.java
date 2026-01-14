@@ -816,9 +816,7 @@ public class AppUtils {
                                 new Intent(context, ItemActivity.class)
                                         .putExtra(ItemActivity.EXTRA_ITEM, item)
                                         .putExtra(ItemActivity.EXTRA_OPEN_COMMENTS, true),
-                                Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
-                                        ? PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE
-                                        : PendingIntent.FLAG_ONE_SHOT));
+                                PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE));
             }
             return builder.build().intent.setData(Uri.parse(url));
         } else {
@@ -851,12 +849,7 @@ public class AppUtils {
      * @param textAppearance The text appearance resource ID.
      */
     public static void setTextAppearance(TextView textView, @StyleRes int textAppearance) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            textView.setTextAppearance(textAppearance);
-        } else {
-            // noinspection deprecation
-            textView.setTextAppearance(textView.getContext(), textAppearance);
-        }
+        textView.setTextAppearance(textAppearance);
     }
 
     /**
