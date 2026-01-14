@@ -300,6 +300,11 @@ public class StoryRecyclerViewAdapter extends
         mUpdateListener = updateListener;
     }
 
+    @Synthetic
+    int getPosition(Item item) {
+        return mItems.indexOf(item);
+    }
+
     public SortedList<Item> getItems() {
         return mItems;
     }
@@ -532,7 +537,7 @@ public class StoryRecyclerViewAdapter extends
     @Synthetic
     void vote(final Item story, final RecyclerView.ViewHolder holder) {
         if (!mUserServices.voteUp(mContext, story.getId(),
-                new VoteCallback(this, holder.getBindingAdapterPosition(), story))) {
+                new VoteCallback(this, story))) {
             AppUtils.showLogin(mContext, mAlertDialogBuilder);
         }
     }
@@ -543,7 +548,7 @@ public class StoryRecyclerViewAdapter extends
             Toast.makeText(mContext, R.string.vote_failed, Toast.LENGTH_SHORT).show();
         } else if (successful) {
             Toast.makeText(mContext, R.string.voted, Toast.LENGTH_SHORT).show();
-            if (position < getItemCount()) {
+            if (position != NO_POSITION && position < getItemCount()) {
                 notifyItemChanged(position, VOTED);
             }
         }
@@ -600,14 +605,11 @@ public class StoryRecyclerViewAdapter extends
 
     static class VoteCallback extends UserServices.Callback {
         private final WeakReference<StoryRecyclerViewAdapter> mAdapter;
-        private final int mPosition;
         private final Item mItem;
 
         @Synthetic
-        VoteCallback(StoryRecyclerViewAdapter adapter, int position,
-                Item item) {
+        VoteCallback(StoryRecyclerViewAdapter adapter, Item item) {
             mAdapter = new WeakReference<>(adapter);
-            mPosition = position;
             mItem = item;
         }
 
@@ -616,15 +618,17 @@ public class StoryRecyclerViewAdapter extends
             // TODO update locally only, as API does not update instantly
             mItem.incrementScore();
             mItem.clearPendingVoted();
-            if (mAdapter.get() != null && mAdapter.get().isAttached()) {
-                mAdapter.get().onVoted(mPosition, successful);
+            StoryRecyclerViewAdapter adapter = mAdapter.get();
+            if (adapter != null && adapter.isAttached()) {
+                adapter.onVoted(adapter.getPosition(mItem), successful);
             }
         }
 
         @Override
         public void onError(Throwable throwable) {
-            if (mAdapter.get() != null && mAdapter.get().isAttached()) {
-                mAdapter.get().onVoted(mPosition, null);
+            StoryRecyclerViewAdapter adapter = mAdapter.get();
+            if (adapter != null && adapter.isAttached()) {
+                adapter.onVoted(adapter.getPosition(mItem), null);
             }
         }
     }
