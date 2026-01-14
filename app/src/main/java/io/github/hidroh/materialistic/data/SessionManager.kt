@@ -57,6 +57,6 @@ class SessionManager @Inject constructor(
     Observable.defer { Observable.just(itemId) }
         .subscribeOn(ioScheduler)
         .observeOn(ioScheduler)
-        .subscribe({ cache.setViewed(it) }, { })
+        .subscribe({ cache.setViewed(it) }, { t -> android.util.Log.e("SessionManager", "Failed to set viewed", t) })
   }
 }

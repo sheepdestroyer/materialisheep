@@ -48,7 +48,7 @@ class Cache @Inject constructor(
     Observable.just(itemId)
         .map { database.createReadUri(it) }
         .observeOn(mainScheduler)
-        .subscribe({ database.setLiveValue(it) }, { })
+        .subscribe({ database.setLiveValue(it) }, { t -> android.util.Log.e("Cache", "Failed to set live value", t) })
   }
 
   override fun isFavorite(itemId: String?) = savedStoriesDao.selectByItemId(itemId) != null
