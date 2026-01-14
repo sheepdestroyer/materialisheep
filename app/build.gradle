@@ -105,16 +105,16 @@ dependencies {
     implementation "com.squareup.okhttp3:logging-interceptor:$okHttpVersion"
     implementation "io.reactivex.rxjava3:rxandroid:3.0.2"
     implementation 'io.reactivex.rxjava3:rxjava:3.1.10'
-    implementation "androidx.room:room-runtime:2.6.1"
+    implementation "androidx.room:room-runtime:2.8.4"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion"
     implementation platform("org.jetbrains.kotlin:kotlin-bom:2.1.0")
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
 
 
-    kapt "androidx.room:room-compiler:2.6.1"
+    kapt "androidx.room:room-compiler:2.8.4"
     kapt "com.google.dagger:dagger-compiler:$daggerVersion"
-    kaptTest "androidx.room:room-compiler:2.6.1"
+    kaptTest "androidx.room:room-compiler:2.8.4"
     kaptTest "com.google.dagger:dagger-compiler:$daggerVersion"
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.mockito:mockito-core:5.21.0'

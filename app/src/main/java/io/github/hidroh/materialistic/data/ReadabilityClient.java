@@ -138,6 +138,7 @@ public interface ReadabilityClient {
         }
 
         @NonNull
+        @android.annotation.SuppressLint("SetJavaScriptEnabled")
         private Observable<String> fromNetwork(String itemId, String url) {
             return Observable.<String>create(emitter -> new Handler(Looper.getMainLooper()).post(() -> {
                 WebView webView = new WebView(mContext);

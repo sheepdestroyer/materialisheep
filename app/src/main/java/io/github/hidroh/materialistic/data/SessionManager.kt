@@ -21,6 +21,7 @@ import io.github.hidroh.materialistic.DataModule
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Scheduler
 import javax.inject.Inject
+import android.annotation.SuppressLint
 import javax.inject.Named
 import javax.inject.Singleton
 
@@ -52,6 +53,7 @@ class SessionManager @Inject constructor(
    *
    * @param itemId the ID of the item that has been viewed
    */
+  @SuppressLint("CheckResult")
   fun view(itemId: String?) {
     if (itemId.isNullOrEmpty()) return
     Observable.defer { Observable.just(itemId) }

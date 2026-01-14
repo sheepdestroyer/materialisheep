@@ -28,14 +28,14 @@
         android:layout_width="match_parent"
         android:layout_height="128dp"
         android:elevation="@dimen/cardview_elevation"
-        tools:targetApi="lollipop">
+        >
 
         <ImageView
             android:src="?attr/backgroundDrawerHeader"
             android:scaleType="centerCrop"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            tools:ignore="ContentDescription" />
+             />
 
         <TextView
             android:text="@string/title_activity_release"
