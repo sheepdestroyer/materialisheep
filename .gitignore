@@ -53,20 +53,3 @@ status_output.txt
 gha-creds-*.json
 tests/artifacts/
 
-# Dev artifacts
-feedback*.json
-manual_pr_check.json
-monitor_output*.txt
-now*.txt
-pr*.json
-*_build.log
-rebuild.log
-test_*.log
-test_output*.txt
-log.txt
-remote.txt
-check_*.txt
-check_*.sh
-ci_failure_log.txt
-git_log.txt
-*.log
