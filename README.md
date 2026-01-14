@@ -1,6 +1,6 @@
 # Materialistic for Hacker News
 
-Materialistic is a Hacker News client for Android that is built with a clean, modern architecture and a focus on Material Design principles. It uses the official [HackerNews/API], [Algolia Hacker News Search API], and [Mercury Web Parser API] to provide a fast, reliable, and feature-rich experience.
+Materialistic is a Hacker News client for Android that is built with a clean, modern architecture and a focus on Material Design principles. It uses the official [HackerNews/API] and [Algolia Hacker News Search API] to provide a fast, reliable, and feature-rich experience.
 
 ## Project Overview
 
@@ -35,7 +35,7 @@ The codebase is organized into the following packages:
 
 *   [Official Hacker News API][HackerNews/API]
 *   [Algolia Hacker News Search API]
-*   [Mercury Web Parser API]
+
 *   [Android Jetpack]
 *   [Retrofit]
 *   [OkHttp]
@@ -51,9 +51,7 @@ The codebase is organized into the following packages:
     ```
 2.  Create a `keystore.properties` file in the root of the project and add the following properties:
     ```
-    MERCURY_TOKEN=<your_mercury_web_parser_api_key>
-    ```
-    You can get a Mercury Web Parser API key [here][mercury].
+
 3.  Build the project:
     ```
     ./gradlew assembleDebug
@@ -107,7 +105,7 @@ Contributions are always welcome. Please make sure you read [Contributing notes]
 [Play Store]: https://play.google.com/store/apps/details?id=io.github.hidroh.materialistic&referrer=utm_source%3Dgithub
 [Play Store Badge]: https://play.google.com/intl/en_us/badges/images/badge_new.png
 [Algolia Hacker News Search API]: https://github.com/algolia/hn-search
-[Mercury Web Parser API]: https://mercury.postlight.com/web-parser/
+
 [Android Jetpack]: https://developer.android.com/jetpack/
 [Room]: https://developer.android.com/topic/libraries/architecture/room
 [Retrofit]: https://github.com/square/retrofit
@@ -115,7 +113,7 @@ Contributions are always welcome. Please make sure you read [Contributing notes]
 [Dagger]: https://github.com/square/dagger
 [RxJava]: https://github.com/ReactiveX/RxJava
 [RxAndroid]: https://github.com/ReactiveX/RxAndroid
-[mercury]: https://mercury.postlight.com/web-parser/
+
 [article-theme1]: http://www.hidroh.com/2015/02/16/support-multiple-themes-android-app/
 [article-theme2]: http://www.hidroh.com/2015/02/25/support-multiple-themes-android-app-part-2/
 [article-preference]: http://www.hidroh.com/2015/11/30/building-custom-preferences-v7/
