@@ -54,7 +54,7 @@ import javax.inject.Singleton
 class FavoriteManager @Inject constructor(
     private val cache: LocalCache,
     @Named(DataModule.IO_THREAD) private val ioScheduler: Scheduler,
-    private val dao: SavedStoriesDao) : LocalItemManager<Favorite> {
+    private val savedStoriesDao: SavedStoriesDao) : LocalItemManager<Favorite> {
 
   companion object {
     /**
