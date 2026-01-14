@@ -216,7 +216,7 @@
             android:label="@string/title_activity_user"
             android:theme="@style/AppTheme.Translucent"
             android:exported="true">
-            <intent-filter android:label="@string/filter_title_item" android:autoVerify="true">
+            <intent-filter android:label="@string/title_activity_user" android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
