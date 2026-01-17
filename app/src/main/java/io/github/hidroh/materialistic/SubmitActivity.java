@@ -118,15 +118,14 @@ public class SubmitActivity extends ThemedActivity {
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
+                setEnabled(false);
                 mAlertDialogBuilder
                         .init(SubmitActivity.this)
                         .setMessage(mSending ? R.string.confirm_no_waiting : R.string.confirm_no_submit)
-                        .setNegativeButton(android.R.string.cancel, null)
-                        .setPositiveButton(android.R.string.ok, (dialog, which) -> {
-                            setEnabled(false);
-                            getOnBackPressedDispatcher().onBackPressed();
-
-                        })
+                        .setNegativeButton(android.R.string.cancel, (dialog, which) -> setEnabled(true))
+                        .setPositiveButton(android.R.string.ok,
+                                (dialog, which) -> getOnBackPressedDispatcher().onBackPressed())
+                        .setOnCancelListener(dialog -> setEnabled(true))
                         .show();
             }
         });

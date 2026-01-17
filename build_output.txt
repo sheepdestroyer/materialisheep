@@ -1,0 +1,446 @@
+Failed to execute org.gradle.cache.internal.AsyncCacheAccessDecoratedCache$$Lambda/0x00007f1c94472a08@2778ffdf.
+java.io.UncheckedIOException: Could not add entry '/home/sheepdestroyer/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-coroutines-core-jvm/1.9.0/9beade4c1c1569e4f36cbd2c37e02e3e41502601' to cache file-access.bin (/home/sheepdestroyer/.gradle/caches/journal-1/file-access.bin).
+	at org.gradle.internal.UncheckedException.throwAsUncheckedException(UncheckedException.java:61)
+	at org.gradle.cache.internal.btree.BTreePersistentIndexedCache.put(BTreePersistentIndexedCache.java:161)
+	at org.gradle.cache.internal.DefaultMultiProcessSafeIndexedCache.lambda$put$1(DefaultMultiProcessSafeIndexedCache.java:67)
+	at org.gradle.cache.internal.DefaultFileLockManager$DefaultFileLock.doWriteAction(DefaultFileLockManager.java:232)
+	at org.gradle.cache.internal.DefaultFileLockManager$DefaultFileLock.writeFile(DefaultFileLockManager.java:222)
+	at org.gradle.cache.internal.DefaultCacheCoordinator$UnitOfWorkFileAccess.writeFile(DefaultCacheCoordinator.java:488)
+	at org.gradle.cache.internal.DefaultMultiProcessSafeIndexedCache.put(DefaultMultiProcessSafeIndexedCache.java:67)
+	at org.gradle.cache.internal.AsyncCacheAccessDecoratedCache.lambda$putLater$1(AsyncCacheAccessDecoratedCache.java:56)
+	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:64)
+	at org.gradle.cache.internal.ExclusiveCacheAccessingWorker$1.run(ExclusiveCacheAccessingWorker.java:179)
+	at org.gradle.cache.internal.DefaultCacheCoordinator.lambda$toSupplier$2(DefaultCacheCoordinator.java:241)
+	at org.gradle.cache.internal.DefaultCacheCoordinator.useCache(DefaultCacheCoordinator.java:262)
+	at org.gradle.cache.internal.DefaultCacheCoordinator.useCache(DefaultCacheCoordinator.java:236)
+	at org.gradle.cache.internal.ExclusiveCacheAccessingWorker.flushOperations(ExclusiveCacheAccessingWorker.java:169)
+	at org.gradle.cache.internal.ExclusiveCacheAccessingWorker.run(ExclusiveCacheAccessingWorker.java:139)
+	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:64)
+	at org.gradle.internal.concurrent.AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:47)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+Caused by: java.io.IOException: Could not add entry '/home/sheepdestroyer/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-coroutines-core-jvm/1.9.0/9beade4c1c1569e4f36cbd2c37e02e3e41502601' to cache file-access.bin (/home/sheepdestroyer/.gradle/caches/journal-1/file-access.bin).
+	... 19 more
+Caused by: org.gradle.cache.internal.btree.CorruptedCacheException: block pointer must be >= -1, but was-5337036202955331815
+	at org.gradle.cache.internal.btree.BlockPointer.pos(BlockPointer.java:30)
+	at org.gradle.cache.internal.btree.BTreePersistentIndexedCache$IndexBlock.read(BTreePersistentIndexedCache.java:393)
+	at org.gradle.cache.internal.btree.FileBackedBlockStore$BlockImpl.read(FileBackedBlockStore.java:254)
+	at org.gradle.cache.internal.btree.FileBackedBlockStore.read(FileBackedBlockStore.java:123)
+	at org.gradle.cache.internal.btree.CachingBlockStore.read(CachingBlockStore.java:100)
+	at org.gradle.cache.internal.btree.FreeListBlockStore.read(FreeListBlockStore.java:86)
+	at org.gradle.cache.internal.btree.StateCheckBlockStore.read(StateCheckBlockStore.java:67)
+	at org.gradle.cache.internal.btree.BTreePersistentIndexedCache.load(BTreePersistentIndexedCache.java:181)
+	at org.gradle.cache.internal.btree.BTreePersistentIndexedCache.access$1200(BTreePersistentIndexedCache.java:49)
+	at org.gradle.cache.internal.btree.BTreePersistentIndexedCache$IndexBlock.find(BTreePersistentIndexedCache.java:494)
+	at org.gradle.cache.internal.btree.BTreePersistentIndexedCache$IndexBlock.access$600(BTreePersistentIndexedCache.java:364)
+	at org.gradle.cache.internal.btree.BTreePersistentIndexedCache.put(BTreePersistentIndexedCache.java:143)
+	... 18 more
+Failed to execute org.gradle.cache.internal.AsyncCacheAccessDecoratedCache$$Lambda/0x00007f1c94472a08@7272fa37.
+java.io.UncheckedIOException: Could not add entry '/home/sheepdestroyer/.gradle/caches/modules-2/files-2.1/com.google.guava/failureaccess/1.0.2/c4a06a64e650562f30b7bf9aaec1bfed43aca12b' to cache file-access.bin (/home/sheepdestroyer/.gradle/caches/journal-1/file-access.bin).
+	at org.gradle.internal.UncheckedException.throwAsUncheckedException(UncheckedException.java:61)
+	at org.gradle.cache.internal.btree.BTreePersistentIndexedCache.put(BTreePersistentIndexedCache.java:161)
+	at org.gradle.cache.internal.DefaultMultiProcessSafeIndexedCache.lambda$put$1(DefaultMultiProcessSafeIndexedCache.java:67)
+	at org.gradle.cache.internal.DefaultFileLockManager$DefaultFileLock.doWriteAction(DefaultFileLockManager.java:232)
+	at org.gradle.cache.internal.DefaultFileLockManager$DefaultFileLock.writeFile(DefaultFileLockManager.java:222)
+	at org.gradle.cache.internal.DefaultCacheCoordinator$UnitOfWorkFileAccess.writeFile(DefaultCacheCoordinator.java:488)
+	at org.gradle.cache.internal.DefaultMultiProcessSafeIndexedCache.put(DefaultMultiProcessSafeIndexedCache.java:67)
+	at org.gradle.cache.internal.AsyncCacheAccessDecoratedCache.lambda$putLater$1(AsyncCacheAccessDecoratedCache.java:56)
+	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:64)
+	at org.gradle.cache.internal.ExclusiveCacheAccessingWorker$1.run(ExclusiveCacheAccessingWorker.java:179)
+	at org.gradle.cache.internal.DefaultCacheCoordinator.lambda$toSupplier$2(DefaultCacheCoordinator.java:241)
+	at org.gradle.cache.internal.DefaultCacheCoordinator.useCache(DefaultCacheCoordinator.java:262)
+	at org.gradle.cache.internal.DefaultCacheCoordinator.useCache(DefaultCacheCoordinator.java:236)
+	at org.gradle.cache.internal.ExclusiveCacheAccessingWorker.flushOperations(ExclusiveCacheAccessingWorker.java:169)
+	at org.gradle.cache.internal.ExclusiveCacheAccessingWorker.run(ExclusiveCacheAccessingWorker.java:139)
+	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:64)
+	at org.gradle.internal.concurrent.AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:47)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+Caused by: java.io.IOException: Could not add entry '/home/sheepdestroyer/.gradle/caches/modules-2/files-2.1/com.google.guava/failureaccess/1.0.2/c4a06a64e650562f30b7bf9aaec1bfed43aca12b' to cache file-access.bin (/home/sheepdestroyer/.gradle/caches/journal-1/file-access.bin).
+	... 19 more
+Caused by: org.gradle.cache.internal.btree.CorruptedCacheException: block pointer must be >= -1, but was-5337036202955331815
+	at org.gradle.cache.internal.btree.BlockPointer.pos(BlockPointer.java:30)
+	at org.gradle.cache.internal.btree.BTreePersistentIndexedCache$IndexBlock.read(BTreePersistentIndexedCache.java:393)
+	at org.gradle.cache.internal.btree.FileBackedBlockStore$BlockImpl.read(FileBackedBlockStore.java:254)
+	at org.gradle.cache.internal.btree.FileBackedBlockStore.read(FileBackedBlockStore.java:123)
+	at org.gradle.cache.internal.btree.CachingBlockStore.read(CachingBlockStore.java:100)
+	at org.gradle.cache.internal.btree.FreeListBlockStore.read(FreeListBlockStore.java:86)
+	at org.gradle.cache.internal.btree.StateCheckBlockStore.read(StateCheckBlockStore.java:67)
+	at org.gradle.cache.internal.btree.BTreePersistentIndexedCache.load(BTreePersistentIndexedCache.java:181)
+	at org.gradle.cache.internal.btree.BTreePersistentIndexedCache.access$1200(BTreePersistentIndexedCache.java:49)
+	at org.gradle.cache.internal.btree.BTreePersistentIndexedCache$IndexBlock.find(BTreePersistentIndexedCache.java:494)
+	at org.gradle.cache.internal.btree.BTreePersistentIndexedCache$IndexBlock.access$600(BTreePersistentIndexedCache.java:364)
+	at org.gradle.cache.internal.btree.BTreePersistentIndexedCache.put(BTreePersistentIndexedCache.java:143)
+	... 18 more
+Failed to execute org.gradle.cache.internal.AsyncCacheAccessDecoratedCache$$Lambda/0x00007f1c94472a08@4f22e764.
+java.io.UncheckedIOException: Could not add entry '/home/sheepdestroyer/.gradle/caches/modules-2/files-2.1/org.slf4j/slf4j-api/1.7.30/b5a4b6d16ab13e34a88fae84c35cd5d68cac922c' to cache file-access.bin (/home/sheepdestroyer/.gradle/caches/journal-1/file-access.bin).
+	at org.gradle.internal.UncheckedException.throwAsUncheckedException(UncheckedException.java:61)
+	at org.gradle.cache.internal.btree.BTreePersistentIndexedCache.put(BTreePersistentIndexedCache.java:161)
+	at org.gradle.cache.internal.DefaultMultiProcessSafeIndexedCache.lambda$put$1(DefaultMultiProcessSafeIndexedCache.java:67)
+	at org.gradle.cache.internal.DefaultFileLockManager$DefaultFileLock.doWriteAction(DefaultFileLockManager.java:232)
+	at org.gradle.cache.internal.DefaultFileLockManager$DefaultFileLock.writeFile(DefaultFileLockManager.java:222)
+	at org.gradle.cache.internal.DefaultCacheCoordinator$UnitOfWorkFileAccess.writeFile(DefaultCacheCoordinator.java:488)
+	at org.gradle.cache.internal.DefaultMultiProcessSafeIndexedCache.put(DefaultMultiProcessSafeIndexedCache.java:67)
+	at org.gradle.cache.internal.AsyncCacheAccessDecoratedCache.lambda$putLater$1(AsyncCacheAccessDecoratedCache.java:56)
+	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:64)
+	at org.gradle.cache.internal.ExclusiveCacheAccessingWorker$1.run(ExclusiveCacheAccessingWorker.java:179)
+	at org.gradle.cache.internal.DefaultCacheCoordinator.lambda$toSupplier$2(DefaultCacheCoordinator.java:241)
+	at org.gradle.cache.internal.DefaultCacheCoordinator.useCache(DefaultCacheCoordinator.java:262)
+	at org.gradle.cache.internal.DefaultCacheCoordinator.useCache(DefaultCacheCoordinator.java:236)
+	at org.gradle.cache.internal.ExclusiveCacheAccessingWorker.flushOperations(ExclusiveCacheAccessingWorker.java:169)
+	at org.gradle.cache.internal.ExclusiveCacheAccessingWorker.run(ExclusiveCacheAccessingWorker.java:139)
+	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:64)
+	at org.gradle.internal.concurrent.AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:47)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+Caused by: java.io.IOException: Could not add entry '/home/sheepdestroyer/.gradle/caches/modules-2/files-2.1/org.slf4j/slf4j-api/1.7.30/b5a4b6d16ab13e34a88fae84c35cd5d68cac922c' to cache file-access.bin (/home/sheepdestroyer/.gradle/caches/journal-1/file-access.bin).
+	... 19 more
+Caused by: org.gradle.cache.internal.btree.CorruptedCacheException: block pointer must be >= -1, but was-5337036202955331815
+	at org.gradle.cache.internal.btree.BlockPointer.pos(BlockPointer.java:30)
+	at org.gradle.cache.internal.btree.BTreePersistentIndexedCache$IndexBlock.read(BTreePersistentIndexedCache.java:393)
+	at org.gradle.cache.internal.btree.FileBackedBlockStore$BlockImpl.read(FileBackedBlockStore.java:254)
+	at org.gradle.cache.internal.btree.FileBackedBlockStore.read(FileBackedBlockStore.java:123)
+	at org.gradle.cache.internal.btree.CachingBlockStore.read(CachingBlockStore.java:100)
+	at org.gradle.cache.internal.btree.FreeListBlockStore.read(FreeListBlockStore.java:86)
+	at org.gradle.cache.internal.btree.StateCheckBlockStore.read(StateCheckBlockStore.java:67)
+	at org.gradle.cache.internal.btree.BTreePersistentIndexedCache.load(BTreePersistentIndexedCache.java:181)
+	at org.gradle.cache.internal.btree.BTreePersistentIndexedCache.access$1200(BTreePersistentIndexedCache.java:49)
+	at org.gradle.cache.internal.btree.BTreePersistentIndexedCache$IndexBlock.find(BTreePersistentIndexedCache.java:494)
+	at org.gradle.cache.internal.btree.BTreePersistentIndexedCache$IndexBlock.access$600(BTreePersistentIndexedCache.java:364)
+	at org.gradle.cache.internal.btree.BTreePersistentIndexedCache.put(BTreePersistentIndexedCache.java:143)
+	... 18 more
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:generateDebugBuildConfig UP-TO-DATE
+Failed to execute org.gradle.cache.internal.AsyncCacheAccessDecoratedCache$$Lambda/0x00007f1c94472a08@5cc92dd7.
+java.io.UncheckedIOException: Could not add entry '/home/sheepdestroyer/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-viewmodel-android/2.10.0/927c91fe0892e3f71d67cd430538475af9aefc29' to cache file-access.bin (/home/sheepdestroyer/.gradle/caches/journal-1/file-access.bin).
+	at org.gradle.internal.UncheckedException.throwAsUncheckedException(UncheckedException.java:61)
+	at org.gradle.cache.internal.btree.BTreePersistentIndexedCache.put(BTreePersistentIndexedCache.java:161)
+	at org.gradle.cache.internal.DefaultMultiProcessSafeIndexedCache.lambda$put$1(DefaultMultiProcessSafeIndexedCache.java:67)
+	at org.gradle.cache.internal.DefaultFileLockManager$DefaultFileLock.doWriteAction(DefaultFileLockManager.java:232)
+	at org.gradle.cache.internal.DefaultFileLockManager$DefaultFileLock.writeFile(DefaultFileLockManager.java:222)
+	at org.gradle.cache.internal.DefaultCacheCoordinator$UnitOfWorkFileAccess.writeFile(DefaultCacheCoordinator.java:488)
+	at org.gradle.cache.internal.DefaultMultiProcessSafeIndexedCache.put(DefaultMultiProcessSafeIndexedCache.java:67)
+	at org.gradle.cache.internal.AsyncCacheAccessDecoratedCache.lambda$putLater$1(AsyncCacheAccessDecoratedCache.java:56)
+	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:64)
+	at org.gradle.cache.internal.ExclusiveCacheAccessingWorker$1.run(ExclusiveCacheAccessingWorker.java:179)
+	at org.gradle.cache.internal.DefaultCacheCoordinator.lambda$toSupplier$2(DefaultCacheCoordinator.java:241)
+	at org.gradle.cache.internal.DefaultCacheCoordinator.useCache(DefaultCacheCoordinator.java:262)
+	at org.gradle.cache.internal.DefaultCacheCoordinator.useCache(DefaultCacheCoordinator.java:236)
+	at org.gradle.cache.internal.ExclusiveCacheAccessingWorker.flushOperations(ExclusiveCacheAccessingWorker.java:169)
+	at org.gradle.cache.internal.ExclusiveCacheAccessingWorker.run(ExclusiveCacheAccessingWorker.java:139)
+	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:64)
+	at org.gradle.internal.concurrent.AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:47)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+Caused by: java.io.IOException: Could not add entry '/home/sheepdestroyer/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-viewmodel-android/2.10.0/927c91fe0892e3f71d67cd430538475af9aefc29' to cache file-access.bin (/home/sheepdestroyer/.gradle/caches/journal-1/file-access.bin).
+	... 19 more
+Caused by: org.gradle.cache.internal.btree.CorruptedCacheException: block pointer must be >= -1, but was-5337036202955331815
+	at org.gradle.cache.internal.btree.BlockPointer.pos(BlockPointer.java:30)
+	at org.gradle.cache.internal.btree.BTreePersistentIndexedCache$IndexBlock.read(BTreePersistentIndexedCache.java:393)
+	at org.gradle.cache.internal.btree.FileBackedBlockStore$BlockImpl.read(FileBackedBlockStore.java:254)
+	at org.gradle.cache.internal.btree.FileBackedBlockStore.read(FileBackedBlockStore.java:123)
+	at org.gradle.cache.internal.btree.CachingBlockStore.read(CachingBlockStore.java:100)
+	at org.gradle.cache.internal.btree.FreeListBlockStore.read(FreeListBlockStore.java:86)
+	at org.gradle.cache.internal.btree.StateCheckBlockStore.read(StateCheckBlockStore.java:67)
+	at org.gradle.cache.internal.btree.BTreePersistentIndexedCache.load(BTreePersistentIndexedCache.java:181)
+	at org.gradle.cache.internal.btree.BTreePersistentIndexedCache.access$1200(BTreePersistentIndexedCache.java:49)
+	at org.gradle.cache.internal.btree.BTreePersistentIndexedCache$IndexBlock.find(BTreePersistentIndexedCache.java:494)
+	at org.gradle.cache.internal.btree.BTreePersistentIndexedCache$IndexBlock.access$600(BTreePersistentIndexedCache.java:364)
+	at org.gradle.cache.internal.btree.BTreePersistentIndexedCache.put(BTreePersistentIndexedCache.java:143)
+	... 18 more
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:processDebugNavigationResources UP-TO-DATE
+> Task :app:compileDebugNavigationResources UP-TO-DATE
+> Task :app:generateDebugResValues UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:processDebugMainManifest UP-TO-DATE
+> Task :app:processDebugManifest UP-TO-DATE
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+> Task :app:processDebugResources UP-TO-DATE
+Failed to execute org.gradle.cache.internal.AsyncCacheAccessDecoratedCache$$Lambda/0x00007f1c94472a08@7b9a0ae5.
+java.io.UncheckedIOException: Could not add entry '/home/sheepdestroyer/.gradle/caches/modules-2/files-2.1/com.google.dagger/dagger/2.51.1/48cb41ae824574a5c5f961e45c833650bf19c956' to cache file-access.bin (/home/sheepdestroyer/.gradle/caches/journal-1/file-access.bin).
+	at org.gradle.internal.UncheckedException.throwAsUncheckedException(UncheckedException.java:61)
+	at org.gradle.cache.internal.btree.BTreePersistentIndexedCache.put(BTreePersistentIndexedCache.java:161)
+	at org.gradle.cache.internal.DefaultMultiProcessSafeIndexedCache.lambda$put$1(DefaultMultiProcessSafeIndexedCache.java:67)
+	at org.gradle.cache.internal.DefaultFileLockManager$DefaultFileLock.doWriteAction(DefaultFileLockManager.java:232)
+	at org.gradle.cache.internal.DefaultFileLockManager$DefaultFileLock.writeFile(DefaultFileLockManager.java:222)
+	at org.gradle.cache.internal.DefaultCacheCoordinator$UnitOfWorkFileAccess.writeFile(DefaultCacheCoordinator.java:488)
+	at org.gradle.cache.internal.DefaultMultiProcessSafeIndexedCache.put(DefaultMultiProcessSafeIndexedCache.java:67)
+	at org.gradle.cache.internal.AsyncCacheAccessDecoratedCache.lambda$putLater$1(AsyncCacheAccessDecoratedCache.java:56)
+	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:64)
+	at org.gradle.cache.internal.ExclusiveCacheAccessingWorker$1.run(ExclusiveCacheAccessingWorker.java:179)
+	at org.gradle.cache.internal.DefaultCacheCoordinator.lambda$toSupplier$2(DefaultCacheCoordinator.java:241)
+	at org.gradle.cache.internal.DefaultCacheCoordinator.useCache(DefaultCacheCoordinator.java:262)
+	at org.gradle.cache.internal.DefaultCacheCoordinator.useCache(DefaultCacheCoordinator.java:236)
+	at org.gradle.cache.internal.ExclusiveCacheAccessingWorker.flushOperations(ExclusiveCacheAccessingWorker.java:169)
+	at org.gradle.cache.internal.ExclusiveCacheAccessingWorker.run(ExclusiveCacheAccessingWorker.java:139)
+	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:64)
+	at org.gradle.internal.concurrent.AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:47)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+Caused by: java.io.IOException: Could not add entry '/home/sheepdestroyer/.gradle/caches/modules-2/files-2.1/com.google.dagger/dagger/2.51.1/48cb41ae824574a5c5f961e45c833650bf19c956' to cache file-access.bin (/home/sheepdestroyer/.gradle/caches/journal-1/file-access.bin).
+	... 19 more
+Caused by: org.gradle.cache.internal.btree.CorruptedCacheException: block pointer must be >= -1, but was-5337036202955331815
+	at org.gradle.cache.internal.btree.BlockPointer.pos(BlockPointer.java:30)
+	at org.gradle.cache.internal.btree.BTreePersistentIndexedCache$IndexBlock.read(BTreePersistentIndexedCache.java:393)
+	at org.gradle.cache.internal.btree.FileBackedBlockStore$BlockImpl.read(FileBackedBlockStore.java:254)
+	at org.gradle.cache.internal.btree.FileBackedBlockStore.read(FileBackedBlockStore.java:123)
+	at org.gradle.cache.internal.btree.CachingBlockStore.read(CachingBlockStore.java:100)
+	at org.gradle.cache.internal.btree.FreeListBlockStore.read(FreeListBlockStore.java:86)
+	at org.gradle.cache.internal.btree.StateCheckBlockStore.read(StateCheckBlockStore.java:67)
+	at org.gradle.cache.internal.btree.BTreePersistentIndexedCache.load(BTreePersistentIndexedCache.java:181)
+	at org.gradle.cache.internal.btree.BTreePersistentIndexedCache.access$1200(BTreePersistentIndexedCache.java:49)
+	at org.gradle.cache.internal.btree.BTreePersistentIndexedCache$IndexBlock.find(BTreePersistentIndexedCache.java:494)
+	at org.gradle.cache.internal.btree.BTreePersistentIndexedCache$IndexBlock.access$600(BTreePersistentIndexedCache.java:364)
+	at org.gradle.cache.internal.btree.BTreePersistentIndexedCache.put(BTreePersistentIndexedCache.java:143)
+	... 18 more
+> Task :app:kspDebugKotlin UP-TO-DATE
+> Task :app:compileDebugKotlin UP-TO-DATE
+> Task :app:javaPreCompileDebug UP-TO-DATE
+
+> Task :app:compileDebugJavaWithJavac FAILED
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/appwidget/WidgetConfigActivity.java:57: warning: [deprecation] instantiate(Context,String,Bundle) in Fragment has been deprecated
+                            Fragment.instantiate(this, WidgetConfigurationFragment.class.getName(), args),
+                                    ^
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/appwidget/WidgetHelper.java:114: warning: [deprecation] notifyAppWidgetViewDataChanged(int,int) in AppWidgetManager has been deprecated
+        mAppWidgetManager.notifyAppWidgetViewDataChanged(appWidgetId, android.R.id.list);
+                         ^
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/appwidget/WidgetHelper.java:179: warning: [deprecation] setRemoteAdapter(int,Intent) in RemoteViews has been deprecated
+        remoteViews.setRemoteAdapter(android.R.id.list, intent);
+                   ^
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/data/SyncDelegate.java:117: warning: [deprecation] Builder(Context) in Builder has been deprecated
+            mNotificationBuilder = new NotificationCompat.Builder(context);
+                                   ^
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/widget/SinglePageItemRecyclerViewAdapter.java:401: warning: [deprecation] readArrayList(ClassLoader) in Parcel has been deprecated
+            ArrayList<Item> savedList = source.readArrayList(Item.class.getClassLoader());
+                                              ^
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/ItemActivity.java:151: warning: [deprecation] LocalBroadcastManager in androidx.localbroadcastmanager.content has been deprecated
+            LocalBroadcastManager.getInstance(ItemActivity.this).sendBroadcast(
+            ^
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/ItemActivity.java:199: warning: [deprecation] LocalBroadcastManager in androidx.localbroadcastmanager.content has been deprecated
+        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
+        ^
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/ItemActivity.java:205: warning: [deprecation] <T>getParcelable(String) in Bundle has been deprecated
+            mItem = savedInstanceState.getParcelable(STATE_ITEM);
+                                      ^
+  where T is a type-variable:
+    T extends Parcelable declared in method <T>getParcelable(String)
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/ItemActivity.java:212: warning: [deprecation] <T>getParcelableExtra(String) in Intent has been deprecated
+                mItem = intent.getParcelableExtra(EXTRA_ITEM);
+                              ^
+  where T is a type-variable:
+    T extends Parcelable declared in method <T>getParcelableExtra(String)
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/ItemActivity.java:324: warning: [deprecation] LocalBroadcastManager in androidx.localbroadcastmanager.content has been deprecated
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiver);
+        ^
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/ItemFragment.java:111: warning: [deprecation] setHasOptionsMenu(boolean) in Fragment has been deprecated
+        setHasOptionsMenu(true);
+        ^
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/ItemFragment.java:114: warning: [deprecation] <T>getParcelable(String) in Bundle has been deprecated
+            mItem = savedInstanceState.getParcelable(STATE_ITEM);
+                                      ^
+  where T is a type-variable:
+    T extends Parcelable declared in method <T>getParcelable(String)
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/ItemFragment.java:116: warning: [deprecation] <T>getParcelable(String) in Bundle has been deprecated
+            mAdapterItems = savedInstanceState.getParcelable(STATE_ADAPTER_ITEMS);
+                                              ^
+  where T is a type-variable:
+    T extends Parcelable declared in method <T>getParcelable(String)
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/ItemFragment.java:119: warning: [deprecation] <T>getParcelable(String) in Bundle has been deprecated
+            WebItem item = getArguments().getParcelable(EXTRA_ITEM);
+                                         ^
+  where T is a type-variable:
+    T extends Parcelable declared in method <T>getParcelable(String)
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/ItemFragment.java:190: warning: [deprecation] onOptionsItemSelected(MenuItem) in Fragment has been deprecated
+    public boolean onOptionsItemSelected(MenuItem item) {
+                   ^
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/ItemFragment.java:195: warning: [deprecation] onOptionsItemSelected(MenuItem) in Fragment has been deprecated
+        return super.onOptionsItemSelected(item);
+                    ^
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/ItemFragment.java:359: warning: [deprecation] instantiate(Context,String,Bundle) in Fragment has been deprecated
+        ((DialogFragment) Fragment.instantiate(getActivity(),
+                                  ^
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/ItemFragment.java:361: warning: [deprecation] getFragmentManager() in Fragment has been deprecated
+                .show(getFragmentManager(), PopupSettingsFragment.class.getName());
+                      ^
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/ComposeActivity.java:130: warning: [deprecation] yes in string has been deprecated
+                        .setPositiveButton(android.R.string.yes, (dialog, which) -> {
+                                                           ^
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/ComposeActivity.java:129: warning: [deprecation] no in string has been deprecated
+                        .setNegativeButton(android.R.string.no, (dialog, which) -> setEnabled(true))
+                                                           ^
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/ComposeActivity.java:135: error: cannot find symbol
+                        .setOnCancelListener(dialog -> setEnabled(true))
+                        ^
+  symbol:   method setOnCancelListener((dialog)->[...]true))
+  location: interface AlertDialogBuilder
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/PopularActivity.java:125: warning: [deprecation] instantiate(Context,String,Bundle) in Fragment has been deprecated
+        return Fragment.instantiate(this, ListFragment.class.getName(), args);
+                       ^
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/SubmitActivity.java:128: error: cannot find symbol
+                        .setOnCancelListener(dialog -> setEnabled(true))
+                        ^
+  symbol:   method setOnCancelListener((dialog)->[...]true))
+  location: interface AlertDialogBuilder
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/ThreadPreviewActivity.java:58: warning: [deprecation] <T>getParcelableExtra(String) in Intent has been deprecated
+        Item item = getIntent().getParcelableExtra(EXTRA_ITEM);
+                               ^
+  where T is a type-variable:
+    T extends Parcelable declared in method <T>getParcelableExtra(String)
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/UserActivity.java:109: warning: [deprecation] setLayoutFrozen(boolean) in RecyclerView has been deprecated
+                        mRecyclerView.setLayoutFrozen(false);
+                                     ^
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/UserActivity.java:100: warning: [deprecation] setBottomSheetCallback(BottomSheetCallback) in BottomSheetBehavior has been deprecated
+        mBottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+                            ^
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/UserActivity.java:154: warning: [deprecation] <T>getParcelable(String) in Bundle has been deprecated
+            mUser = savedInstanceState.getParcelable(STATE_USER);
+                                      ^
+  where T is a type-variable:
+    T extends Parcelable declared in method <T>getParcelable(String)
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/UserActivity.java:320: warning: [deprecation] setLayoutFrozen(boolean) in RecyclerView has been deprecated
+        mRecyclerView.setLayoutFrozen(mBottomSheetBehavior.getState() !=
+                     ^
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/WebFragment.java:134: warning: [deprecation] LocalBroadcastManager in androidx.localbroadcastmanager.content has been deprecated
+        LocalBroadcastManager.getInstance(context).registerReceiver(mReceiver,
+        ^
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/WebFragment.java:146: warning: [deprecation] <T>getParcelable(String) in Bundle has been deprecated
+            mItem = savedInstanceState.getParcelable(EXTRA_ITEM);
+                                      ^
+  where T is a type-variable:
+    T extends Parcelable declared in method <T>getParcelable(String)
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/WebFragment.java:150: warning: [deprecation] <T>getParcelable(String) in Bundle has been deprecated
+            mItem = getArguments().getParcelable(EXTRA_ITEM);
+                                  ^
+  where T is a type-variable:
+    T extends Parcelable declared in method <T>getParcelable(String)
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/WebFragment.java:178: warning: [deprecation] setHasOptionsMenu(boolean) in Fragment has been deprecated
+        setHasOptionsMenu(true);
+        ^
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/WebFragment.java:205: warning: [deprecation] onOptionsItemSelected(MenuItem) in Fragment has been deprecated
+    public boolean onOptionsItemSelected(MenuItem item) {
+                   ^
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/WebFragment.java:215: warning: [deprecation] onOptionsItemSelected(MenuItem) in Fragment has been deprecated
+        return super.onOptionsItemSelected(item);
+                    ^
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/WebFragment.java:254: warning: [deprecation] LocalBroadcastManager in androidx.localbroadcastmanager.content has been deprecated
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mReceiver);
+        ^
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/WebFragment.java:403: warning: [deprecation] LocalBroadcastManager in androidx.localbroadcastmanager.content has been deprecated
+                LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(
+                ^
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/WebFragment.java:538: warning: [deprecation] instantiate(Context,String,Bundle) in Fragment has been deprecated
+        ((DialogFragment) Fragment.instantiate(getActivity(),
+                                  ^
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/WebFragment.java:540: warning: [deprecation] getFragmentManager() in Fragment has been deprecated
+                .show(getFragmentManager(), PopupSettingsFragment.class.getName());
+                      ^
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/AppUtils.java:377: warning: [deprecation] YEAR_IN_MILLIS in DateUtils has been deprecated
+        if (span >= DateUtils.YEAR_IN_MILLIS) {
+                             ^
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/AppUtils.java:378: warning: [deprecation] YEAR_IN_MILLIS in DateUtils has been deprecated
+            return (span / DateUtils.YEAR_IN_MILLIS) + ABBR_YEAR;
+                                    ^
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/AppUtils.java:399: warning: [deprecation] NetworkInfo in android.net has been deprecated
+        NetworkInfo activeNetwork = ((ConnectivityManager) context.getSystemService(
+        ^
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/AppUtils.java:400: warning: [deprecation] getActiveNetworkInfo() in ConnectivityManager has been deprecated
+                Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
+                                              ^
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/AppUtils.java:402: warning: [deprecation] isConnectedOrConnecting() in NetworkInfo has been deprecated
+                activeNetwork.isConnectedOrConnecting() &&
+                             ^
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/AppUtils.java:403: warning: [deprecation] getType() in NetworkInfo has been deprecated
+                activeNetwork.getType() == ConnectivityManager.TYPE_WIFI;
+                             ^
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/AppUtils.java:403: warning: [deprecation] TYPE_WIFI in ConnectivityManager has been deprecated
+                activeNetwork.getType() == ConnectivityManager.TYPE_WIFI;
+                                                              ^
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/AppUtils.java:413: warning: [deprecation] NetworkInfo in android.net has been deprecated
+        NetworkInfo activeNetworkInfo = ((ConnectivityManager) context.getSystemService(
+        ^
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/AppUtils.java:414: warning: [deprecation] getActiveNetworkInfo() in ConnectivityManager has been deprecated
+                Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
+                                              ^
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/AppUtils.java:415: warning: [deprecation] isConnectedOrConnecting() in NetworkInfo has been deprecated
+        return activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting();
+                                                             ^
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/AppUtils.java:600: warning: [deprecation] LocalBroadcastManager in androidx.localbroadcastmanager.content has been deprecated
+                LocalBroadcastManager.getInstance(context)
+                ^
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/AppUtils.java:650: warning: [deprecation] setStatusBarColor(int) in Window has been deprecated
+        window.setStatusBarColor(color);
+              ^
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/AppUtils.java:684: warning: [deprecation] getDefaultDisplay() in WindowManager has been deprecated
+                .getDefaultDisplay();
+                ^
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/AppUtils.java:686: warning: [deprecation] getSize(Point) in Display has been deprecated
+        display.getSize(point);
+               ^
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/AppUtils.java:808: warning: [deprecation] setToolbarColor(int) in Builder has been deprecated
+                    .setToolbarColor(ContextCompat.getColor(context,
+                    ^
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/AppUtils.java:811: warning: [deprecation] enableUrlBarHiding() in Builder has been deprecated
+                    .enableUrlBarHiding()
+                    ^
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/AppUtils.java:812: warning: [deprecation] addDefaultShareMenuItem() in Builder has been deprecated
+                    .addDefaultShareMenuItem();
+                    ^
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/AppUtils.java:878: warning: [deprecation] getSystemUiVisibility() in View has been deprecated
+            this.originalUiFlags = window.getDecorView().getSystemUiVisibility();
+                                                        ^
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/AppUtils.java:888: warning: [deprecation] SYSTEM_UI_FLAG_HIDE_NAVIGATION in View has been deprecated
+                        View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
+                            ^
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/AppUtils.java:889: warning: [deprecation] SYSTEM_UI_FLAG_IMMERSIVE_STICKY in View has been deprecated
+                        View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+                            ^
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/AppUtils.java:887: warning: [deprecation] setSystemUiVisibility(int) in View has been deprecated
+                window.getDecorView().setSystemUiVisibility(originalUiFlags |
+                                     ^
+/home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/AppUtils.java:891: warning: [deprecation] setSystemUiVisibility(int) in View has been deprecated
+                window.getDecorView().setSystemUiVisibility(originalUiFlags);
+                                     ^
+Note: /home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/ItemActivity.java uses unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+2 errors
+58 warnings
+
+[Incubating] Problems report is available at: file:///home/sheepdestroyer/LAB/materialistic/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:compileDebugJavaWithJavac'.
+> Compilation failed; see the compiler output below.
+  /home/sheepdestroyer/LAB/materialistic/app/src/main/java/io/github/hidroh/materialistic/appwidget/WidgetConfigActivity.java:57: warning: [deprecation] instantiate(Context,String,Bundle) in Fragment has been deprecated
+                              Fragment.instantiate(this, WidgetConfigurationFragment.class.getName(), args),
+                                      ^
+  2 errors
+  58 warnings
+
+* Try:
+> Run with --scan to generate a Build Scan (powered by Develocity).
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.2.1/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD FAILED in 840ms
+20 actionable tasks: 1 executed, 19 up-to-date
