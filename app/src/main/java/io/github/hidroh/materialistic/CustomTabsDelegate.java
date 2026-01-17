@@ -128,6 +128,7 @@ public class CustomTabsDelegate {
     void onServiceDisconnected() {
         mClient = null;
         mCustomTabsSession = null;
+        mIsBound = false;
     }
 
     @Nullable
