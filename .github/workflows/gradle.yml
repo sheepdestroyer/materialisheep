@@ -36,10 +36,20 @@ jobs:
 
     - name: Build with Gradle Wrapper
       run: |
+        set -o pipefail  # Ensure pipeline returns the exit code of the first failing command
         ./gradlew build 2>&1 | tee build.log
+        BUILD_EXIT_CODE=${PIPESTATUS[0]}
+        
+        # Check for specific D8 errors (may not always have a non-zero exit code)
         if grep -q "D8: Unexpected error" build.log; then
-          echo "D8 Error detected!"
+          echo "::error::D8 Error detected in build output!"
           exit 1
+        fi
+        
+        # Fail if Gradle build failed
+        if [ $BUILD_EXIT_CODE -ne 0 ]; then
+          echo "::error::Gradle build failed with exit code $BUILD_EXIT_CODE"
+          exit $BUILD_EXIT_CODE
         fi
 
     # NOTE: The Gradle Wrapper is the default and recommended way to run Gradle (https://docs.gradle.org/current/userguide/gradle_wrapper.html).
