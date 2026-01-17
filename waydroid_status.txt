@@ -1,6 +1,0 @@
-Session:	RUNNING
-Container:	RUNNING
-Vendor type:	MAINLINE
-IP address:	192.168.240.112
-Session user:	sheepdestroyer(1000)
-Wayland display:	wayland-0

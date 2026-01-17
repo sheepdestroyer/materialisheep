@@ -54,3 +54,4 @@ gha-creds-*.json
 tests/artifacts/
 
 build_log*.txt
+waydroid_status.txt
