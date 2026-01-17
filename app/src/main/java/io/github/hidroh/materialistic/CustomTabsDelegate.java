@@ -17,6 +17,7 @@
 package io.github.hidroh.materialistic;
 
 import android.app.Activity;
+import android.util.Log;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -39,15 +40,16 @@ import java.util.List;
 import io.github.hidroh.materialistic.annotation.Synthetic;
 
 /**
- * A delegate for Custom Tabs functionality. This class manages the connection to the Custom Tabs
+ * A delegate for Custom Tabs functionality. This class manages the connection
+ * to the Custom Tabs
  * service, warms up the browser, and provides a session for launching URLs.
  */
 public class CustomTabsDelegate {
-    private static final String ACTION_CUSTOM_TABS_CONNECTION =
-            "android.support.customtabs.action.CustomTabsService";
+    private static final String ACTION_CUSTOM_TABS_CONNECTION = "android.support.customtabs.action.CustomTabsService";
     private CustomTabsSession mCustomTabsSession;
     private CustomTabsClient mClient;
     private CustomTabsServiceConnection mConnection;
+    private boolean mIsBound;
 
     /**
      * Binds the Activity to the Custom Tabs Service.
@@ -55,14 +57,15 @@ public class CustomTabsDelegate {
      * @param activity the activity to be bound to the service.
      */
     void bindCustomTabsService(Activity activity) {
-        if (mClient != null) {
+        if (mClient != null || mIsBound) {
             return;
         }
         if (TextUtils.isEmpty(getPackageNameToUse(activity))) {
             return;
         }
         mConnection = new ServiceConnection(this);
-        CustomTabsClient.bindCustomTabsService(activity, getPackageNameToUse(activity), mConnection);
+        mIsBound = CustomTabsClient.bindCustomTabsService(activity.getApplicationContext(),
+                getPackageNameToUse(activity), mConnection);
     }
 
     /**
@@ -71,20 +74,25 @@ public class CustomTabsDelegate {
      * @param activity the activity that is connected to the service.
      */
     void unbindCustomTabsService(Activity activity) {
-        if (mConnection == null) {
+        if (mConnection == null || !mIsBound) {
             return;
         }
-        activity.unbindService(mConnection);
+        try {
+            activity.getApplicationContext().unbindService(mConnection);
+        } catch (IllegalArgumentException e) {
+            android.util.Log.e("CustomTabsDelegate", "Error unbinding service", e);
+        }
         mClient = null;
         mCustomTabsSession = null;
         mConnection = null;
+        mIsBound = false;
     }
 
     /**
      * Warms up the browser process and pre-fetches the given URL.
      *
-     * @param uri               The URL to pre-fetch.
-     * @param extras            Bundle of extras for the request.
+     * @param uri                The URL to pre-fetch.
+     * @param extras             Bundle of extras for the request.
      * @param otherLikelyBundles A list of other likely URLs.
      * @return true if the call to mayLaunchUrl was accepted.
      */
@@ -120,6 +128,7 @@ public class CustomTabsDelegate {
     void onServiceDisconnected() {
         mClient = null;
         mCustomTabsSession = null;
+        mIsBound = false;
     }
 
     @Nullable
@@ -170,7 +179,7 @@ public class CustomTabsDelegate {
         PackageManager pm = context.getPackageManager();
         List<ResolveInfo> resolvedActivityList = pm.queryIntentActivities(
                 new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.example.com")), 0);
-        //noinspection Convert2streamapi
+        // noinspection Convert2streamapi
         for (ResolveInfo info : resolvedActivityList) {
             if (pm.resolveService(new Intent()
                     .setAction(ACTION_CUSTOM_TABS_CONNECTION)

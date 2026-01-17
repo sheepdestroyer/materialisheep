@@ -81,7 +81,7 @@ import static android.view.View.VISIBLE;
  */
 public class WebFragment extends LazyLoadFragment
         implements Scrollable, KeyDelegate.BackInterceptor {
-    public static final String EXTRA_ITEM = WebFragment.class.getName() +".EXTRA_ITEM";
+    public static final String EXTRA_ITEM = WebFragment.class.getName() + ".EXTRA_ITEM";
     private static final String STATE_EMPTY = "state:empty";
     private static final String STATE_READABILITY = "state:readability";
     static final String ACTION_FULLSCREEN = WebFragment.class.getName() + ".ACTION_FULLSCREEN";
@@ -91,11 +91,16 @@ public class WebFragment extends LazyLoadFragment
     private static final int DEFAULT_PROGRESS = 20;
     public static final String PDF_LOADER_URL = "file:///android_asset/pdf/index.html";
     private static final String PDF_MIME_TYPE = "application/pdf";
-    @Synthetic WebView mWebView;
+    @Synthetic
+    WebView mWebView;
     private NestedScrollView mScrollView;
-    @Synthetic boolean mExternalRequired = false;
-    @Inject @Named(HN) ItemManager mItemManager;
-    @Inject PopupMenu mPopupMenu;
+    @Synthetic
+    boolean mExternalRequired = false;
+    @Inject
+    @Named(HN)
+    ItemManager mItemManager;
+    @Inject
+    PopupMenu mPopupMenu;
     private KeyDelegate.NestedScrollViewHelper mScrollableHelper;
     private final Preferences.Observable mPreferenceObservable = new Preferences.Observable();
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -106,7 +111,8 @@ public class WebFragment extends LazyLoadFragment
     };
     private ViewGroup mFullscreenView;
     private ViewGroup mScrollViewContent;
-    @Synthetic ImageButton mButtonRefresh;
+    @Synthetic
+    ImageButton mButtonRefresh;
     private ViewSwitcher mControls;
     private EditText mEditText;
     private View mButtonMore;
@@ -117,8 +123,10 @@ public class WebFragment extends LazyLoadFragment
     protected String mContent;
     private AppUtils.SystemUiHelper mSystemUiHelper;
     private View mFragmentView;
-    @Inject ReadabilityClient mReadabilityClient;
-    @Inject FileDownloader mFileDownloader;
+    @Inject
+    ReadabilityClient mReadabilityClient;
+    @Inject
+    FileDownloader mFileDownloader;
     private WebItem mItem;
     private boolean mIsHackerNewsUrl, mEmpty, mReadability;
     private PdfAndroidJavascriptBridge mPdfAndroidJavascriptBridge;
@@ -145,15 +153,15 @@ public class WebFragment extends LazyLoadFragment
             mReadability = savedInstanceState.getBoolean(STATE_READABILITY, false);
             mItem = savedInstanceState.getParcelable(EXTRA_ITEM);
         } else {
-            mReadability = Preferences.getDefaultStoryView(getActivity()) ==
-                    Preferences.StoryViewMode.Readability;
+            mReadability = Preferences.getDefaultStoryView(getActivity()) == Preferences.StoryViewMode.Readability;
             mItem = getArguments().getParcelable(EXTRA_ITEM);
         }
         mIsHackerNewsUrl = AppUtils.isHackerNewsUrl(mItem);
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
         if (isNewInstance()) {
             mFragmentView = inflater.inflate(R.layout.fragment_web, container, false);
             mFullscreenView = (ViewGroup) mFragmentView.findViewById(R.id.fullscreen);
@@ -195,8 +203,8 @@ public class WebFragment extends LazyLoadFragment
     protected void prepareOptionsMenu(Menu menu) {
         MenuItem menuReadability = menu.findItem(R.id.menu_readability);
         menuReadability.setVisible(modeToggleEnabled());
-        mMenuTintDelegate.setIcon(menuReadability, mReadability ?
-                R.drawable.ic_web_black_24dp : R.drawable.ic_chrome_reader_mode_black_24dp);
+        mMenuTintDelegate.setIcon(menuReadability,
+                mReadability ? R.drawable.ic_web_black_24dp : R.drawable.ic_chrome_reader_mode_black_24dp);
         menuReadability.setTitle(mReadability ? R.string.article : R.string.readability);
         menu.findItem(R.id.menu_font_options).setVisible(fontEnabled());
     }
@@ -249,9 +257,9 @@ public class WebFragment extends LazyLoadFragment
 
     @Override
     public void onDetach() {
-        super.onDetach();
         mPreferenceObservable.unsubscribe(getActivity());
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mReceiver);
+        super.onDetach();
     }
 
     @Override
@@ -327,18 +335,19 @@ public class WebFragment extends LazyLoadFragment
         if (pdfFilePath != null && TextUtils.equals(PDF_LOADER_URL, url)) {
             setProgress(80);
             mIsPdf = true;
-            mPdfAndroidJavascriptBridge = new PdfAndroidJavascriptBridge(pdfFilePath, new PdfAndroidJavascriptBridge.Callbacks() {
-                @Override
-                public void onFailure() {
-                    offerExternalApp();
-                    setProgress(100);
-                }
+            mPdfAndroidJavascriptBridge = new PdfAndroidJavascriptBridge(pdfFilePath,
+                    new PdfAndroidJavascriptBridge.Callbacks() {
+                        @Override
+                        public void onFailure() {
+                            offerExternalApp();
+                            setProgress(100);
+                        }
 
-                @Override
-                public void onLoad() {
-                    setProgress(100);
-                }
-            });
+                        @Override
+                        public void onLoad() {
+                            setProgress(100);
+                        }
+                    });
             mWebView.addJavascriptInterface(mPdfAndroidJavascriptBridge, "PdfAndroidJavascriptBridge");
             mWebView.setInitialScale(1);
         }
@@ -399,32 +408,34 @@ public class WebFragment extends LazyLoadFragment
                 mWebView.reload();
             }
         });
-        view.findViewById(R.id.button_exit).setOnClickListener(v ->
-                LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(
+        view.findViewById(R.id.button_exit)
+                .setOnClickListener(v -> LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(
                         new Intent(WebFragment.ACTION_FULLSCREEN)
                                 .putExtra(EXTRA_FULLSCREEN, false)));
         mButtonNext.setOnClickListener(v -> mWebView.findNext(true));
-        mButtonMore.setOnClickListener(v ->
-                mPopupMenu.create(getActivity(), mButtonMore, Gravity.NO_GRAVITY)
-                        .inflate(R.menu.menu_web)
-                        .setOnMenuItemClickListener(item -> {
-                            if (item.getItemId() == R.id.menu_font_options) {
-                                showPreferences();
-                                return true;
-                            }
-                            if (item.getItemId() == R.id.menu_zoom_in) {
-                                mWebView.zoomIn();
-                                return true;
-                            }
-                            if (item.getItemId() == R.id.menu_zoom_out) {
-                                mWebView.zoomOut();
-                                return true;
-                            }
-                            return false;
-                        })
-                        .setMenuItemVisible(R.id.menu_font_options, fontEnabled())
-                        .show());
-        mEditText.setOnEditorActionListener((v, actionId, event) -> { findInPage(); return true; });
+        mButtonMore.setOnClickListener(v -> mPopupMenu.create(getActivity(), mButtonMore, Gravity.NO_GRAVITY)
+                .inflate(R.menu.menu_web)
+                .setOnMenuItemClickListener(item -> {
+                    if (item.getItemId() == R.id.menu_font_options) {
+                        showPreferences();
+                        return true;
+                    }
+                    if (item.getItemId() == R.id.menu_zoom_in) {
+                        mWebView.zoomIn();
+                        return true;
+                    }
+                    if (item.getItemId() == R.id.menu_zoom_out) {
+                        mWebView.zoomOut();
+                        return true;
+                    }
+                    return false;
+                })
+                .setMenuItemVisible(R.id.menu_font_options, fontEnabled())
+                .show());
+        mEditText.setOnEditorActionListener((v, actionId, event) -> {
+            findInPage();
+            return true;
+        });
     }
 
     private void setUpWebView(View view) {
@@ -485,8 +496,8 @@ public class WebFragment extends LazyLoadFragment
     private void setProgress(int progress) {
         mProgressBar.setProgress(progress);
         mProgressBar.setVisibility(progress == 100 ? GONE : VISIBLE);
-        mButtonRefresh.setImageResource(progress == 100 ?
-                R.drawable.ic_refresh_white_24dp : R.drawable.ic_clear_white_24dp);
+        mButtonRefresh
+                .setImageResource(progress == 100 ? R.drawable.ic_refresh_white_24dp : R.drawable.ic_clear_white_24dp);
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -520,7 +531,7 @@ public class WebFragment extends LazyLoadFragment
             // so let's add some reasonable limit just in case
             int i = 0;
             while (mWebView.zoomOut() && i < 30) {
-              i++;
+                i++;
             }
             mFullscreenView.removeView(mScrollViewContent);
             mScrollView.addView(mScrollViewContent);
@@ -534,7 +545,7 @@ public class WebFragment extends LazyLoadFragment
         Bundle args = new Bundle();
         args.putInt(PopupSettingsFragment.EXTRA_TITLE, R.string.font_options);
         args.putIntArray(PopupSettingsFragment.EXTRA_XML_PREFERENCES,
-                new int[]{R.xml.preferences_readability});
+                new int[] { R.xml.preferences_readability });
         ((DialogFragment) Fragment.instantiate(getActivity(),
                 PopupSettingsFragment.class.getName(), args))
                 .show(getFragmentManager(), PopupSettingsFragment.class.getName());
@@ -678,7 +689,7 @@ public class WebFragment extends LazyLoadFragment
                     mRandomAccessFile = new RandomAccessFile(mFile, "r");
                 }
                 if (mRandomAccessFile != null) {
-                    final int bufferSize = (int)(end - begin);
+                    final int bufferSize = (int) (end - begin);
                     byte[] data = new byte[bufferSize];
                     mRandomAccessFile.seek(begin);
                     mRandomAccessFile.read(data);
@@ -732,6 +743,7 @@ public class WebFragment extends LazyLoadFragment
 
         interface Callbacks {
             void onFailure();
+
             void onLoad();
         }
     }

@@ -23,8 +23,10 @@ import android.view.Menu;
 import android.view.MenuInflater;
 
 /**
- * Base fragment which performs injection using its parent activity's object graphs, if available.
- * It also handles menu creation and preparation, and tracks the fragment's attached state.
+ * Base fragment which performs injection using its parent activity's object
+ * graphs, if available.
+ * It also handles menu creation and preparation, and tracks the fragment's
+ * attached state.
  */
 public abstract class BaseFragment extends Fragment {
     protected final MenuTintDelegate mMenuTintDelegate = new MenuTintDelegate();
@@ -58,7 +60,8 @@ public abstract class BaseFragment extends Fragment {
      * Initialize the contents of the Fragment's standard options menu.
      *
      * @param menu     The options menu in which you place your items.
-     * @param inflater You can use this to inflate your menu XML files into the menu.
+     * @param inflater You can use this to inflate your menu XML files into the
+     *                 menu.
      */
     @Override
     public final void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -86,8 +89,8 @@ public abstract class BaseFragment extends Fragment {
      */
     @Override
     public void onDetach() {
-        super.onDetach();
         mAttached = false;
+        super.onDetach();
     }
 
     /**

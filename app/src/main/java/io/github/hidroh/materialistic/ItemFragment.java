@@ -67,7 +67,9 @@ public class ItemFragment extends LazyLoadFragment implements Scrollable, Naviga
     private View mEmptyView;
     private Item mItem;
     private String mItemId;
-    @Inject @Named(HN) ItemManager mItemManager;
+    @Inject
+    @Named(HN)
+    ItemManager mItemManager;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private SinglePageItemRecyclerViewAdapter.SavedState mAdapterItems;
     private ItemRecyclerViewAdapter mAdapter;
@@ -127,17 +129,22 @@ public class ItemFragment extends LazyLoadFragment implements Scrollable, Naviga
     /**
      * Called to have the fragment instantiate its user interface view.
      *
-     * @param inflater           The LayoutInflater object that can be used to inflate
+     * @param inflater           The LayoutInflater object that can be used to
+     *                           inflate
      *                           any views in the fragment,
-     * @param container          If non-null, this is the parent view that the fragment's
-     *                           UI should be attached to.  The fragment should not add the view itself,
-     *                           but this can be used to generate the LayoutParams of the view.
+     * @param container          If non-null, this is the parent view that the
+     *                           fragment's
+     *                           UI should be attached to. The fragment should not
+     *                           add the view itself,
+     *                           but this can be used to generate the LayoutParams
+     *                           of the view.
      * @param savedInstanceState If non-null, this fragment is being re-constructed
      *                           from a previous saved state as given here.
      * @return Return the View for the fragment's UI, or null.
      */
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable final Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+            @Nullable final Bundle savedInstanceState) {
         if (isNewInstance()) {
             mFragmentView = inflater.inflate(R.layout.fragment_item, container, false);
             mEmptyView = mFragmentView.findViewById(R.id.empty);
@@ -165,7 +172,8 @@ public class ItemFragment extends LazyLoadFragment implements Scrollable, Naviga
     /**
      * Called to have the fragment instantiate its user interface view.
      *
-     * @param view               The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+     * @param view               The View returned by
+     *                           {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
      * @param savedInstanceState If non-null, this fragment is being re-constructed
      *                           from a previous saved state as given here.
      */
@@ -227,8 +235,8 @@ public class ItemFragment extends LazyLoadFragment implements Scrollable, Naviga
      */
     @Override
     public void onDetach() {
-        super.onDetach();
         mPreferenceObservable.unsubscribe(getActivity());
+        super.onDetach();
     }
 
     /**
@@ -321,7 +329,8 @@ public class ItemFragment extends LazyLoadFragment implements Scrollable, Naviga
         String displayOption = Preferences.getCommentDisplayOption(getActivity());
         if (Preferences.isSinglePage(getActivity(), displayOption)) {
             boolean autoExpand = Preferences.isAutoExpand(getActivity(), displayOption);
-            // if collapsed or no saved state then start a fresh (adapter items all collapsed)
+            // if collapsed or no saved state then start a fresh (adapter items all
+            // collapsed)
             if (!autoExpand || mAdapterItems == null) {
                 mAdapterItems = new SinglePageItemRecyclerViewAdapter.SavedState(
                         new ArrayList<>(Arrays.asList(mItem.getKidItems())));
@@ -353,9 +362,9 @@ public class ItemFragment extends LazyLoadFragment implements Scrollable, Naviga
         Bundle args = new Bundle();
         args.putInt(PopupSettingsFragment.EXTRA_TITLE, R.string.font_options);
         args.putInt(PopupSettingsFragment.EXTRA_SUMMARY, R.string.pull_up_hint);
-        args.putIntArray(PopupSettingsFragment.EXTRA_XML_PREFERENCES, new int[]{
+        args.putIntArray(PopupSettingsFragment.EXTRA_XML_PREFERENCES, new int[] {
                 R.xml.preferences_font,
-                R.xml.preferences_comments});
+                R.xml.preferences_comments });
         ((DialogFragment) Fragment.instantiate(getActivity(),
                 PopupSettingsFragment.class.getName(), args))
                 .show(getFragmentManager(), PopupSettingsFragment.class.getName());

@@ -34,13 +34,16 @@ import io.github.hidroh.materialistic.widget.ListRecyclerViewAdapter;
 import io.github.hidroh.materialistic.widget.SnappyLinearLayoutManager;
 
 /**
- * An abstract base fragment that displays a list of items. This fragment handles common list
- * functionality, such as setting up the RecyclerView, handling scroll events, and managing
+ * An abstract base fragment that displays a list of items. This fragment
+ * handles common list
+ * functionality, such as setting up the RecyclerView, handling scroll events,
+ * and managing
  * adapter state.
  */
 abstract class BaseListFragment extends BaseFragment implements Scrollable {
     private static final String STATE_ADAPTER = "state:adapter";
-    @Inject CustomTabsDelegate mCustomTabsDelegate;
+    @Inject
+    CustomTabsDelegate mCustomTabsDelegate;
     private KeyDelegate.RecyclerViewHelper mScrollableHelper;
     protected RecyclerView mRecyclerView;
     private final Preferences.Observable mPreferenceObservable = new Preferences.Observable();
@@ -74,7 +77,8 @@ abstract class BaseListFragment extends BaseFragment implements Scrollable {
     /**
      * Called to have the fragment instantiate its user interface view.
      *
-     * @param view               The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+     * @param view               The View returned by
+     *                           {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
      * @param savedInstanceState If non-null, this fragment is being re-constructed
      *                           from a previous saved state as given here.
      */
@@ -90,7 +94,7 @@ abstract class BaseListFragment extends BaseFragment implements Scrollable {
         mRecyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
             @Override
             public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
-                                       RecyclerView.State state) {
+                    RecyclerView.State state) {
                 if (getAdapter().isCardViewEnabled()) {
                     outRect.set(horizontalMargin, verticalMargin, horizontalMargin, 0);
                 } else {
@@ -124,7 +128,8 @@ abstract class BaseListFragment extends BaseFragment implements Scrollable {
      * Initialize the contents of the Fragment's standard options menu.
      *
      * @param menu     The options menu in which you place your items.
-     * @param inflater You can use this to inflate your menu XML files into the menu.
+     * @param inflater You can use this to inflate your menu XML files into the
+     *                 menu.
      */
     @Override
     protected void createOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -151,9 +156,9 @@ abstract class BaseListFragment extends BaseFragment implements Scrollable {
         Bundle args = new Bundle();
         args.putInt(PopupSettingsFragment.EXTRA_TITLE, R.string.list_display_options);
         args.putInt(PopupSettingsFragment.EXTRA_SUMMARY, R.string.pull_up_hint);
-        args.putIntArray(PopupSettingsFragment.EXTRA_XML_PREFERENCES, new int[]{
+        args.putIntArray(PopupSettingsFragment.EXTRA_XML_PREFERENCES, new int[] {
                 R.xml.preferences_font,
-                R.xml.preferences_list});
+                R.xml.preferences_list });
         ((DialogFragment) Fragment.instantiate(getActivity(),
                 PopupSettingsFragment.class.getName(), args))
                 .show(getFragmentManager(), PopupSettingsFragment.class.getName());
@@ -177,9 +182,9 @@ abstract class BaseListFragment extends BaseFragment implements Scrollable {
      */
     @Override
     public void onDetach() {
-        super.onDetach();
         mPreferenceObservable.unsubscribe(getActivity());
         mRecyclerView.setAdapter(null); // force adapter detach
+        super.onDetach();
     }
 
     /**

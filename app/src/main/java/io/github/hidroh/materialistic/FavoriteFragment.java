@@ -50,9 +50,12 @@ public class FavoriteFragment extends BaseListFragment
     private ActionMode mActionMode;
     private String mFilter;
     private boolean mSearchViewExpanded;
-    @Inject FavoriteManager mFavoriteManager;
-    @Inject ActionViewResolver mActionViewResolver;
-    @Inject AlertDialogBuilder mAlertDialogBuilder;
+    @Inject
+    FavoriteManager mFavoriteManager;
+    @Inject
+    ActionViewResolver mActionViewResolver;
+    @Inject
+    AlertDialogBuilder mAlertDialogBuilder;
     private View mEmptySearchView;
     private View mEmptyView;
 
@@ -76,18 +79,22 @@ public class FavoriteFragment extends BaseListFragment
     /**
      * Called to have the fragment instantiate its user interface view.
      *
-     * @param inflater           The LayoutInflater object that can be used to inflate
+     * @param inflater           The LayoutInflater object that can be used to
+     *                           inflate
      *                           any views in the fragment,
-     * @param container          If non-null, this is the parent view that the fragment's
-     *                           UI should be attached to.  The fragment should not add the view itself,
-     *                           but this can be used to generate the LayoutParams of the view.
+     * @param container          If non-null, this is the parent view that the
+     *                           fragment's
+     *                           UI should be attached to. The fragment should not
+     *                           add the view itself,
+     *                           but this can be used to generate the LayoutParams
+     *                           of the view.
      * @param savedInstanceState If non-null, this fragment is being re-constructed
      *                           from a previous saved state as given here.
      * @return Return the View for the fragment's UI, or null.
      */
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
+            @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_favorite, container, false);
         mRecyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
         mEmptySearchView = view.findViewById(R.id.empty_search);
@@ -95,8 +102,7 @@ public class FavoriteFragment extends BaseListFragment
         mEmptyView.findViewById(R.id.header_card_view)
                 .setOnLongClickListener(v -> {
                     View bookmark = mEmptyView.findViewById(R.id.bookmarked);
-                    bookmark.setVisibility(bookmark.getVisibility() == View.VISIBLE ?
-                                    View.INVISIBLE : View.VISIBLE);
+                    bookmark.setVisibility(bookmark.getVisibility() == View.VISIBLE ? View.INVISIBLE : View.VISIBLE);
                     return true;
                 });
         mEmptyView.setVisibility(View.INVISIBLE);
@@ -128,7 +134,8 @@ public class FavoriteFragment extends BaseListFragment
      * Initialize the contents of the Fragment's standard options menu.
      *
      * @param menu     The options menu in which you place your items.
-     * @param inflater You can use this to inflate your menu XML files into the menu.
+     * @param inflater You can use this to inflate your menu XML files into the
+     *                 menu.
      */
     @Override
     protected void createOptionsMenu(final Menu menu, MenuInflater inflater) {
@@ -204,10 +211,10 @@ public class FavoriteFragment extends BaseListFragment
      */
     @Override
     public void onDetach() {
-        super.onDetach();
         if (mActionMode != null) {
             mActionMode.finish();
         }
+        super.onDetach();
     }
 
     /**
