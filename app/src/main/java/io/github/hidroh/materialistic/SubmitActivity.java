@@ -74,7 +74,6 @@ public class SubmitActivity extends ThemedActivity {
                     .setNegativeButton(android.R.string.cancel, (dialog, which) -> setEnabled(true))
                     .setPositiveButton(android.R.string.ok,
                             (dialog, which) -> {
-                                setEnabled(false);
                                 getOnBackPressedDispatcher().onBackPressed();
                             })
                     .setOnCancelListener(dialog -> setEnabled(true))
