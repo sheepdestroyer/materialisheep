@@ -28,6 +28,8 @@
 ### Fixed
 - Resolved `NetworkOnMainThreadException` crash in `ReadabilityClient` by offloading database caching to background thread.
 - Fixed memory leaks and resource management in `ReadabilityClient` and `WebFragment` by implementing proper `destroy()` lifecycle and using `CompositeDisposable`.
+- Removed temporary `CustomCrashHandler` used for debugging.
+
 
 
 ### Removed
