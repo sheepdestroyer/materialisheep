@@ -89,8 +89,8 @@ public class PopupSettingsFragment extends AppCompatDialogFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         if (savedInstanceState == null) {
-            Fragment fragment = Fragment.instantiate(getActivity(),
-                    PreferenceFragment.class.getName(), getArguments());
+            Fragment fragment = new PreferenceFragment();
+            fragment.setArguments(getArguments());
             getChildFragmentManager()
                     .beginTransaction()
                     .add(R.id.content, fragment)
