@@ -167,7 +167,6 @@ public interface ReadabilityClient {
                                         JSONObject json = new JSONObject(value);
                                         content = json.getString("content");
                                         final String savedContent = content;
-                                        final String savedContent = content;
                                         mDisposables.add(Completable
                                                 .fromAction(() -> mCache.putReadability(itemId, savedContent))
                                                 .subscribeOn(mIoScheduler)
