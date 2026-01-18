@@ -253,6 +253,7 @@ public class WebFragment extends LazyLoadFragment
             mPdfAndroidJavascriptBridge.cleanUp();
         }
         mWebView.destroy();
+        mReadabilityClient.destroy();
     }
 
     @Override

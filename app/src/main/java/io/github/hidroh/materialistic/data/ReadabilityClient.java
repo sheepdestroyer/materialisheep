@@ -85,10 +85,16 @@ public interface ReadabilityClient {
     void parse(String itemId, String url);
 
     /**
+     * Destroys this client and releases resources.
+     */
+    void destroy();
+
+    /**
      * An implementation of {@link ReadabilityClient} that uses Mozilla's
      * Readability.js.
      */
     class Impl implements ReadabilityClient {
+        private static final String TAG = "ReadabilityClient";
         private final LocalCache mCache;
         private final Context mContext;
         @Inject
@@ -107,7 +113,7 @@ public interface ReadabilityClient {
             try (InputStream inputStream = mContext.getAssets().open("Readability.js")) {
                 mReadabilityJs = Okio.buffer(Okio.source(inputStream)).readUtf8();
             } catch (IOException e) {
-                Log.e("ReadabilityClient", "Failed to load Readability.js from assets", e);
+                Log.e(TAG, "Failed to load Readability.js from assets", e);
                 // mReadabilityJs will be null, and fromNetwork will emit null
             }
         }
@@ -121,7 +127,7 @@ public interface ReadabilityClient {
                     .observeOn(mMainThreadScheduler)
                     .firstElement()
                     .subscribe(callback::onResponse, throwable -> {
-                        android.util.Log.e("ReadabilityClient", "Failed to parse " + url, throwable);
+                        android.util.Log.e(TAG, "Failed to parse " + url, throwable);
                         callback.onResponse(null);
                     }, () -> callback.onResponse(null));
         }
@@ -136,7 +142,7 @@ public interface ReadabilityClient {
                     .observeOn(Schedulers.trampoline())
                     .ignoreElements()
                     .subscribe(() -> {
-                    }, throwable -> Log.w(ReadabilityClient.class.getSimpleName(), "Failed to pre-parse " + url,
+                    }, throwable -> Log.w(TAG, "Failed to pre-parse " + url,
                             throwable));
         }
 
@@ -171,10 +177,10 @@ public interface ReadabilityClient {
                                                 .fromAction(() -> mCache.putReadability(itemId, savedContent))
                                                 .subscribeOn(mIoScheduler)
                                                 .subscribe(() -> {
-                                                }, error -> Log.e("ReadabilityClient", "Failed to cache content",
+                                                }, error -> Log.e(TAG, "Failed to cache content",
                                                         error)));
                                     } catch (JSONException e) {
-                                        Log.w("ReadabilityClient", "Failed to parse Readability output", e);
+                                        Log.w(TAG, "Failed to parse Readability output", e);
                                         // content will be null
                                     }
                                 }
@@ -214,7 +220,8 @@ public interface ReadabilityClient {
             })).timeout(30, TimeUnit.SECONDS);
         }
 
-        public void close() {
+        @Override
+        public void destroy() {
             mDisposables.clear();
         }
 
