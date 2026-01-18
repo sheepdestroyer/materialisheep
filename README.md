@@ -48,7 +48,7 @@ The codebase is organized into the following packages:
 
 1.  Clone the repository:
     ```
-    git clone https://github.com/hidroh/materialistic.git
+    git clone https://github.com/sheepdestroyer/materialisheep.git
     ```
 2.  Build the project:
     ```
