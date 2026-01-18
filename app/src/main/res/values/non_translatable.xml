@@ -20,10 +20,19 @@
     <string name="developer_info_text" translatable="false">
         <![CDATA[
             <p>
-            Ha Duy Trung
-            <a href="https://twitter.com/hadt">@hadt</a> /
-            <a href="https://github.com/hidroh">Github</a> /
-            <a href="https://hidroh.github.io">Blog</a>
+            sheepdestroyer
+            <a href="https://github.com/sheepdestroyer">Github</a>
+            </p>
+            <p>
+            Support development:
+            <br/>
+            <a href="https://github.com/sponsors/sheepdestroyer">GitHub Sponsors</a> /
+            <a href="https://ko-fi.com/sheepdestroyer">Ko-fi</a> /
+            <a href="https://liberapay.com/sheepdestroyer">Liberapay</a>
+            </p>
+            <p>
+            Original Author: Ha Duy Trung
+            <a href="https://twitter.com/hadt">@hadt</a>
             </p>
         ]]>
     </string>
@@ -69,6 +78,6 @@
         </html>
         ]]>
     </string>
-    <string name="fab_scrolling_view_behavior" translatable="false">io.github.hidroh.materialistic.FabAwareScrollBehavior</string>
+    <string name="fab_scrolling_view_behavior" translatable="false">io.github.sheepdestroyer.materialisheep.FabAwareScrollBehavior</string>
 
 </resources>

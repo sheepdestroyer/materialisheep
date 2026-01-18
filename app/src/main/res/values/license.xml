@@ -19,6 +19,7 @@
     <string translatable="false" name="license_text">
         <![CDATA[
             <p>Copyright 2015 Ha Duy Trung</p>
+            <p>Copyright 2026 sheepdestroyer</p>
             <p>Licensed under the Apache License, Version 2.0 (the "License");
             you may not use this file except in compliance with the License.
             You may obtain a copy of the License at</p>
@@ -40,7 +41,7 @@
             <p><a href="https://github.com/ReactiveX/RxAndroid">RxAndroid</a> - Apache License v2.0</p>
             <p><a href="https://developer.android.com/jetpack">Android Jetpack</a> - Apache License v2.0</p>
             <p><a href="https://github.com/algolia/hn-search">algolia/hn-search</a> - MIT License</p>
-            <p><a href="https://mercury.postlight.com/web-parser/">Mercury Web Parser API</a></p>
+            <p><a href="https://github.com/mozilla/readability">Mozilla Readability.js</a> - Apache License v2.0</p>
             <p><a href="https://github.com/mozilla/pdf.js">PDF.js</a> - Apache License v2.0</p>
             <p><a href="https://github.com/google/material-design-icons">Material design icons</a> - Creative Common Attribution 4.0 International License</p>
             <p><a href="https://github.com/google/fonts">Google Fonts</a></p>
@@ -53,12 +54,12 @@
     </string>
     <string translatable="false" name="third_party_licenses_text" tools:ignore="TypographyOther">
         <![CDATA[
-            <a href="https://hidroh.github.io/materialistic/licenses.html">View full text</a>
+            <a href="https://github.com/sheepdestroyer/materialisheep/blob/master/LICENSE.txt">View full text</a>
         ]]>
     </string>
     <string translatable="false" name="privacy_policy_text" tools:ignore="TypographyOther">
         <![CDATA[
-            <a href="https://hidroh.github.io/materialistic/privacy.html">View full text</a>
+            <a href="https://github.com/sheepdestroyer/materialisheep/blob/master/PRIVACY-POLICY.txt">View full text</a>
         ]]>
     </string>
 </resources>
