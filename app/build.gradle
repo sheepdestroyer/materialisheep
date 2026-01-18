@@ -112,7 +112,7 @@ dependencies {
     implementation "androidx.room:room-runtime:$roomVersion"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion"
-    implementation platform("org.jetbrains.kotlin:kotlin-bom:2.1.0")
+    implementation platform("org.jetbrains.kotlin:kotlin-bom:$rootProject.kotlin_version")
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
 
 
