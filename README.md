@@ -4,7 +4,7 @@ Materialisheep, forked from hidroh's Materialistic, is a Hacker News client for 
 
 ## Project Overview
 
-Materialistic follows a modular architecture that separates concerns and promotes maintainability. The core components of the application are:
+Materialisheep follows a modular architecture that separates concerns and promotes maintainability. The core components of the application are:
 
 *   **Data Layer:** The data layer is responsible for fetching and caching data from the Hacker News API and other sources. It uses [Retrofit] for making network requests and [Room] for local data persistence.
 *   **Domain Layer:** The domain layer contains the business logic of the application. It is responsible for transforming data from the data layer into a format that is easy for the presentation layer to consume.
