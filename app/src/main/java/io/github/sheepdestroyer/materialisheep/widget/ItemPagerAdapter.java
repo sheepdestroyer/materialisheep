@@ -40,32 +40,32 @@ import io.github.sheepdestroyer.materialisheep.data.WebItem;
 
 @SuppressWarnings("deprecation") // TODO: Uses deprecated FragmentStatePagerAdapter; migrate to
                                  // ViewPager2/FragmentStateAdapter
-public class ItemPagerAdapter extends FragmentStatePagerAdapter {
-    private final Fragment[] mFragments = new Fragment[3];
+public class ItemPagerAdapter extends androidx.viewpager2.adapter.FragmentStateAdapter {
     private final Context mContext;
     private final WebItem mItem;
     private final boolean mShowArticle;
     private final int mCacheMode;
     private final int mDefaultItem;
     private final boolean mRetainInstance;
-    private TabLayout.OnTabSelectedListener mTabListener;
 
-    public ItemPagerAdapter(Context context, FragmentManager fm, @NonNull Builder builder) {
-        super(fm);
-        mContext = context;
+    public ItemPagerAdapter(androidx.fragment.app.FragmentActivity fragmentActivity, @NonNull Builder builder) {
+        super(fragmentActivity);
+        mContext = fragmentActivity;
         mItem = builder.item;
         mShowArticle = builder.showArticle;
         mCacheMode = builder.cacheMode;
         mRetainInstance = builder.retainInstance;
-        mDefaultItem = Math.min(getCount() - 1,
+        mDefaultItem = Math.min(getItemCount() - 1,
                 builder.defaultViewMode == Preferences.StoryViewMode.Comment ? 0 : 1);
     }
 
     @Override
-    public Fragment getItem(int position) {
-        if (mFragments[position] != null) {
-            return mFragments[position];
-        }
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
+    public Fragment createFragment(int position) {
         Bundle args = new Bundle();
         args.putBoolean(LazyLoadFragment.EXTRA_EAGER_LOAD, mDefaultItem == position);
         if (position == 0) {
@@ -85,17 +85,10 @@ public class ItemPagerAdapter extends FragmentStatePagerAdapter {
     }
 
     @Override
-    public Object instantiateItem(ViewGroup container, int position) {
-        mFragments[position] = (Fragment) super.instantiateItem(container, position);
-        return mFragments[position];
-    }
-
-    @Override
-    public int getCount() {
+    public int getItemCount() {
         return mItem.isStoryType() && !mShowArticle ? 1 : 2;
     }
 
-    @Override
     public CharSequence getPageTitle(int position) {
         if (position == 0) {
             if (mItem instanceof Item) {
@@ -106,54 +99,6 @@ public class ItemPagerAdapter extends FragmentStatePagerAdapter {
             return mContext.getString(R.string.title_activity_item);
         }
         return mContext.getString(mItem.isStoryType() ? R.string.article : R.string.full_text);
-    }
-
-    public void bind(ViewPager viewPager, TabLayout tabLayout,
-            FloatingActionButton navigationFab, FloatingActionButton genericFab) {
-        viewPager.setPageMargin(viewPager.getResources().getDimensionPixelOffset(R.dimen.divider));
-        viewPager.setPageMarginDrawable(R.color.blackT12);
-        viewPager.setOffscreenPageLimit(2);
-        viewPager.setAdapter(this);
-        tabLayout.setupWithViewPager(viewPager);
-        mTabListener = new TabLayout.ViewPagerOnTabSelectedListener(viewPager) {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                super.onTabSelected(tab);
-                toggleFabs(viewPager.getCurrentItem() == 0, navigationFab, genericFab);
-                Fragment fragment = getItem(viewPager.getCurrentItem());
-                if (fragment != null) {
-                    ((LazyLoadFragment) fragment).loadNow();
-                }
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-                Fragment fragment = getItem(viewPager.getCurrentItem());
-                if (fragment != null) {
-                    ((Scrollable) fragment).scrollToTop();
-                }
-            }
-        };
-        tabLayout.addOnTabSelectedListener(mTabListener);
-        viewPager.setCurrentItem(mDefaultItem);
-        toggleFabs(mDefaultItem == 0, navigationFab, genericFab);
-
-    }
-
-    @Synthetic
-    void toggleFabs(boolean isComments,
-            FloatingActionButton navigationFab,
-            FloatingActionButton genericFab) {
-        AppUtils.toggleFab(navigationFab, isComments &&
-                Preferences.navigationEnabled(navigationFab.getContext()));
-        AppUtils.toggleFab(genericFab, true);
-        AppUtils.toggleFabAction(genericFab, mItem, isComments);
-    }
-
-    public void unbind(TabLayout tabLayout) {
-        if (mTabListener != null) {
-            tabLayout.removeOnTabSelectedListener(mTabListener);
-        }
     }
 
     public static class Builder {

@@ -18,6 +18,8 @@ package io.github.sheepdestroyer.materialisheep;
 
 import androidx.lifecycle.Observer;
 import androidx.activity.OnBackPressedCallback;
+import androidx.viewpager2.widget.ViewPager2;
+import com.google.android.material.tabs.TabLayoutMediator;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -67,10 +69,9 @@ import io.github.sheepdestroyer.materialisheep.data.WebItem;
 import io.github.sheepdestroyer.materialisheep.widget.ItemPagerAdapter;
 import io.github.sheepdestroyer.materialisheep.widget.NavFloatingActionButton;
 import io.github.sheepdestroyer.materialisheep.widget.PopupMenu;
-import io.github.sheepdestroyer.materialisheep.widget.ViewPager;
 
 /**
- * Activity that displays a single item in a {@link ViewPager}.
+ * Activity that displays a single item in a {@link ViewPager2}.
  */
 @SuppressWarnings("deprecation") // TODO: Uses deprecated LocalBroadcastManager/Parcelable APIs
 public class ItemActivity extends ThemedActivity implements ItemFragment.ItemChangedListener {
@@ -116,7 +117,7 @@ public class ItemActivity extends ThemedActivity implements ItemFragment.ItemCha
     private FloatingActionButton mReplyButton;
     private NavFloatingActionButton mNavButton;
     private ItemPagerAdapter mAdapter;
-    private ViewPager mViewPager;
+    private ViewPager2 mViewPager;
     @Synthetic
     boolean mFullscreen;
     private final Observer<Uri> mObserver = uri -> {
@@ -184,9 +185,10 @@ public class ItemActivity extends ThemedActivity implements ItemFragment.ItemCha
         mSystemUiHelper = new AppUtils.SystemUiHelper(getWindow());
         mReplyButton = findViewById(R.id.reply_button);
         mNavButton = findViewById(R.id.navigation_button);
+        mNavButton = findViewById(R.id.navigation_button);
         mNavButton.setNavigable(direction ->
         // if callback is fired navigable should not be null
-        AppUtils.navigate(direction, mAppBar, (Navigable) mAdapter.getItem(0)));
+        AppUtils.navigate(direction, mAppBar, (Navigable) getFragment(0)));
         mVoteButton = findViewById(R.id.vote_button);
         mBookmark = findViewById(R.id.bookmarked);
         mCoordinatorLayout = findViewById(R.id.content_frame);
@@ -405,7 +407,7 @@ public class ItemActivity extends ThemedActivity implements ItemFragment.ItemCha
         mSystemUiHelper.setFullscreen(mFullscreen);
         mAppBar.setExpanded(!mFullscreen, true);
         mKeyDelegate.setAppBarEnabled(!mFullscreen);
-        mViewPager.setSwipeEnabled(!mFullscreen);
+        mViewPager.setUserInputEnabled(!mFullscreen);
 
         AppUtils.toggleFab(mReplyButton, !mFullscreen);
         mBackPressedCallback.setEnabled(mFullscreen);
@@ -497,20 +499,51 @@ public class ItemActivity extends ThemedActivity implements ItemFragment.ItemCha
                 break;
         }
         boolean hasText = story instanceof Item && !TextUtils.isEmpty(((Item) story).getText());
-        mAdapter = new ItemPagerAdapter(this, getSupportFragmentManager(),
+        mAdapter = new ItemPagerAdapter(this,
                 new ItemPagerAdapter.Builder()
                         .setItem(story)
                         .setShowArticle(hasText || !mExternalBrowser)
                         .setCacheMode(getIntent().getIntExtra(EXTRA_CACHE_MODE, ItemManager.MODE_DEFAULT))
                         .setRetainInstance(true)
                         .setDefaultViewMode(mStoryViewMode));
-        mAdapter.bind(mViewPager, mTabLayout, mNavButton, mReplyButton);
-        mTabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager) {
+        mViewPager.setAdapter(mAdapter);
+        mViewPager.setOffscreenPageLimit(2);
+        new TabLayoutMediator(mTabLayout, mViewPager,
+                (tab, position) -> tab.setText(mAdapter.getPageTitle(position))).attach();
+        mViewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                toggleFabs(position == 0, mNavButton, mReplyButton);
+                Fragment fragment = getFragment(position);
+                if (fragment instanceof LazyLoadFragment) {
+                    ((LazyLoadFragment) fragment).loadNow();
+                }
+            }
+        });
+        mTabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                // handled by Mediator/ViewPager2 callback
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+            }
+
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
+                Fragment fragment = getFragment(mViewPager.getCurrentItem());
+                if (fragment instanceof Scrollable) {
+                    ((Scrollable) fragment).scrollToTop();
+                }
                 mAppBar.setExpanded(true, true);
             }
         });
+        int defaultItem = Math.min(mAdapter.getItemCount() - 1,
+                mStoryViewMode == Preferences.StoryViewMode.Comment ? 0 : 1);
+        mViewPager.setCurrentItem(defaultItem, false);
+        toggleFabs(defaultItem == 0, mNavButton, mReplyButton);
         if (story.isStoryType() && mExternalBrowser && !hasText) {
             TextView buttonArticle = (TextView) findViewById(R.id.button_article);
             buttonArticle.setVisibility(View.VISIBLE);
@@ -531,13 +564,29 @@ public class ItemActivity extends ThemedActivity implements ItemFragment.ItemCha
         if (mAdapter == null) {
             return null;
         }
-        Fragment currentItem = mAdapter.getItem(mViewPager.getCurrentItem());
+        Fragment currentItem = getFragment(mViewPager.getCurrentItem());
         if (clazz.isInstance(currentItem)) {
             // noinspection unchecked
             return (T) currentItem;
         } else {
             return null;
         }
+    }
+
+    private Fragment getFragment(int position) {
+        // Tag format for FragmentStateAdapter is "f" + itemId (default itemId is
+        // position)
+        return getSupportFragmentManager().findFragmentByTag("f" + position);
+    }
+
+    @Synthetic
+    void toggleFabs(boolean isComments,
+            FloatingActionButton navigationFab,
+            FloatingActionButton genericFab) {
+        AppUtils.toggleFab(navigationFab, isComments &&
+                Preferences.navigationEnabled(navigationFab.getContext()));
+        AppUtils.toggleFab(genericFab, true);
+        AppUtils.toggleFabAction(genericFab, mItem, isComments);
     }
 
     private void vote(final WebItem story) {

@@ -68,13 +68,6 @@ abstract class BaseListFragment extends BaseFragment implements Scrollable {
      * @param savedInstanceState If the fragment is being re-created from
      *                           a previous saved state, this is the state.
      */
-    @SuppressWarnings("deprecation") // Using deprecated Fragment menu API; migration to MenuProvider requires
-                                     // Activity cooperation
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
-    }
 
     /**
      * Called to have the fragment instantiate its user interface view.
@@ -104,18 +97,6 @@ abstract class BaseListFragment extends BaseFragment implements Scrollable {
                 }
             }
         });
-    }
-
-    /**
-     * Called when the fragment's activity has been created and this
-     * fragment's view hierarchy instantiated.
-     *
-     * @param savedInstanceState If the fragment is being re-created from
-     *                           a previous saved state, this is the state.
-     */
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
         if (savedInstanceState != null) {
             getAdapter().restoreState(savedInstanceState.getBundle(STATE_ADAPTER));
         }

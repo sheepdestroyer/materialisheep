@@ -189,7 +189,6 @@ public class WebFragment extends LazyLoadFragment
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        setHasOptionsMenu(true);
         if (isNewInstance()) {
             mScrollableHelper = new KeyDelegate.NestedScrollViewHelper(mScrollView);
             mSystemUiHelper = new AppUtils.SystemUiHelper(getActivity().getWindow());

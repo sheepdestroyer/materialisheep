@@ -179,9 +179,14 @@ public class ListFragment extends BaseListFragment {
      * @param savedInstanceState If the fragment is being re-created from
      *                           a previous saved state, this is the state.
      */
+    /**
+     * Called immediately after
+     * {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}
+     * has returned, but before any saved state has been restored in to the view.
+     */
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         MaterialisticDatabase.getInstance(getContext()).getLiveData().observe(getViewLifecycleOwner(), mObserver);
         String managerClassName = getArguments().getString(EXTRA_ITEM_MANAGER);
         ItemManager itemManager;
