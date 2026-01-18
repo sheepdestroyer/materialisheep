@@ -1,0 +1,78 @@
+/*
+ * Copyright (c) 2015 Ha Duy Trung
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package io.github.sheepdestroyer.materialisheep;
+
+import android.accounts.AccountAuthenticatorResponse;
+import android.accounts.AccountManager;
+import android.os.Bundle;
+
+/**
+ * Base class for activities that are used to help implement an AbstractAccountAuthenticator.
+ * If the AbstractAccountAuthenticator needs to use an activity to handle the request then it can
+ * have the activity extend AccountAuthenticatorActivity. The AbstractAccountAuthenticator passes
+ * in the response to the intent using the following:
+ * <pre>
+ *      intent.putExtra({@link AccountManager#KEY_ACCOUNT_AUTHENTICATOR_RESPONSE}, response);
+ * </pre>
+ * The activity then sets the result that is to be handed to the response via
+ * {@link #setAccountAuthenticatorResult(Bundle)}.
+ * This result will be sent as the result of the request when the activity finishes. If this
+ * is never set or if it is set to null then error {@link AccountManager#ERROR_CODE_CANCELED}
+ * will be called on the response.
+ */
+public abstract class AccountAuthenticatorActivity extends ThemedActivity {
+    private AccountAuthenticatorResponse mAccountAuthenticatorResponse = null;
+    private Bundle mResultBundle = null;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mAccountAuthenticatorResponse =
+                getIntent().getParcelableExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE);
+        if (mAccountAuthenticatorResponse != null) {
+            mAccountAuthenticatorResponse.onRequestContinued();
+        }
+    }
+
+    /**
+     * Sends the result or a CANCELED error if a result isn't present.
+     */
+    @Override
+    public void finish() {
+        if (mAccountAuthenticatorResponse != null) {
+            // send the result bundle back if set, otherwise send an error.
+            if (mResultBundle != null) {
+                mAccountAuthenticatorResponse.onResult(mResultBundle);
+            } else {
+                mAccountAuthenticatorResponse.onError(AccountManager.ERROR_CODE_CANCELED,
+                        "canceled");
+            }
+            mAccountAuthenticatorResponse = null;
+        }
+        super.finish();
+    }
+
+    /**
+     * Set the result that is to be sent as the result of the request that caused this
+     * Activity to be launched. If result is null or this method is never called then
+     * the request will be canceled.
+     * @param result this is returned as the result of the AbstractAccountAuthenticator request
+     */
+    public final void setAccountAuthenticatorResult(Bundle result) {
+        mResultBundle = result;
+    }
+}

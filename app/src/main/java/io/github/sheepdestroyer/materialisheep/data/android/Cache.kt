@@ -1,0 +1,58 @@
+/*
+ * Copyright (c) 2018 Ha Duy Trung
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package io.github.sheepdestroyer.materialisheep.data.android
+
+import io.github.sheepdestroyer.materialisheep.DataModule
+import io.github.sheepdestroyer.materialisheep.data.LocalCache
+import io.github.sheepdestroyer.materialisheep.data.MaterialisticDatabase
+import io.github.sheepdestroyer.materialisheep.data.SavedStoriesDao
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Scheduler
+import javax.inject.Inject
+import android.annotation.SuppressLint
+import javax.inject.Named
+
+/**
+ * A Room-backed implementation of [LocalCache].
+ */
+class Cache @Inject constructor(
+    private val database: MaterialisticDatabase,
+    private val savedStoriesDao: SavedStoriesDao,
+    private val readStoriesDao: MaterialisticDatabase.ReadStoriesDao,
+    private val readableDao: MaterialisticDatabase.ReadableDao,
+    @Named(DataModule.MAIN_THREAD) private val mainScheduler: Scheduler) : LocalCache {
+
+  override fun getReadability(itemId: String?) = readableDao.selectByItemId(itemId)?.content
+
+  override fun putReadability(itemId: String?, content: String?) {
+    readableDao.insert(MaterialisticDatabase.Readable(itemId, content))
+  }
+
+  override fun isViewed(itemId: String?) = readStoriesDao.selectByItemId(itemId) != null
+
+  @SuppressLint("CheckResult")
+  override fun setViewed(itemId: String?) {
+    if (itemId == null) return
+    readStoriesDao.insert(MaterialisticDatabase.ReadStory(itemId))
+    Observable.just(itemId)
+        .map { database.createReadUri(it) }
+        .observeOn(mainScheduler)
+        .subscribe({ database.setLiveValue(it) }, { t -> android.util.Log.e("Cache", "Failed to set live value", t) })
+  }
+
+  override fun isFavorite(itemId: String?) = itemId != null && savedStoriesDao.selectByItemId(itemId) != null
+}

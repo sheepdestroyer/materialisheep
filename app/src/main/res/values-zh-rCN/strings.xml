@@ -36,7 +36,7 @@
     <string name="application_info_text">
         <![CDATA[
             <p>版本: %1$s (%2$d)</p>
-            <p>本应用开源，源代码托管在 <a href="https://github.com/hidroh/materialistic">github.com/hidroh/materialistic</a></p>
+            <p>本应用开源，源代码托管在 <a href="https://github.com/sheepdestroyer/materialisheep">github.com/sheepdestroyer/materialisheep</a></p>
         ]]>
     </string>
     <string name="libraries_title">库 &amp; 资源</string>
@@ -134,7 +134,7 @@
     <string name="comment_hint">评论内容</string>
     <string name="feedback_note">
         <![CDATA[
-            您的反馈将成为 <a href="https://github.com/hidroh/materialistic/issues">Materialistic 项目</a>在Github上的issue.
+            您的反馈将成为 <a href="https://github.com/sheepdestroyer/materialisheep/issues">Materialistic 项目</a>在Github上的issue.
         ]]>
     </string>
     <string name="title_required">标题不能为空</string>

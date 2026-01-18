@@ -103,7 +103,7 @@
     <string name="send_feedback">Enviar opinión</string>
     <string name="title_hint">Título</string>
     <string name="comment_hint">Comentario</string>
-    <string name="feedback_note"><![CDATA[Tu opinión se hará pública como una <a href= https://github.com/hidroh/materialistic/issues>cuestión en el repositorio Github de Materialistic]]></string>
+    <string name="feedback_note"><![CDATA[Tu opinión se hará pública como una <a href= https://github.com/sheepdestroyer/materialisheep/issues>cuestión en el repositorio Github de Materialistic]]></string>
     <string name="title_required">El título es obligatorio</string>
     <string name="comment_required">El comentario es obligatorio</string>
     <string name="feedback_sent">Opinión enviada. Gracias!</string>
@@ -178,7 +178,7 @@
     <string name="password_hint">Contraseña</string>
     <string name="login">Inicio de sesión</string>
     <string name="title_activity_login">Inicio de sesión en Hacker News</string>
-    <string name="application_info_text">"         <![CDATA[             <p>Version: %1$s (%2$d)</p>             <p>Ésta es una aplicación de código abierto disponible en <a href="https://github.com/hidroh/materialistic">github.com/hidroh/materialistic</a></p>         ]]>     "</string>
+    <string name="application_info_text">"         <![CDATA[             <p>Version: %1$s (%2$d)</p>             <p>Ésta es una aplicación de código abierto disponible en <a href="https://github.com/sheepdestroyer/materialisheep">github.com/sheepdestroyer/materialisheep</a></p>         ]]>     "</string>
     <string name="username_required">El nombre de usuario es obligatorio</string>
     <string name="password_required">La contraseña es obligatoria</string>
     <string name="login_failed">Inicio de sesión/registro fallido. Por favor, inténtalo de nuevo.</string>

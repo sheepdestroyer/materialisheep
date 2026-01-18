@@ -6,7 +6,7 @@ android {
     compileSdk 36
 
     defaultConfig {
-        applicationId "io.github.hidroh.materialistic"
+        applicationId "io.github.sheepdestroyer.materialisheep"
         minSdkVersion 24
         targetSdkVersion 36
         versionCode 79
@@ -80,7 +80,7 @@ android {
             vendor.set(JvmVendorSpec.ADOPTIUM)
         }
     }
-    namespace 'io.github.hidroh.materialistic'
+    namespace 'io.github.sheepdestroyer.materialisheep'
 
 }
 
