@@ -163,7 +163,15 @@ public interface ReadabilityClient {
                                     try {
                                         JSONObject json = new JSONObject(value);
                                         content = json.getString("content");
-                                        mCache.putReadability(itemId, content);
+                                        final String savedContent = content;
+                                        Observable.fromCallable(() -> {
+                                            mCache.putReadability(itemId, savedContent);
+                                            return true;
+                                        })
+                                                .subscribeOn(mIoScheduler)
+                                                .subscribe(success -> {
+                                                }, error -> Log.e("ReadabilityClient", "Failed to cache content",
+                                                        error));
                                     } catch (JSONException e) {
                                         Log.w("ReadabilityClient", "Failed to parse Readability output", e);
                                         // content will be null
