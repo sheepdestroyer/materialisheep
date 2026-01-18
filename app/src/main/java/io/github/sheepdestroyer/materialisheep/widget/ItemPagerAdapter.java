@@ -66,20 +66,22 @@ public class ItemPagerAdapter extends FragmentStatePagerAdapter {
         if (mFragments[position] != null) {
             return mFragments[position];
         }
-        String fragmentName;
         Bundle args = new Bundle();
         args.putBoolean(LazyLoadFragment.EXTRA_EAGER_LOAD, mDefaultItem == position);
         if (position == 0) {
             args.putParcelable(ItemFragment.EXTRA_ITEM, mItem);
             args.putInt(ItemFragment.EXTRA_CACHE_MODE, mCacheMode);
             args.putBoolean(ItemFragment.EXTRA_RETAIN_INSTANCE, mRetainInstance);
-            fragmentName = ItemFragment.class.getName();
+            Fragment fragment = new ItemFragment();
+            fragment.setArguments(args);
+            return fragment;
         } else {
             args.putParcelable(WebFragment.EXTRA_ITEM, mItem);
             args.putBoolean(WebFragment.EXTRA_RETAIN_INSTANCE, mRetainInstance);
-            fragmentName = WebFragment.class.getName();
+            Fragment fragment = new WebFragment();
+            fragment.setArguments(args);
+            return fragment;
         }
-        return Fragment.instantiate(mContext, fragmentName, args);
     }
 
     @Override

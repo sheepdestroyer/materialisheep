@@ -21,6 +21,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import androidx.core.os.BundleCompat;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
@@ -79,7 +80,7 @@ import static android.view.View.VISIBLE;
 /**
  * A fragment that displays a web page.
  */
-@SuppressWarnings("deprecation") // TODO: Uses deprecated LocalBroadcastManager/Parcelable APIs
+@SuppressWarnings("deprecation") // TODO: Uses deprecated LocalBroadcastManager/Fragment APIs
 public class WebFragment extends LazyLoadFragment
         implements Scrollable, KeyDelegate.BackInterceptor {
     public static final String EXTRA_ITEM = WebFragment.class.getName() + ".EXTRA_ITEM";
@@ -154,10 +155,10 @@ public class WebFragment extends LazyLoadFragment
             mContent = savedInstanceState.getString(STATE_CONTENT);
             mEmpty = savedInstanceState.getBoolean(STATE_EMPTY, false);
             mReadability = savedInstanceState.getBoolean(STATE_READABILITY, false);
-            mItem = savedInstanceState.getParcelable(EXTRA_ITEM);
+            mItem = BundleCompat.getParcelable(savedInstanceState, EXTRA_ITEM, WebItem.class);
         } else {
             mReadability = Preferences.getDefaultStoryView(getActivity()) == Preferences.StoryViewMode.Readability;
-            mItem = getArguments().getParcelable(EXTRA_ITEM);
+            mItem = BundleCompat.getParcelable(getArguments(), EXTRA_ITEM, WebItem.class);
         }
         mIsHackerNewsUrl = AppUtils.isHackerNewsUrl(mItem);
     }
