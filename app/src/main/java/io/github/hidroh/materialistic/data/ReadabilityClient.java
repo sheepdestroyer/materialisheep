@@ -43,7 +43,9 @@ import javax.inject.Named;
 import io.github.hidroh.materialistic.DataModule;
 import okio.Okio;
 import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Scheduler;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
@@ -83,58 +85,63 @@ public interface ReadabilityClient {
     void parse(String itemId, String url);
 
     /**
+     * Destroys this client and releases resources.
+     */
+    void destroy();
+
+    /**
      * An implementation of {@link ReadabilityClient} that uses Mozilla's
      * Readability.js.
      */
     class Impl implements ReadabilityClient {
+        private static final String TAG = "ReadabilityClient";
         private final LocalCache mCache;
         private final Context mContext;
-        @Inject
-        @Named(DataModule.IO_THREAD)
-        Scheduler mIoScheduler;
-        @Inject
-        @Named(DataModule.MAIN_THREAD)
-        Scheduler mMainThreadScheduler;
+        private final Scheduler mIoScheduler;
+        private final Scheduler mMainThreadScheduler;
         private String mReadabilityJs;
+        private final CompositeDisposable mDisposables = new CompositeDisposable();
 
         @Inject
-        public Impl(Context context, LocalCache cache) {
+        public Impl(Context context, LocalCache cache,
+                @Named(DataModule.IO_THREAD) Scheduler ioScheduler,
+                @Named(DataModule.MAIN_THREAD) Scheduler mainThreadScheduler) {
             mContext = context;
             mCache = cache;
+            mIoScheduler = ioScheduler;
+            mMainThreadScheduler = mainThreadScheduler;
             try (InputStream inputStream = mContext.getAssets().open("Readability.js")) {
                 mReadabilityJs = Okio.buffer(Okio.source(inputStream)).readUtf8();
             } catch (IOException e) {
-                Log.e("ReadabilityClient", "Failed to load Readability.js from assets", e);
+                Log.e(TAG, "Failed to load Readability.js from assets", e);
                 // mReadabilityJs will be null, and fromNetwork will emit null
             }
         }
 
         @Override
-        @android.annotation.SuppressLint("CheckResult")
         public void parse(String itemId, String url, Callback callback) {
-            Observable.defer(() -> fromCache(itemId))
+            mDisposables.add(Observable.defer(() -> fromCache(itemId))
                     .subscribeOn(mIoScheduler)
                     .switchIfEmpty(fromNetwork(itemId, url))
                     .observeOn(mMainThreadScheduler)
                     .firstElement()
                     .subscribe(callback::onResponse, throwable -> {
-                        android.util.Log.e("ReadabilityClient", "Failed to parse " + url, throwable);
+                        android.util.Log.e(TAG, "Failed to parse " + url, throwable);
                         callback.onResponse(null);
-                    }, () -> callback.onResponse(null));
+                    }, () -> callback.onResponse(null)));
         }
 
         @WorkerThread
         @Override
-        @android.annotation.SuppressLint("CheckResult")
         public void parse(String itemId, String url) {
-            Observable.defer(() -> fromCache(itemId))
+            mDisposables.add(Observable.defer(() -> fromCache(itemId))
                     .subscribeOn(Schedulers.trampoline())
                     .switchIfEmpty(fromNetwork(itemId, url))
                     .observeOn(Schedulers.trampoline())
                     .ignoreElements()
                     .subscribe(() -> {
-                    }, throwable -> Log.w(ReadabilityClient.class.getSimpleName(), "Failed to pre-parse " + url,
-                            throwable));
+                    }, throwable -> Log.w(TAG, "Failed to pre-parse " + url,
+                            throwable)));
         }
 
         @NonNull
@@ -163,9 +170,15 @@ public interface ReadabilityClient {
                                     try {
                                         JSONObject json = new JSONObject(value);
                                         content = json.getString("content");
-                                        mCache.putReadability(itemId, content);
+                                        final String savedContent = content;
+                                        mDisposables.add(Completable
+                                                .fromAction(() -> mCache.putReadability(itemId, savedContent))
+                                                .subscribeOn(mIoScheduler)
+                                                .subscribe(() -> {
+                                                }, error -> Log.e(TAG, "Failed to cache content",
+                                                        error)));
                                     } catch (JSONException e) {
-                                        Log.w("ReadabilityClient", "Failed to parse Readability output", e);
+                                        Log.w(TAG, "Failed to parse Readability output", e);
                                         // content will be null
                                     }
                                 }
@@ -203,6 +216,11 @@ public interface ReadabilityClient {
                 settings.setGeolocationEnabled(false);
                 webView.loadUrl(url);
             })).timeout(30, TimeUnit.SECONDS);
+        }
+
+        @Override
+        public void destroy() {
+            mDisposables.clear();
         }
 
         private Observable<String> fromCache(String itemId) {
