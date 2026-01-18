@@ -253,7 +253,8 @@ public class WebFragment extends LazyLoadFragment
             mPdfAndroidJavascriptBridge.cleanUp();
         }
         mWebView.destroy();
-        mReadabilityClient.destroy();
+        // Note: mReadabilityClient is a singleton, do not call destroy() here.
+        // Subscriptions are fire-and-forget and managed internally.
     }
 
     @Override
