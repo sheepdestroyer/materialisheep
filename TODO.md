@@ -1,17 +1,29 @@
+
+
 # Materialistic TODO
 
-## High Priority
-- [x] Migrate to RxJava 3 <!-- id: 5 -->
-- [x] Fix OPML structure <!-- id: 6 -->
-- [x] Ensure all compilation blockers are resolved <!-- id: 7 -->
-- [x] Resolve Dependabot PR failures (#17, #18, #20, #21) <!-- id: 8 -->
-- [x] Upgrade to Android SDK 35 (Vanilla Ice Cream) and fix compilation blockers <!-- id: 13 -->
-
 ## Feature Parity & Cleanup
-- [x] Investigate Waydroid installation issues <!-- id: 9 -->
 - [/] Review PRs for code quality and memory leaks <!-- id: 10 -->
-    - [x] Fix memory leaks in adapters <!-- id: 11 -->
-    - [x] Improve injection sites <!-- id: 12 -->
+- [x] Fix Gradle Deprecation Warnings (Issue #46) <!-- id: 21 -->
+
+## Deprecation Refactoring (Long-term)
+- [ ] **Phase 1: Fragment API Modernization** <!-- id: 17 -->
+    - Replace `setHasOptionsMenu`/`onOptionsItemSelected` with `MenuProvider`
+    - Replace `onActivityCreated` with `onViewCreated`
+    - Replace `setRetainInstance` with `ViewModel`
+    - Migrate `FragmentStatePagerAdapter` to `ViewPager2`
+- [ ] **Phase 2: System & Device API Migration** <!-- id: 18 -->
+    - Migrate `NetworkInfo` to `ConnectivityManager.NetworkCallback`
+    - Update `Vibrator` usage to `VibrationEffect`
+    - Adopt `WindowMetrics` and `WindowInsetsController`
+    - Implement Edge-to-Edge (replace `setStatusBarColor`)
+- [ ] **Phase 3: Widget & View Cleanup** <!-- id: 19 -->
+    - Update `RemoteViews` adapter API
+    - Fix `setLayoutFrozen` (RecyclerView) and `BottomSheetCallback`
+    - Update Preferences to AndroidX Preferences
+- [ ] **Phase 4: Architecture Components** <!-- id: 20 -->
+    - Replace `LocalBroadcastManager` with `SharedFlow`/`LiveData`
+    - Replace `readArrayList` with type-safe deserialization
 
 ## Future Work
 - [ ] Consider upgrading `minSdk` to 28 for architectural benefits <!-- id: 14 -->
