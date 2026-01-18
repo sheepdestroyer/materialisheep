@@ -28,10 +28,12 @@
 ### Fixed
 - Resolved `NetworkOnMainThreadException` crash in `ReadabilityClient` by offloading database caching to background thread.
 - Fixed memory leaks and resource management in `ReadabilityClient` and `WebFragment` by implementing proper `destroy()` lifecycle and using `CompositeDisposable`.
-- Removed temporary `CustomCrashHandler` used for debugging.
+
 
 
 
 ### Removed
 - Removed the obsolete Dagger 1 dependency (`com.squareup.dagger:dagger:1.2.5`).
 - Removed all Dagger 1-related classes and interfaces, including `InjectableActivity` and `Injectable`.
+- Removed temporary `CustomCrashHandler` used for debugging.
+
