@@ -80,6 +80,12 @@ public abstract class LazyLoadFragment extends BaseFragment {
         outState.putBoolean(STATE_LOADED, false); // allow re-loading on state restoration
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mActivityCreated = false;
+    }
+
     /**
      * Called when the fragment is no longer attached to its activity.
      */

@@ -38,8 +38,6 @@ import io.github.sheepdestroyer.materialisheep.annotation.Synthetic;
 import io.github.sheepdestroyer.materialisheep.data.Item;
 import io.github.sheepdestroyer.materialisheep.data.WebItem;
 
-@SuppressWarnings("deprecation") // TODO: Uses deprecated FragmentStatePagerAdapter; migrate to
-                                 // ViewPager2/FragmentStateAdapter
 public class ItemPagerAdapter extends androidx.viewpager2.adapter.FragmentStateAdapter {
     private final Context mContext;
     private final WebItem mItem;

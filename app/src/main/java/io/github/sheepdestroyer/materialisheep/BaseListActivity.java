@@ -530,9 +530,6 @@ public abstract class BaseListActivity extends DrawerActivity implements MultiPa
     }
 
     private void bindViewPager() {
-        if (mAdapter != null) {
-            // No custom unbind needed for Adapter anymore
-        }
         mAdapter = new ItemPagerAdapter(this, new ItemPagerAdapter.Builder()
                 .setItem(mSelectedItem)
                 .setCacheMode(getItemCacheMode())
@@ -581,6 +578,9 @@ public abstract class BaseListActivity extends DrawerActivity implements MultiPa
 
     @SuppressLint("RestrictedApi")
     private void unbindViewPager() {
+        if (mViewPager == null) {
+            return;
+        }
         if (mTabLayoutMediator != null) {
             mTabLayoutMediator.detach();
             mTabLayoutMediator = null;

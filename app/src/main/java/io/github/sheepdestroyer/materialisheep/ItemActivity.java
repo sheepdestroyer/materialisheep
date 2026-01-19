@@ -118,6 +118,8 @@ public class ItemActivity extends ThemedActivity implements ItemFragment.ItemCha
     private NavFloatingActionButton mNavButton;
     private ItemPagerAdapter mAdapter;
     private ViewPager2 mViewPager;
+    private TabLayoutMediator mTabLayoutMediator;
+    private ViewPager2.OnPageChangeCallback mPageChangeCallback;
     @Synthetic
     boolean mFullscreen;
     private final Observer<Uri> mObserver = uri -> {
@@ -329,6 +331,14 @@ public class ItemActivity extends ThemedActivity implements ItemFragment.ItemCha
         super.onDestroy();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiver);
         mPreferenceObservable.unsubscribe(this);
+        if (mTabLayoutMediator != null) {
+            mTabLayoutMediator.detach();
+            mTabLayoutMediator = null;
+        }
+        if (mPageChangeCallback != null) {
+            mViewPager.unregisterOnPageChangeCallback(mPageChangeCallback);
+            mPageChangeCallback = null;
+        }
     }
 
     /**
@@ -511,9 +521,12 @@ public class ItemActivity extends ThemedActivity implements ItemFragment.ItemCha
                         .setDefaultViewMode(mStoryViewMode));
         mViewPager.setAdapter(mAdapter);
         mViewPager.setOffscreenPageLimit(2);
-        new TabLayoutMediator(mTabLayout, mViewPager,
-                (tab, position) -> tab.setText(mAdapter.getPageTitle(position))).attach();
-        mViewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+        mViewPager.setAdapter(mAdapter);
+        mViewPager.setOffscreenPageLimit(2);
+        mTabLayoutMediator = new TabLayoutMediator(mTabLayout, mViewPager,
+                (tab, position) -> tab.setText(mAdapter.getPageTitle(position)));
+        mTabLayoutMediator.attach();
+        mPageChangeCallback = new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
@@ -523,7 +536,8 @@ public class ItemActivity extends ThemedActivity implements ItemFragment.ItemCha
                     ((LazyLoadFragment) fragment).loadNow();
                 }
             }
-        });
+        };
+        mViewPager.registerOnPageChangeCallback(mPageChangeCallback);
         mTabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
