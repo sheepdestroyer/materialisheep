@@ -1,0 +1,18 @@
+On branch refactor/viewpager2-migration
+Your branch is up to date with 'origin/refactor/viewpager2-migration'.
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	device_check.txt
+	device_check_2.txt
+	install_attempt_3.txt
+	install_auth_attempt.txt
+	install_retry_log.txt
+	status.txt
+
+nothing added to commit but untracked files present (use "git add" to track)
+commit 33c516489344a4e81a3b428985825ceb5244ac96
+Author: sheepdestroyer <sheepdestroyer@gmail.com>
+Date:   Mon Jan 19 03:02:27 2026 +0100
+
+    fix(docs): add missing Javadocs to Activities for coverage

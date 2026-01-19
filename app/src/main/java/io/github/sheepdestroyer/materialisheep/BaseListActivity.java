@@ -55,7 +55,11 @@ import io.github.sheepdestroyer.materialisheep.data.WebItem;
 import io.github.sheepdestroyer.materialisheep.widget.ItemPagerAdapter;
 import io.github.sheepdestroyer.materialisheep.widget.NavFloatingActionButton;
 import io.github.sheepdestroyer.materialisheep.widget.PopupMenu;
-import io.github.sheepdestroyer.materialisheep.widget.ViewPager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.fragment.app.FragmentManager;
+import androidx.viewpager2.widget.ViewPager2;
+import com.google.android.material.tabs.TabLayoutMediator;
 
 /**
  * An abstract base activity for displaying a list of items. This activity
@@ -73,7 +77,7 @@ public abstract class BaseListActivity extends DrawerActivity implements MultiPa
     protected WebItem mSelectedItem;
     private Preferences.StoryViewMode mStoryViewMode;
     private boolean mExternalBrowser;
-    private ViewPager mViewPager;
+    private ViewPager2 mViewPager;
     @Inject
     ActionViewResolver mActionViewResolver;
     @Inject
@@ -108,6 +112,9 @@ public abstract class BaseListActivity extends DrawerActivity implements MultiPa
         }
     };
     private ItemPagerAdapter mAdapter;
+    private TabLayoutMediator mTabLayoutMediator;
+    private ViewPager2.OnPageChangeCallback mPageChangeCallback;
+    private TabLayout.OnTabSelectedListener mTabSelectedListener;
 
     /**
      * Called when the activity is first created.
@@ -142,14 +149,17 @@ public abstract class BaseListActivity extends DrawerActivity implements MultiPa
             mListView = findViewById(android.R.id.list);
             mTabLayout = (TabLayout) findViewById(R.id.tab_layout);
             mTabLayout.setVisibility(View.GONE);
-            mViewPager = (ViewPager) findViewById(R.id.content);
+            mViewPager = (ViewPager2) findViewById(R.id.content);
             mViewPager.setVisibility(View.GONE);
             mReplyButton = (FloatingActionButton) findViewById(R.id.reply_button);
             mNavButton = (NavFloatingActionButton) findViewById(R.id.navigation_button);
-            mNavButton.setNavigable(direction ->
-            // if callback is fired navigable should not be null
-            ((Navigable) ((ItemPagerAdapter) mViewPager.getAdapter()).getItem(0))
-                    .onNavigate(direction));
+            mNavButton.setNavigable(direction -> {
+                // if callback is fired navigable should not be null
+                Fragment fragment = getFragment(0);
+                if (fragment instanceof Navigable) {
+                    ((Navigable) fragment).onNavigate(direction);
+                }
+            });
             AppUtils.toggleFab(mNavButton, false);
             AppUtils.toggleFab(mReplyButton, false);
         }
@@ -459,13 +469,16 @@ public abstract class BaseListActivity extends DrawerActivity implements MultiPa
         return ItemManager.MODE_DEFAULT;
     }
 
+    /**
+     * Toggles the fullscreen mode of the activity.
+     */
     @Synthetic
     void setFullscreen() {
         mAppBar.setExpanded(!mFullscreen, true);
         mTabLayout.setVisibility(mFullscreen ? View.GONE : View.VISIBLE);
         mListView.setVisibility(mFullscreen ? View.GONE : View.VISIBLE);
         mKeyDelegate.setAppBarEnabled(!mFullscreen);
-        mViewPager.setSwipeEnabled(!mFullscreen);
+        mViewPager.setUserInputEnabled(!mFullscreen);
         AppUtils.toggleFab(mReplyButton, !mFullscreen);
         mBackPressedCallback.setEnabled(mIsMultiPane && mFullscreen);
     }
@@ -481,8 +494,7 @@ public abstract class BaseListActivity extends DrawerActivity implements MultiPa
                 mViewPager.getCurrentItem() < 0) {
             return null;
         }
-        Fragment item = ((ItemPagerAdapter) mViewPager.getAdapter())
-                .getItem(mViewPager.getCurrentItem());
+        Fragment item = getFragment(mViewPager.getCurrentItem());
         if (item instanceof KeyDelegate.BackInterceptor) {
             return (KeyDelegate.BackInterceptor) item;
         } else {
@@ -520,34 +532,103 @@ public abstract class BaseListActivity extends DrawerActivity implements MultiPa
         }
     }
 
+    /**
+     * Binds the ViewPager2 with the adapter and TabLayoutMediator.
+     */
     private void bindViewPager() {
-        if (mAdapter != null) {
-            mAdapter.unbind(mTabLayout);
-        }
-        mAdapter = new ItemPagerAdapter(this, getSupportFragmentManager(), new ItemPagerAdapter.Builder()
+        mAdapter = new ItemPagerAdapter(this, new ItemPagerAdapter.Builder()
                 .setItem(mSelectedItem)
                 .setCacheMode(getItemCacheMode())
                 .setShowArticle(true)
                 .setDefaultViewMode(mStoryViewMode));
-        mAdapter.bind(mViewPager, mTabLayout, mNavButton, mReplyButton);
+        mViewPager.setAdapter(mAdapter);
+        mViewPager.setOffscreenPageLimit(2);
+        mTabLayoutMediator = new TabLayoutMediator(mTabLayout, mViewPager,
+                (tab, position) -> tab.setText(mAdapter.getPageTitle(position)));
+        mTabLayoutMediator.attach();
+
+        mPageChangeCallback = new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                updateFabState(position);
+            }
+        };
+        mViewPager.registerOnPageChangeCallback(mPageChangeCallback);
+
+        mTabSelectedListener = new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+                Fragment fragment = getFragment(mViewPager.getCurrentItem());
+                if (fragment instanceof Scrollable) {
+                    ((Scrollable) fragment).scrollToTop();
+                }
+            }
+        };
+        mTabLayout.addOnTabSelectedListener(mTabSelectedListener);
+
+        // Initial FAB state
+        updateFabState(mViewPager.getCurrentItem());
+
         if (mFullscreen) {
             setFullscreen();
         }
     }
 
+    /**
+     * Unbinds the ViewPager2, detaching the mediator and removing callbacks.
+     * Also removes fragments managed by the adapter to prevent leaks.
+     */
     @SuppressLint("RestrictedApi")
     private void unbindViewPager() {
-        // fragment manager always restores view pager fragments,
-        // even when view pager no longer exists (e.g. after rotation),
-        // so we have to explicitly remove those with view pager ID
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        // noinspection Convert2streamapi
-        for (Fragment fragment : getSupportFragmentManager().getFragments()) {
-            if (fragment != null && fragment.getId() == R.id.content) {
-                transaction.remove(fragment);
-            }
+        if (mViewPager == null) {
+            return;
         }
-        transaction.commit();
+        if (mTabLayoutMediator != null) {
+            mTabLayoutMediator.detach();
+            mTabLayoutMediator = null;
+        }
+
+        if (mPageChangeCallback != null) {
+            mViewPager.unregisterOnPageChangeCallback(mPageChangeCallback);
+            mPageChangeCallback = null;
+        }
+        if (mTabSelectedListener != null) {
+            mTabLayout.removeOnTabSelectedListener(mTabSelectedListener);
+            mTabSelectedListener = null;
+        }
+
+        // Clearing adapter should be enough for ViewPager2 to clean up fragments
+        mViewPager.setAdapter(null);
+    }
+
+    private void updateFabState(int position) {
+        AppUtils.toggleFab(mNavButton, position == 0 && Preferences.navigationEnabled(BaseListActivity.this));
+        AppUtils.toggleFab(mReplyButton, true);
+        AppUtils.toggleFabAction(mReplyButton, mSelectedItem, position == 0);
+
+        Fragment fragment = getFragment(position);
+        if (fragment instanceof LazyLoadFragment) {
+            ((LazyLoadFragment) fragment).loadNow();
+        }
+    }
+
+    /**
+     * Retrieves the fragment at the specified position.
+     *
+     * @param position The position of the fragment.
+     * @return The fragment, or null.
+     */
+    private Fragment getFragment(int position) {
+        return mAdapter != null ? mAdapter.findFragment(getSupportFragmentManager(), position) : null;
     }
 
     private void onPreferenceChanged(int key, boolean contextChanged) {

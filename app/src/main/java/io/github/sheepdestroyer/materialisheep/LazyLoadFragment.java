@@ -18,6 +18,7 @@ package io.github.sheepdestroyer.materialisheep;
 
 import android.content.Context;
 import android.os.Bundle;
+import androidx.lifecycle.ViewModelProvider;
 
 /**
  * A base fragment that delays loading data until it is visible to the user or
@@ -28,19 +29,9 @@ public abstract class LazyLoadFragment extends BaseFragment {
     public static final String EXTRA_RETAIN_INSTANCE = WebFragment.class.getName() + ".EXTRA_RETAIN_INSTANCE";
     private static final String STATE_EAGER_LOAD = "state:eagerLoad";
     private static final String STATE_LOADED = "state:loaded";
-    private boolean mEagerLoad, mLoaded, mActivityCreated;
-    private boolean mNewInstance;
-
-    /**
-     * Called when a fragment is first attached to its context.
-     *
-     * @param context The context.
-     */
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        mNewInstance = false;
-    }
+    private boolean mActivityCreated;
+    private boolean mLoaded;
+    private LazyLoadViewModel mViewModel;
 
     /**
      * Called to do initial creation of a fragment.
@@ -48,36 +39,32 @@ public abstract class LazyLoadFragment extends BaseFragment {
      * @param savedInstanceState If the fragment is being re-created from
      *                           a previous saved state, this is the state.
      */
-    @SuppressWarnings("deprecation") // Using deprecated setRetainInstance; migration to ViewModel requires
-                                     // significant refactoring
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setRetainInstance(getArguments().getBoolean(EXTRA_RETAIN_INSTANCE, false));
-        mNewInstance = true;
-        if (savedInstanceState != null) {
-            mEagerLoad = savedInstanceState.getBoolean(STATE_EAGER_LOAD);
-            mLoaded = savedInstanceState.getBoolean(STATE_LOADED);
-        } else {
-            mEagerLoad = getArguments() != null && getArguments().getBoolean(EXTRA_EAGER_LOAD) ||
-                    !Preferences.shouldLazyLoad(getActivity());
+        mViewModel = new ViewModelProvider(this).get(LazyLoadViewModel.class);
+        if (!mViewModel.isInitialized()) {
+            mViewModel.setInitialized(true);
+            if (savedInstanceState != null) {
+                mViewModel.setEagerLoad(savedInstanceState.getBoolean(STATE_EAGER_LOAD));
+            } else {
+                boolean eager = getArguments() != null && getArguments().getBoolean(EXTRA_EAGER_LOAD) ||
+                        !Preferences.shouldLazyLoad(getActivity());
+                mViewModel.setEagerLoad(eager);
+            }
         }
     }
 
     /**
-     * Called when the fragment's activity has been created and this
-     * fragment's view hierarchy instantiated.
-     *
-     * @param savedInstanceState If the fragment is being re-created from
-     *                           a previous saved state, this is the state.
+     * Called immediately after
+     * {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}
+     * has returned, but before any saved state has been restored into the view.
      */
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public void onViewCreated(android.view.View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         mActivityCreated = true;
-        if (isNewInstance()) {
-            eagerLoad();
-        }
+        eagerLoad();
     }
 
     /**
@@ -90,8 +77,18 @@ public abstract class LazyLoadFragment extends BaseFragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putBoolean(STATE_EAGER_LOAD, mEagerLoad);
+        outState.putBoolean(STATE_EAGER_LOAD, mViewModel.isEagerLoad());
         outState.putBoolean(STATE_LOADED, false); // allow re-loading on state restoration
+    }
+
+    /**
+     * Called when the view previously created by {@link #onCreateView} has been
+     * detached from the fragment.
+     */
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mActivityCreated = false;
     }
 
     /**
@@ -108,7 +105,7 @@ public abstract class LazyLoadFragment extends BaseFragment {
      */
     public void loadNow() {
         if (mActivityCreated) {
-            mEagerLoad = true;
+            mViewModel.setEagerLoad(true);
             eagerLoad();
         }
     }
@@ -119,18 +116,13 @@ public abstract class LazyLoadFragment extends BaseFragment {
     protected abstract void load();
 
     /**
-     * Checks if the fragment is a new instance.
-     *
-     * @return True if the fragment is a new instance, false otherwise.
+     * Attempts to load data if eager load is enabled and data is not yet loaded.
      */
-    @SuppressWarnings("deprecation") // Using deprecated getRetainInstance; migration to ViewModel requires
-                                     // significant refactoring
-    protected boolean isNewInstance() {
-        return !getRetainInstance() || mNewInstance;
-    }
-
+    /**
+     * Attempts to load data if eager load is enabled and data is not yet loaded.
+     */
     final void eagerLoad() {
-        if (mEagerLoad && !mLoaded) {
+        if (mViewModel.isEagerLoad() && !mLoaded) {
             mLoaded = true;
             load();
         }

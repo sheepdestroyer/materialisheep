@@ -50,44 +50,38 @@ public abstract class BaseFragment extends Fragment {
      * @param savedInstanceState If the fragment is being re-created from
      *                           a previous saved state, this is the state.
      */
-    @SuppressWarnings("deprecation") // Using deprecated onActivityCreated; migration to onViewCreated requires
-                                     // refactoring
+    /**
+     * Called immediately after
+     * {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}
+     * has returned, but before any saved state has been restored in to the view.
+     */
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public void onViewCreated(@androidx.annotation.NonNull android.view.View view,
+            @androidx.annotation.Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         mMenuTintDelegate.onActivityCreated(getActivity());
-    }
+        requireActivity().addMenuProvider(new androidx.core.view.MenuProvider() {
+            @Override
+            public void onCreateMenu(@androidx.annotation.NonNull Menu menu,
+                    @androidx.annotation.NonNull MenuInflater menuInflater) {
+                if (isAttached()) {
+                    createOptionsMenu(menu, menuInflater);
+                    mMenuTintDelegate.onOptionsMenuCreated(menu);
+                }
+            }
 
-    /**
-     * Initialize the contents of the Fragment's standard options menu.
-     *
-     * @param menu     The options menu in which you place your items.
-     * @param inflater You can use this to inflate your menu XML files into the
-     *                 menu.
-     */
-    @SuppressWarnings("deprecation") // Using deprecated Fragment menu API; migration to MenuProvider requires
-                                     // Activity cooperation
-    @Override
-    public final void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        if (isAttached()) { // TODO http://b.android.com/80783
-            createOptionsMenu(menu, inflater);
-            mMenuTintDelegate.onOptionsMenuCreated(menu);
-        }
-    }
+            @Override
+            public boolean onMenuItemSelected(@androidx.annotation.NonNull android.view.MenuItem menuItem) {
+                return BaseFragment.this.onOptionsItemSelected(menuItem);
+            }
 
-    /**
-     * Prepare the Fragment's standard options menu to be displayed.
-     *
-     * @param menu The options menu as last shown or first initialized by
-     *             onCreateOptionsMenu().
-     */
-    @SuppressWarnings("deprecation") // Using deprecated Fragment menu API; migration to MenuProvider requires
-                                     // Activity cooperation
-    @Override
-    public final void onPrepareOptionsMenu(Menu menu) {
-        if (isAttached()) { // TODO http://b.android.com/80783
-            prepareOptionsMenu(menu);
-        }
+            @Override
+            public void onPrepareMenu(@androidx.annotation.NonNull Menu menu) {
+                if (isAttached()) {
+                    prepareOptionsMenu(menu);
+                }
+            }
+        }, getViewLifecycleOwner(), androidx.lifecycle.Lifecycle.State.RESUMED);
     }
 
     /**
