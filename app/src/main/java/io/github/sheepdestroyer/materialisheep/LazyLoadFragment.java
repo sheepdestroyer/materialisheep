@@ -55,22 +55,15 @@ public abstract class LazyLoadFragment extends BaseFragment {
     }
 
     /**
-     * Called when the fragment's activity has been created and this
-     * fragment's view hierarchy instantiated.
-     *
-     * @param savedInstanceState If the fragment is being re-created from
-     *                           a previous saved state, this is the state.
-     */
-    /**
      * Called immediately after
      * {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}
-     * has returned, but before any saved state has been restored in to the view.
+     * has returned, but before any saved state has been restored into the view.
      */
     @Override
     public void onViewCreated(android.view.View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mActivityCreated = true;
-        if (isNewInstance()) {
+        if (true) {
             eagerLoad();
         }
     }
@@ -98,15 +91,6 @@ public abstract class LazyLoadFragment extends BaseFragment {
         mActivityCreated = false;
     }
 
-    @Override
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
-        if (isVisibleToUser && !mViewModel.isLoaded()) {
-            mViewModel.setEagerLoad(true);
-            eagerLoad();
-        }
-    }
-
     /**
      * Loads the data immediately.
      */
@@ -121,15 +105,6 @@ public abstract class LazyLoadFragment extends BaseFragment {
      * Loads the data.
      */
     protected abstract void load();
-
-    /**
-     * Checks if the fragment is a new instance.
-     *
-     * @return True if the fragment is a new instance, false otherwise.
-     */
-    protected boolean isNewInstance() {
-        return true;
-    }
 
     final void eagerLoad() {
         if (mViewModel.isEagerLoad() && !mViewModel.isLoaded()) {

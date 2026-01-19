@@ -55,6 +55,9 @@ import io.github.sheepdestroyer.materialisheep.data.WebItem;
 import io.github.sheepdestroyer.materialisheep.widget.ItemPagerAdapter;
 import io.github.sheepdestroyer.materialisheep.widget.NavFloatingActionButton;
 import io.github.sheepdestroyer.materialisheep.widget.PopupMenu;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.fragment.app.FragmentManager;
 import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.tabs.TabLayoutMediator;
 
@@ -150,9 +153,13 @@ public abstract class BaseListActivity extends DrawerActivity implements MultiPa
             mViewPager.setVisibility(View.GONE);
             mReplyButton = (FloatingActionButton) findViewById(R.id.reply_button);
             mNavButton = (NavFloatingActionButton) findViewById(R.id.navigation_button);
-            mNavButton.setNavigable(direction ->
-            // if callback is fired navigable should not be null
-            ((Navigable) getFragment(0)).onNavigate(direction));
+            mNavButton.setNavigable(direction -> {
+                // if callback is fired navigable should not be null
+                Fragment fragment = getFragment(0);
+                if (fragment instanceof Navigable) {
+                    ((Navigable) fragment).onNavigate(direction);
+                }
+            });
             AppUtils.toggleFab(mNavButton, false);
             AppUtils.toggleFab(mReplyButton, false);
         }
@@ -540,14 +547,7 @@ public abstract class BaseListActivity extends DrawerActivity implements MultiPa
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
-                AppUtils.toggleFab(mNavButton, position == 0 && Preferences.navigationEnabled(BaseListActivity.this));
-                AppUtils.toggleFab(mReplyButton, true);
-                AppUtils.toggleFabAction(mReplyButton, mSelectedItem, position == 0);
-
-                Fragment fragment = getFragment(position);
-                if (fragment instanceof LazyLoadFragment) {
-                    ((LazyLoadFragment) fragment).loadNow();
-                }
+                updateFabState(position);
             }
         };
         mViewPager.registerOnPageChangeCallback(mPageChangeCallback);
@@ -572,10 +572,8 @@ public abstract class BaseListActivity extends DrawerActivity implements MultiPa
         mTabLayout.addOnTabSelectedListener(mTabSelectedListener);
 
         // Initial FAB state
-        int current = mViewPager.getCurrentItem();
-        AppUtils.toggleFab(mNavButton, current == 0 && Preferences.navigationEnabled(this));
-        AppUtils.toggleFab(mReplyButton, true);
-        AppUtils.toggleFabAction(mReplyButton, mSelectedItem, current == 0);
+        updateFabState(mViewPager.getCurrentItem());
+
         if (mFullscreen) {
             setFullscreen();
         }
@@ -598,14 +596,33 @@ public abstract class BaseListActivity extends DrawerActivity implements MultiPa
         }
 
         // Remove fragments by Tag ("f" + id). IDs are 0 and 1.
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        Fragment f0 = getSupportFragmentManager().findFragmentByTag("f0");
-        if (f0 != null)
-            transaction.remove(f0);
-        Fragment f1 = getSupportFragmentManager().findFragmentByTag("f1");
-        if (f1 != null)
-            transaction.remove(f1);
-        transaction.commitAllowingStateLoss();
+        RecyclerView.Adapter<?> adapter = mViewPager.getAdapter();
+        if (adapter instanceof FragmentStateAdapter) {
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentTransaction transaction = fragmentManager.beginTransaction();
+
+            int itemCount = adapter.getItemCount();
+            for (int position = 0; position < itemCount; position++) {
+                long itemId = ((FragmentStateAdapter) adapter).getItemId(position);
+                String tag = "f" + itemId; // ViewPager2 tag format
+                Fragment fragment = fragmentManager.findFragmentByTag(tag);
+                if (fragment != null) {
+                    transaction.remove(fragment);
+                }
+            }
+            transaction.commitAllowingStateLoss();
+        }
+    }
+
+    private void updateFabState(int position) {
+        AppUtils.toggleFab(mNavButton, position == 0 && Preferences.navigationEnabled(BaseListActivity.this));
+        AppUtils.toggleFab(mReplyButton, true);
+        AppUtils.toggleFabAction(mReplyButton, mSelectedItem, position == 0);
+
+        Fragment fragment = getFragment(position);
+        if (fragment instanceof LazyLoadFragment) {
+            ((LazyLoadFragment) fragment).loadNow();
+        }
     }
 
     private Fragment getFragment(int position) {

@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel;
 public class LazyLoadViewModel extends ViewModel {
     private boolean mEagerLoad;
     private boolean mLoaded;
+    private boolean mInitialized;
 
     public boolean isEagerLoad() {
         return mEagerLoad;
@@ -30,5 +31,4 @@ public class LazyLoadViewModel extends ViewModel {
         mInitialized = initialized;
     }
 
-    private boolean mInitialized;
 }
