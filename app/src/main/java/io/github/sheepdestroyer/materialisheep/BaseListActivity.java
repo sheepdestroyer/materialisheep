@@ -109,6 +109,9 @@ public abstract class BaseListActivity extends DrawerActivity implements MultiPa
         }
     };
     private ItemPagerAdapter mAdapter;
+    private TabLayoutMediator mTabLayoutMediator;
+    private ViewPager2.OnPageChangeCallback mPageChangeCallback;
+    private TabLayout.OnTabSelectedListener mTabSelectedListener;
 
     /**
      * Called when the activity is first created.
@@ -529,9 +532,11 @@ public abstract class BaseListActivity extends DrawerActivity implements MultiPa
                 .setShowArticle(true)
                 .setDefaultViewMode(mStoryViewMode));
         mViewPager.setAdapter(mAdapter);
-        new TabLayoutMediator(mTabLayout, mViewPager,
-                (tab, position) -> tab.setText(mAdapter.getPageTitle(position))).attach();
-        mViewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+        mTabLayoutMediator = new TabLayoutMediator(mTabLayout, mViewPager,
+                (tab, position) -> tab.setText(mAdapter.getPageTitle(position)));
+        mTabLayoutMediator.attach();
+
+        mPageChangeCallback = new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
@@ -544,8 +549,10 @@ public abstract class BaseListActivity extends DrawerActivity implements MultiPa
                     ((LazyLoadFragment) fragment).loadNow();
                 }
             }
-        });
-        mTabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+        };
+        mViewPager.registerOnPageChangeCallback(mPageChangeCallback);
+
+        mTabSelectedListener = new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
             }
@@ -561,7 +568,8 @@ public abstract class BaseListActivity extends DrawerActivity implements MultiPa
                     ((Scrollable) fragment).scrollToTop();
                 }
             }
-        });
+        };
+        mTabLayout.addOnTabSelectedListener(mTabSelectedListener);
 
         // Initial FAB state
         int current = mViewPager.getCurrentItem();
@@ -575,6 +583,20 @@ public abstract class BaseListActivity extends DrawerActivity implements MultiPa
 
     @SuppressLint("RestrictedApi")
     private void unbindViewPager() {
+        if (mTabLayoutMediator != null) {
+            mTabLayoutMediator.detach();
+            mTabLayoutMediator = null;
+        }
+
+        if (mPageChangeCallback != null) {
+            mViewPager.unregisterOnPageChangeCallback(mPageChangeCallback);
+            mPageChangeCallback = null;
+        }
+        if (mTabSelectedListener != null) {
+            mTabLayout.removeOnTabSelectedListener(mTabSelectedListener);
+            mTabSelectedListener = null;
+        }
+
         // Remove fragments by Tag ("f" + id). IDs are 0 and 1.
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         Fragment f0 = getSupportFragmentManager().findFragmentByTag("f0");

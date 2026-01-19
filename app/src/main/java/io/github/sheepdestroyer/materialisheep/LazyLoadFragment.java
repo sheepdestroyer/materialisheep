@@ -132,7 +132,7 @@ public abstract class LazyLoadFragment extends BaseFragment {
     }
 
     final void eagerLoad() {
-        if (mViewModel.isEagerLoad()) {
+        if (mViewModel.isEagerLoad() && !mViewModel.isLoaded()) {
             mViewModel.setLoaded(true);
             load();
         }

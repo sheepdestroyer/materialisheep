@@ -185,7 +185,6 @@ public class ItemActivity extends ThemedActivity implements ItemFragment.ItemCha
         mSystemUiHelper = new AppUtils.SystemUiHelper(getWindow());
         mReplyButton = findViewById(R.id.reply_button);
         mNavButton = findViewById(R.id.navigation_button);
-        mNavButton = findViewById(R.id.navigation_button);
         mNavButton.setNavigable(direction ->
         // if callback is fired navigable should not be null
         AppUtils.navigate(direction, mAppBar, (Navigable) getFragment(0)));
