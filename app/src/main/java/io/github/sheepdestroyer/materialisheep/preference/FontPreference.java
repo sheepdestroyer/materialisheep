@@ -23,42 +23,41 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
-import io.github.sheepdestroyer.materialisheep.MaterialisticApplication;
 import io.github.sheepdestroyer.materialisheep.FontCache;
+import io.github.sheepdestroyer.materialisheep.MaterialisticApplication;
 import io.github.sheepdestroyer.materialisheep.R;
 
 public class FontPreference extends SpinnerPreference {
-    private final LayoutInflater mLayoutInflater;
+  private final LayoutInflater mLayoutInflater;
 
-    @SuppressWarnings("unused")
-    public FontPreference(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
+  @SuppressWarnings("unused")
+  public FontPreference(Context context, AttributeSet attrs) {
+    this(context, attrs, 0);
+  }
+
+  public FontPreference(Context context, AttributeSet attrs, int defStyleAttr) {
+    super(context, attrs, defStyleAttr);
+    mLayoutInflater = LayoutInflater.from(getContext());
+  }
+
+  @Override
+  protected View createDropDownView(int position, ViewGroup parent) {
+    return mLayoutInflater.inflate(
+        androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, parent, false);
+  }
+
+  @Override
+  protected void bindDropDownView(int position, View view) {
+    TextView textView = (TextView) view.findViewById(android.R.id.text1);
+    textView.setTypeface(FontCache.getInstance().get(getContext(), mEntryValues[position]));
+    textView.setText(mEntries[position]);
+  }
+
+  @Override
+  protected boolean persistString(String value) {
+    if (TextUtils.equals(getKey(), getContext().getString(R.string.pref_font))) {
+      MaterialisticApplication.TYPE_FACE = FontCache.getInstance().get(getContext(), value);
     }
-
-    public FontPreference(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        mLayoutInflater = LayoutInflater.from(getContext());
-    }
-
-    @Override
-    protected View createDropDownView(int position, ViewGroup parent) {
-        return mLayoutInflater.inflate(androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, parent, false);
-    }
-
-    @Override
-    protected void bindDropDownView(int position, View view) {
-        TextView textView = (TextView) view.findViewById(android.R.id.text1);
-        textView.setTypeface(FontCache.getInstance().get(getContext(), mEntryValues[position]));
-        textView.setText(mEntries[position]);
-    }
-
-    @Override
-    protected boolean persistString(String value) {
-        if (TextUtils.equals(getKey(), getContext().getString(R.string.pref_font))) {
-            MaterialisticApplication.TYPE_FACE = FontCache.getInstance().get(getContext(), value);
-        }
-        return super.persistString(value);
-    }
-
+    return super.persistString(value);
+  }
 }

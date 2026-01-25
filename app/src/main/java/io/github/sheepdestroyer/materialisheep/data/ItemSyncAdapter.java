@@ -30,32 +30,36 @@ import androidx.annotation.VisibleForTesting;
  * cache for subsequent requests.
  */
 class ItemSyncAdapter extends AbstractThreadedSyncAdapter {
-    private final RestServiceFactory mFactory;
-    private final ReadabilityClient mReadabilityClient;
+  private final RestServiceFactory mFactory;
+  private final ReadabilityClient mReadabilityClient;
 
-    /**
-     * Constructs a new {@code ItemSyncAdapter}.
-     *
-     * @param context           the application context
-     * @param factory           the {@link RestServiceFactory} to use for creating REST services
-     * @param readabilityClient the {@link ReadabilityClient} to use for fetching readable content
-     */
-    ItemSyncAdapter(Context context, RestServiceFactory factory,
-                           ReadabilityClient readabilityClient) {
-        super(context, true);
-        mFactory = factory;
-        mReadabilityClient = readabilityClient;
-    }
+  /**
+   * Constructs a new {@code ItemSyncAdapter}.
+   *
+   * @param context the application context
+   * @param factory the {@link RestServiceFactory} to use for creating REST services
+   * @param readabilityClient the {@link ReadabilityClient} to use for fetching readable content
+   */
+  ItemSyncAdapter(
+      Context context, RestServiceFactory factory, ReadabilityClient readabilityClient) {
+    super(context, true);
+    mFactory = factory;
+    mReadabilityClient = readabilityClient;
+  }
 
-    @Override
-    public void onPerformSync(Account account, Bundle extras, String authority,
-                              ContentProviderClient provider, SyncResult syncResult) {
-        createSyncDelegate().performSync(new SyncDelegate.Job(extras));
-    }
+  @Override
+  public void onPerformSync(
+      Account account,
+      Bundle extras,
+      String authority,
+      ContentProviderClient provider,
+      SyncResult syncResult) {
+    createSyncDelegate().performSync(new SyncDelegate.Job(extras));
+  }
 
-    @VisibleForTesting
-    @NonNull
-    SyncDelegate createSyncDelegate() {
-        return new SyncDelegate(getContext(), mFactory, mReadabilityClient);
-    }
+  @VisibleForTesting
+  @NonNull
+  SyncDelegate createSyncDelegate() {
+    return new SyncDelegate(getContext(), mFactory, mReadabilityClient);
+  }
 }

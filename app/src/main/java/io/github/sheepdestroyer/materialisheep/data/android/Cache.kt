@@ -16,6 +16,7 @@
 
 package io.github.sheepdestroyer.materialisheep.data.android
 
+import android.annotation.SuppressLint
 import io.github.sheepdestroyer.materialisheep.DataModule
 import io.github.sheepdestroyer.materialisheep.data.LocalCache
 import io.github.sheepdestroyer.materialisheep.data.MaterialisticDatabase
@@ -23,7 +24,6 @@ import io.github.sheepdestroyer.materialisheep.data.SavedStoriesDao
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Scheduler
 import javax.inject.Inject
-import android.annotation.SuppressLint
 import javax.inject.Named
 
 /**
@@ -34,25 +34,26 @@ class Cache @Inject constructor(
     private val savedStoriesDao: SavedStoriesDao,
     private val readStoriesDao: MaterialisticDatabase.ReadStoriesDao,
     private val readableDao: MaterialisticDatabase.ReadableDao,
-    @param:Named(DataModule.MAIN_THREAD) private val mainScheduler: Scheduler) : LocalCache {
+    @param:Named(DataModule.MAIN_THREAD) private val mainScheduler: Scheduler,
+) : LocalCache {
 
-  override fun getReadability(itemId: String?) = readableDao.selectByItemId(itemId)?.content
+    override fun getReadability(itemId: String?) = readableDao.selectByItemId(itemId)?.content
 
-  override fun putReadability(itemId: String?, content: String?) {
-    readableDao.insert(MaterialisticDatabase.Readable(itemId, content))
-  }
+    override fun putReadability(itemId: String?, content: String?) {
+        readableDao.insert(MaterialisticDatabase.Readable(itemId, content))
+    }
 
-  override fun isViewed(itemId: String?) = readStoriesDao.selectByItemId(itemId) != null
+    override fun isViewed(itemId: String?) = readStoriesDao.selectByItemId(itemId) != null
 
-  @SuppressLint("CheckResult")
-  override fun setViewed(itemId: String?) {
-    if (itemId == null) return
-    readStoriesDao.insert(MaterialisticDatabase.ReadStory(itemId))
-    Observable.just(itemId)
-        .map { database.createReadUri(it) }
-        .observeOn(mainScheduler)
-        .subscribe({ database.setLiveValue(it) }, { t -> android.util.Log.e("Cache", "Failed to set live value", t) })
-  }
+    @SuppressLint("CheckResult")
+    override fun setViewed(itemId: String?) {
+        if (itemId == null) return
+        readStoriesDao.insert(MaterialisticDatabase.ReadStory(itemId))
+        Observable.just(itemId)
+            .map { database.createReadUri(it) }
+            .observeOn(mainScheduler)
+            .subscribe({ database.setLiveValue(it) }, { t -> android.util.Log.e("Cache", "Failed to set live value", t) })
+    }
 
-  override fun isFavorite(itemId: String?) = itemId != null && savedStoriesDao.selectByItemId(itemId) != null
+    override fun isFavorite(itemId: String?) = itemId != null && savedStoriesDao.selectByItemId(itemId) != null
 }

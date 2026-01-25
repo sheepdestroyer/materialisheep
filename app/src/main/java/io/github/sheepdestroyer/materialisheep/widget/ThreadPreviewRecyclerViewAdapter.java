@@ -16,100 +16,103 @@
 
 package io.github.sheepdestroyer.materialisheep.widget;
 
-import android.content.Intent;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Handler;
-import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
-
-import io.github.sheepdestroyer.materialisheep.MaterialisticApplication;
-
-import java.util.ArrayList;
-import java.util.List;
-
+import androidx.recyclerview.widget.RecyclerView;
 import io.github.sheepdestroyer.materialisheep.AppUtils;
 import io.github.sheepdestroyer.materialisheep.ItemActivity;
+import io.github.sheepdestroyer.materialisheep.MaterialisticApplication;
 import io.github.sheepdestroyer.materialisheep.R;
 import io.github.sheepdestroyer.materialisheep.data.Item;
 import io.github.sheepdestroyer.materialisheep.data.ItemManager;
+import java.util.ArrayList;
+import java.util.List;
 
-public class ThreadPreviewRecyclerViewAdapter extends ItemRecyclerViewAdapter<SubmissionViewHolder> {
-    private final List<Item> mItems = new ArrayList<>();
-    private final List<String> mExpanded = new ArrayList<>();
-    private int mLevelIndicatorWidth;
-    private final String mUsername;
+public class ThreadPreviewRecyclerViewAdapter
+    extends ItemRecyclerViewAdapter<SubmissionViewHolder> {
+  private final List<Item> mItems = new ArrayList<>();
+  private final List<String> mExpanded = new ArrayList<>();
+  private int mLevelIndicatorWidth;
+  private final String mUsername;
 
-    public ThreadPreviewRecyclerViewAdapter(ItemManager itemManager, Item item) {
-        super(itemManager);
-        mItems.add(item);
-        mUsername = item.getBy();
+  public ThreadPreviewRecyclerViewAdapter(ItemManager itemManager, Item item) {
+    super(itemManager);
+    mItems.add(item);
+    mUsername = item.getBy();
+  }
+
+  @Override
+  public void attach(Context context, RecyclerView recyclerView) {
+    super.attach(context, recyclerView);
+    ((MaterialisticApplication) context.getApplicationContext()).applicationComponent.inject(this);
+    mLevelIndicatorWidth = AppUtils.getDimensionInDp(mContext, R.dimen.level_indicator_width);
+  }
+
+  @Override
+  public SubmissionViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    SubmissionViewHolder holder =
+        new SubmissionViewHolder(mLayoutInflater.inflate(R.layout.item_submission, parent, false));
+    final RecyclerView.LayoutParams params =
+        (RecyclerView.LayoutParams) holder.itemView.getLayoutParams();
+    params.leftMargin = mLevelIndicatorWidth * viewType;
+    holder.itemView.setLayoutParams(params);
+    holder.mCommentButton.setVisibility(View.GONE);
+    return holder;
+  }
+
+  @Override
+  public int getItemCount() {
+    return mItems.size();
+  }
+
+  @Override
+  public int getItemViewType(int position) {
+    return position;
+  }
+
+  @Override
+  protected void bind(SubmissionViewHolder holder, final Item item) {
+    super.bind(holder, item);
+    holder.mPostedTextView.setText(item.getDisplayedTime(mContext));
+    holder.mPostedTextView.append(
+        item.getDisplayedAuthor(mContext, !TextUtils.equals(item.getBy(), mUsername), 0));
+    holder.mMoreButton.setVisibility(View.GONE);
+    if (TextUtils.equals(item.getType(), Item.COMMENT_TYPE)) {
+      holder.mTitleTextView.setText(null);
+      holder.itemView.setOnClickListener(null);
+      holder.mCommentButton.setVisibility(View.GONE);
+    } else {
+      holder.mTitleTextView.setText(item.getDisplayedTitle());
+      holder.mCommentButton.setVisibility(View.VISIBLE);
+      holder.mCommentButton.setOnClickListener(v -> openItem(item));
     }
-
-    @Override
-    public void attach(Context context, RecyclerView recyclerView) {
-        super.attach(context, recyclerView);
-        ((MaterialisticApplication) context.getApplicationContext()).applicationComponent.inject(this);
-        mLevelIndicatorWidth = AppUtils.getDimensionInDp(mContext, R.dimen.level_indicator_width);
-    }
-
-    @Override
-    public SubmissionViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        SubmissionViewHolder holder = new SubmissionViewHolder(mLayoutInflater
-                .inflate(R.layout.item_submission, parent, false));
-        final RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) holder.itemView.getLayoutParams();
-        params.leftMargin = mLevelIndicatorWidth * viewType;
-        holder.itemView.setLayoutParams(params);
-        holder.mCommentButton.setVisibility(View.GONE);
-        return holder;
-    }
-
-    @Override
-    public int getItemCount() {
-        return mItems.size();
-    }
-
-    @Override
-    public int getItemViewType(int position) {
-        return position;
-    }
-
-    @Override
-    protected void bind(SubmissionViewHolder holder, final Item item) {
-        super.bind(holder, item);
-        holder.mPostedTextView.setText(item.getDisplayedTime(mContext));
-        holder.mPostedTextView.append(item.getDisplayedAuthor(mContext,
-                !TextUtils.equals(item.getBy(), mUsername), 0));
-        holder.mMoreButton.setVisibility(View.GONE);
-        if (TextUtils.equals(item.getType(), Item.COMMENT_TYPE)) {
-            holder.mTitleTextView.setText(null);
-            holder.itemView.setOnClickListener(null);
-            holder.mCommentButton.setVisibility(View.GONE);
-        } else {
-            holder.mTitleTextView.setText(item.getDisplayedTitle());
-            holder.mCommentButton.setVisibility(View.VISIBLE);
-            holder.mCommentButton.setOnClickListener(v -> openItem(item));
-        }
-        holder.mTitleTextView.setVisibility(holder.mTitleTextView.length() > 0 ? View.VISIBLE : View.GONE);
-        holder.mContentTextView.setVisibility(holder.mContentTextView.length() > 0 ? View.VISIBLE : View.GONE);
-        if (!mExpanded.contains(item.getId()) && item.getParentItem() != null) {
-            mExpanded.add(item.getId());
-            new Handler(android.os.Looper.getMainLooper()).post(() -> {
+    holder.mTitleTextView.setVisibility(
+        holder.mTitleTextView.length() > 0 ? View.VISIBLE : View.GONE);
+    holder.mContentTextView.setVisibility(
+        holder.mContentTextView.length() > 0 ? View.VISIBLE : View.GONE);
+    if (!mExpanded.contains(item.getId()) && item.getParentItem() != null) {
+      mExpanded.add(item.getId());
+      new Handler(android.os.Looper.getMainLooper())
+          .post(
+              () -> {
                 mItems.add(0, item.getParentItem()); // recursive
                 notifyItemInserted(0);
                 notifyItemRangeChanged(1, mItems.size());
-            });
-        }
+              });
     }
+  }
 
-    @Override
-    protected Item getItem(int position) {
-        return mItems.get(position);
-    }
+  @Override
+  protected Item getItem(int position) {
+    return mItems.get(position);
+  }
 
-    private void openItem(Item item) {
-        mContext.startActivity(new Intent(mContext, ItemActivity.class)
-                .putExtra(ItemActivity.EXTRA_ITEM, item));
-    }
+  private void openItem(Item item) {
+    mContext.startActivity(
+        new Intent(mContext, ItemActivity.class).putExtra(ItemActivity.EXTRA_ITEM, item));
+  }
 }

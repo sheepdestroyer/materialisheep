@@ -19,139 +19,131 @@ package io.github.sheepdestroyer.materialisheep;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.text.format.DateUtils;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import android.text.format.DateUtils;
-
 import io.github.sheepdestroyer.materialisheep.annotation.Synthetic;
 import io.github.sheepdestroyer.materialisheep.data.HackerNewsClient;
 import io.github.sheepdestroyer.materialisheep.data.ItemManager;
 
 /**
- * An abstract base activity for displaying a list of stories. This activity
- * handles common
- * functionality for story lists, such as refreshing the list and displaying the
- * last updated time.
+ * An abstract base activity for displaying a list of stories. This activity handles common
+ * functionality for story lists, such as refreshing the list and displaying the last updated time.
  */
 public abstract class BaseStoriesActivity extends BaseListActivity
-        implements ListFragment.RefreshCallback {
+    implements ListFragment.RefreshCallback {
 
-    private static final String STATE_LAST_UPDATED = "state:lastUpdated";
-    @Synthetic
-    Long mLastUpdated;
-    private final Runnable mLastUpdateTask = new Runnable() {
+  private static final String STATE_LAST_UPDATED = "state:lastUpdated";
+  @Synthetic Long mLastUpdated;
+  private final Runnable mLastUpdateTask =
+      new Runnable() {
         @Override
         public void run() {
-            if (mLastUpdated == null) {
-                return;
-            }
-            // noinspection ConstantConditions
-            if (getSupportActionBar() == null) {
-                return;
-            }
-            if (AppUtils.hasConnection(BaseStoriesActivity.this)) {
-                getSupportActionBar().setSubtitle(getString(R.string.last_updated,
-                        DateUtils.getRelativeTimeSpanString(mLastUpdated,
-                                System.currentTimeMillis(),
-                                DateUtils.MINUTE_IN_MILLIS,
-                                DateUtils.FORMAT_ABBREV_ALL)));
-                mHandler.postAtTime(this, SystemClock.uptimeMillis() + DateUtils.MINUTE_IN_MILLIS);
-            } else {
-                getSupportActionBar().setSubtitle(R.string.offline);
-            }
+          if (mLastUpdated == null) {
+            return;
+          }
+          // noinspection ConstantConditions
+          if (getSupportActionBar() == null) {
+            return;
+          }
+          if (AppUtils.hasConnection(BaseStoriesActivity.this)) {
+            getSupportActionBar()
+                .setSubtitle(
+                    getString(
+                        R.string.last_updated,
+                        DateUtils.getRelativeTimeSpanString(
+                            mLastUpdated,
+                            System.currentTimeMillis(),
+                            DateUtils.MINUTE_IN_MILLIS,
+                            DateUtils.FORMAT_ABBREV_ALL)));
+            mHandler.postAtTime(this, SystemClock.uptimeMillis() + DateUtils.MINUTE_IN_MILLIS);
+          } else {
+            getSupportActionBar().setSubtitle(R.string.offline);
+          }
         }
-    };
-    @Synthetic
-    final Handler mHandler = new Handler(android.os.Looper.getMainLooper());
+      };
+  @Synthetic final Handler mHandler = new Handler(android.os.Looper.getMainLooper());
 
-    /**
-     * Called when the activity is first created.
-     *
-     * @param savedInstanceState If the activity is being re-initialized after
-     *                           previously being shut down then this Bundle
-     *                           contains the data it most
-     *                           recently supplied in
-     *                           {@link #onSaveInstanceState(Bundle)}.
-     *                           Otherwise it is null.
-     */
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (savedInstanceState != null) {
-            mLastUpdated = savedInstanceState.getLong(STATE_LAST_UPDATED);
-        }
+  /**
+   * Called when the activity is first created.
+   *
+   * @param savedInstanceState If the activity is being re-initialized after previously being shut
+   *     down then this Bundle contains the data it most recently supplied in {@link
+   *     #onSaveInstanceState(Bundle)}. Otherwise it is null.
+   */
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    if (savedInstanceState != null) {
+      mLastUpdated = savedInstanceState.getLong(STATE_LAST_UPDATED);
     }
+  }
 
-    /**
-     * Called after {@link #onRestoreInstanceState(Bundle)}, {@link #onRestart()},
-     * or
-     * {@link #onPause()}, for your activity to start interacting with the user.
-     */
-    @Override
-    protected void onResume() {
-        super.onResume();
-        mHandler.removeCallbacks(mLastUpdateTask);
-        mHandler.post(mLastUpdateTask);
+  /**
+   * Called after {@link #onRestoreInstanceState(Bundle)}, {@link #onRestart()}, or {@link
+   * #onPause()}, for your activity to start interacting with the user.
+   */
+  @Override
+  protected void onResume() {
+    super.onResume();
+    mHandler.removeCallbacks(mLastUpdateTask);
+    mHandler.post(mLastUpdateTask);
+  }
+
+  /**
+   * Called as part of the activity lifecycle when an activity is going into the background, but has
+   * not (yet) been killed.
+   */
+  @Override
+  protected void onPause() {
+    super.onPause();
+    mHandler.removeCallbacks(mLastUpdateTask);
+  }
+
+  /**
+   * Called to retrieve per-instance state from an activity before being killed so that the state
+   * can be restored in {@link #onCreate(Bundle)} or {@link #onRestoreInstanceState(Bundle)}.
+   *
+   * @param outState Bundle in which to place your saved state.
+   */
+  @Override
+  protected void onSaveInstanceState(Bundle outState) {
+    super.onSaveInstanceState(outState);
+    if (mLastUpdated != null) {
+      outState.putLong(STATE_LAST_UPDATED, mLastUpdated);
     }
+  }
 
-    /**
-     * Called as part of the activity lifecycle when an activity is going into
-     * the background, but has not (yet) been killed.
-     */
-    @Override
-    protected void onPause() {
-        super.onPause();
-        mHandler.removeCallbacks(mLastUpdateTask);
-    }
+  /** Called when the list has been refreshed. */
+  @Override
+  public void onRefreshed() {
+    onItemSelected(null);
+    mLastUpdated = System.currentTimeMillis();
+    mHandler.removeCallbacks(mLastUpdateTask);
+    mHandler.post(mLastUpdateTask);
+  }
 
-    /**
-     * Called to retrieve per-instance state from an activity before being killed
-     * so that the state can be restored in {@link #onCreate(Bundle)} or
-     * {@link #onRestoreInstanceState(Bundle)}.
-     *
-     * @param outState Bundle in which to place your saved state.
-     */
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        if (mLastUpdated != null) {
-            outState.putLong(STATE_LAST_UPDATED, mLastUpdated);
-        }
-    }
+  /**
+   * Gets the fetch mode for the stories.
+   *
+   * @return The fetch mode.
+   */
+  @NonNull
+  @ItemManager.FetchMode
+  protected abstract String getFetchMode();
 
-    /**
-     * Called when the list has been refreshed.
-     */
-    @Override
-    public void onRefreshed() {
-        onItemSelected(null);
-        mLastUpdated = System.currentTimeMillis();
-        mHandler.removeCallbacks(mLastUpdateTask);
-        mHandler.post(mLastUpdateTask);
-    }
-
-    /**
-     * Gets the fetch mode for the stories.
-     *
-     * @return The fetch mode.
-     */
-    @NonNull
-    @ItemManager.FetchMode
-    protected abstract String getFetchMode();
-
-    /**
-     * Instantiates the list fragment for the activity.
-     *
-     * @return The list fragment.
-     */
-    @Override
-    protected Fragment instantiateListFragment() {
-        Bundle args = new Bundle();
-        args.putString(ListFragment.EXTRA_ITEM_MANAGER, HackerNewsClient.class.getName());
-        args.putString(ListFragment.EXTRA_FILTER, getFetchMode());
-        ListFragment fragment = new ListFragment();
-        fragment.setArguments(args);
-        return fragment;
-    }
-
+  /**
+   * Instantiates the list fragment for the activity.
+   *
+   * @return The list fragment.
+   */
+  @Override
+  protected Fragment instantiateListFragment() {
+    Bundle args = new Bundle();
+    args.putString(ListFragment.EXTRA_ITEM_MANAGER, HackerNewsClient.class.getName());
+    args.putString(ListFragment.EXTRA_FILTER, getFetchMode());
+    ListFragment fragment = new ListFragment();
+    fragment.setArguments(args);
+    return fragment;
+  }
 }

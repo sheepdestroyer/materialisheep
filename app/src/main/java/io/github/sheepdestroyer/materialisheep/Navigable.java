@@ -16,19 +16,17 @@
 
 package io.github.sheepdestroyer.materialisheep;
 
-/**
- * An interface for views that can be navigated.
- */
+/** An interface for views that can be navigated. */
 public interface Navigable {
-    int DIRECTION_UP = 0;
-    int DIRECTION_DOWN = 1;
-    int DIRECTION_LEFT = 2;
-    int DIRECTION_RIGHT = 3;
+  int DIRECTION_UP = 0;
+  int DIRECTION_DOWN = 1;
+  int DIRECTION_LEFT = 2;
+  int DIRECTION_RIGHT = 3;
 
-    /**
-     * Called when a navigation event occurs.
-     *
-     * @param direction The direction of the navigation.
-     */
-    void onNavigate(int direction);
+  /**
+   * Called when a navigation event occurs.
+   *
+   * @param direction The direction of the navigation.
+   */
+  void onNavigate(int direction);
 }

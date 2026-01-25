@@ -18,104 +18,91 @@ package io.github.sheepdestroyer.materialisheep.data;
 
 import android.os.Build;
 import androidx.annotation.Keep;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-
 import io.github.sheepdestroyer.materialisheep.BuildConfig;
 import io.github.sheepdestroyer.materialisheep.DataModule;
 import io.github.sheepdestroyer.materialisheep.annotation.Synthetic;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Scheduler;
+import javax.inject.Inject;
+import javax.inject.Named;
 import retrofit2.http.Body;
 import retrofit2.http.Headers;
 import retrofit2.http.POST;
-import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.core.Scheduler;
 
-/**
- * A client for sending feedback.
- */
+/** A client for sending feedback. */
 public interface FeedbackClient {
+  /** A callback interface for receiving feedback submission results. */
+  interface Callback {
     /**
-     * A callback interface for receiving feedback submission results.
-     */
-    interface Callback {
-        /**
-         * Called when the feedback has been sent.
-         *
-         * @param success `true` if the feedback was sent successfully, `false`
-         *                otherwise
-         */
-        void onSent(boolean success);
-    }
-
-    /**
-     * Sends feedback with the given title and body.
+     * Called when the feedback has been sent.
      *
-     * @param title    the title of the feedback
-     * @param body     the body of the feedback
-     * @param callback the callback to be invoked when the feedback has been sent
+     * @param success `true` if the feedback was sent successfully, `false` otherwise
      */
-    void send(String title, String body, Callback callback);
+    void onSent(boolean success);
+  }
 
-    /**
-     * An implementation of {@link FeedbackClient} that sends feedback as a GitHub
-     * issue.
-     */
-    class Impl implements FeedbackClient {
-        private final FeedbackService mFeedbackService;
-        private final Scheduler mMainThreadScheduler;
+  /**
+   * Sends feedback with the given title and body.
+   *
+   * @param title the title of the feedback
+   * @param body the body of the feedback
+   * @param callback the callback to be invoked when the feedback has been sent
+   */
+  void send(String title, String body, Callback callback);
 
-        @Inject
-        public Impl(RestServiceFactory factory,
-                @Named(DataModule.MAIN_THREAD) Scheduler mainThreadScheduler) {
-            mFeedbackService = factory.rxEnabled(true)
-                    .create(FeedbackService.GITHUB_API_URL, FeedbackService.class);
-            mMainThreadScheduler = mainThreadScheduler;
-        }
+  /** An implementation of {@link FeedbackClient} that sends feedback as a GitHub issue. */
+  class Impl implements FeedbackClient {
+    private final FeedbackService mFeedbackService;
+    private final Scheduler mMainThreadScheduler;
 
-        @Override
-        @android.annotation.SuppressLint("CheckResult")
-        public void send(String title, String body, final Callback callback) {
-            body = String.format("%s\nDevice: %s %s, SDK: %s, app version: %s",
-                    body,
-                    Build.MANUFACTURER,
-                    Build.MODEL,
-                    Build.VERSION.SDK_INT,
-                    BuildConfig.VERSION_CODE);
-            mFeedbackService.createGithubIssue(new Issue(title, body))
-                    .map(response -> true)
-                    .onErrorReturn(throwable -> false)
-                    .observeOn(mMainThreadScheduler)
-                    .subscribe(callback::onSent);
-        }
-
-        interface FeedbackService {
-            String GITHUB_API_URL = "https://api.github.com/";
-
-            @POST("repos/hidroh/materialistic/issues")
-            @Headers("Authorization: token " + BuildConfig.GITHUB_TOKEN)
-            Observable<Object> createGithubIssue(@Body Issue issue);
-        }
-
-        static class Issue {
-            private static final String LABEL_FEEDBACK = "feedback";
-
-            @Keep
-            @Synthetic
-            final String title;
-            @Keep
-            @Synthetic
-            final String body;
-            @Keep
-            @Synthetic
-            final String[] labels;
-
-            @Synthetic
-            Issue(String title, String body) {
-                this.title = title;
-                this.body = body;
-                this.labels = new String[] { LABEL_FEEDBACK };
-            }
-        }
+    @Inject
+    public Impl(
+        RestServiceFactory factory, @Named(DataModule.MAIN_THREAD) Scheduler mainThreadScheduler) {
+      mFeedbackService =
+          factory.rxEnabled(true).create(FeedbackService.GITHUB_API_URL, FeedbackService.class);
+      mMainThreadScheduler = mainThreadScheduler;
     }
+
+    @Override
+    @android.annotation.SuppressLint("CheckResult")
+    public void send(String title, String body, final Callback callback) {
+      body =
+          String.format(
+              "%s\nDevice: %s %s, SDK: %s, app version: %s",
+              body,
+              Build.MANUFACTURER,
+              Build.MODEL,
+              Build.VERSION.SDK_INT,
+              BuildConfig.VERSION_CODE);
+      mFeedbackService
+          .createGithubIssue(new Issue(title, body))
+          .map(response -> true)
+          .onErrorReturn(throwable -> false)
+          .observeOn(mMainThreadScheduler)
+          .subscribe(callback::onSent);
+    }
+
+    interface FeedbackService {
+      String GITHUB_API_URL = "https://api.github.com/";
+
+      @POST("repos/hidroh/materialistic/issues")
+      @Headers("Authorization: token " + BuildConfig.GITHUB_TOKEN)
+      Observable<Object> createGithubIssue(@Body Issue issue);
+    }
+
+    static class Issue {
+      private static final String LABEL_FEEDBACK = "feedback";
+
+      @Keep @Synthetic final String title;
+      @Keep @Synthetic final String body;
+      @Keep @Synthetic final String[] labels;
+
+      @Synthetic
+      Issue(String title, String body) {
+        this.title = title;
+        this.body = body;
+        this.labels = new String[] {LABEL_FEEDBACK};
+      }
+    }
+  }
 }

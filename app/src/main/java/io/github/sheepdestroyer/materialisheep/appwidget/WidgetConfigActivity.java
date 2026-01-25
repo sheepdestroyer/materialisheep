@@ -20,104 +20,102 @@ import android.appwidget.AppWidgetManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import io.github.sheepdestroyer.materialisheep.ThemedActivity;
-import io.github.sheepdestroyer.materialisheep.MaterialisticApplication;
-import androidx.preference.PreferenceFragmentCompat;
 import android.text.TextUtils;
 import android.view.Window;
-
+import androidx.preference.PreferenceFragmentCompat;
+import io.github.sheepdestroyer.materialisheep.MaterialisticApplication;
 import io.github.sheepdestroyer.materialisheep.R;
+import io.github.sheepdestroyer.materialisheep.ThemedActivity;
 
-/**
- * An activity that allows the user to configure a new widget.
- */
+/** An activity that allows the user to configure a new widget. */
 public class WidgetConfigActivity extends ThemedActivity {
-    private int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
+  private int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        ((MaterialisticApplication) getApplication()).applicationComponent.inject(this);
-        setResult(RESULT_CANCELED);
-        if (getIntent().getExtras() == null ||
-                (mAppWidgetId = getIntent().getExtras().getInt(AppWidgetManager.EXTRA_APPWIDGET_ID,
-                        AppWidgetManager.INVALID_APPWIDGET_ID)) == AppWidgetManager.INVALID_APPWIDGET_ID) {
-            finish();
-            return;
-        }
-        supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
-        setContentView(R.layout.activity_widget_config);
-        if (savedInstanceState == null) {
-            Bundle args = new Bundle();
-            args.putInt(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
-            WidgetConfigurationFragment fragment = new WidgetConfigurationFragment();
-            fragment.setArguments(args);
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.widget_preferences,
-                            fragment,
-                            WidgetConfigurationFragment.class.getName())
-                    .commit();
-        }
-        // noinspection ConstantConditions
-        findViewById(R.id.button_ok).setOnClickListener(v -> configure());
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    ((MaterialisticApplication) getApplication()).applicationComponent.inject(this);
+    setResult(RESULT_CANCELED);
+    if (getIntent().getExtras() == null
+        || (mAppWidgetId =
+                getIntent()
+                    .getExtras()
+                    .getInt(
+                        AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID))
+            == AppWidgetManager.INVALID_APPWIDGET_ID) {
+      finish();
+      return;
     }
-
-    @Override
-    protected boolean isDialogTheme() {
-        return true;
+    supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
+    setContentView(R.layout.activity_widget_config);
+    if (savedInstanceState == null) {
+      Bundle args = new Bundle();
+      args.putInt(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
+      WidgetConfigurationFragment fragment = new WidgetConfigurationFragment();
+      fragment.setArguments(args);
+      getSupportFragmentManager()
+          .beginTransaction()
+          .replace(R.id.widget_preferences, fragment, WidgetConfigurationFragment.class.getName())
+          .commit();
     }
+    // noinspection ConstantConditions
+    findViewById(R.id.button_ok).setOnClickListener(v -> configure());
+  }
 
-    /**
-     * Finishes the widget configuration and returns the result.
-     */
-    private void configure() {
-        new WidgetHelper(this).configure(mAppWidgetId);
-        setResult(RESULT_OK, new Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId));
-        finish();
-    }
+  @Override
+  protected boolean isDialogTheme() {
+    return true;
+  }
 
-    /**
-     * A fragment that hosts the widget configuration preferences.
-     */
-    public static class WidgetConfigurationFragment extends PreferenceFragmentCompat {
+  /** Finishes the widget configuration and returns the result. */
+  private void configure() {
+    new WidgetHelper(this).configure(mAppWidgetId);
+    setResult(RESULT_OK, new Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId));
+    finish();
+  }
 
-        private SharedPreferences.OnSharedPreferenceChangeListener mListener = (sharedPreferences, key) -> {
-            if (TextUtils.equals(key, getString(R.string.pref_widget_query))) {
-                setFilterQuery();
-            }
+  /** A fragment that hosts the widget configuration preferences. */
+  public static class WidgetConfigurationFragment extends PreferenceFragmentCompat {
+
+    private SharedPreferences.OnSharedPreferenceChangeListener mListener =
+        (sharedPreferences, key) -> {
+          if (TextUtils.equals(key, getString(R.string.pref_widget_query))) {
+            setFilterQuery();
+          }
         };
 
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            getPreferenceManager().setSharedPreferencesName(WidgetHelper.getConfigName(
-                    getArguments().getInt(AppWidgetManager.EXTRA_APPWIDGET_ID)));
-            getPreferenceManager().getSharedPreferences()
-                    .registerOnSharedPreferenceChangeListener(mListener);
-            setFilterQuery();
-        }
-
-        @Override
-        public void onCreatePreferences(Bundle bundle, String s) {
-            addPreferencesFromResource(R.xml.preferences_widget);
-        }
-
-        @Override
-        public void onDestroy() {
-            super.onDestroy();
-            getPreferenceManager().getSharedPreferences()
-                    .unregisterOnSharedPreferenceChangeListener(mListener);
-        }
-
-        /**
-         * Sets the summary for the filter query preference to its current value.
-         */
-        private void setFilterQuery() {
-            String key = getString(R.string.pref_widget_query);
-            getPreferenceManager().findPreference(key)
-                    .setSummary(getPreferenceManager().getSharedPreferences()
-                            .getString(key, null));
-        }
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+      super.onCreate(savedInstanceState);
+      getPreferenceManager()
+          .setSharedPreferencesName(
+              WidgetHelper.getConfigName(
+                  getArguments().getInt(AppWidgetManager.EXTRA_APPWIDGET_ID)));
+      getPreferenceManager()
+          .getSharedPreferences()
+          .registerOnSharedPreferenceChangeListener(mListener);
+      setFilterQuery();
     }
+
+    @Override
+    public void onCreatePreferences(Bundle bundle, String s) {
+      addPreferencesFromResource(R.xml.preferences_widget);
+    }
+
+    @Override
+    public void onDestroy() {
+      super.onDestroy();
+      getPreferenceManager()
+          .getSharedPreferences()
+          .unregisterOnSharedPreferenceChangeListener(mListener);
+    }
+
+    /** Sets the summary for the filter query preference to its current value. */
+    private void setFilterQuery() {
+      String key = getString(R.string.pref_widget_query);
+      getPreferenceManager()
+          .findPreference(key)
+          .setSummary(getPreferenceManager().getSharedPreferences().getString(key, null));
+    }
+  }
 }

@@ -18,44 +18,43 @@ package io.github.sheepdestroyer.materialisheep.preference;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.util.AttributeSet;
 import androidx.appcompat.app.AlertDialog;
 import androidx.preference.PreferenceGroup;
 import androidx.preference.PreferenceViewHolder;
-import android.util.AttributeSet;
-
 import io.github.sheepdestroyer.materialisheep.R;
 
 public class PreferenceHelp extends PreferenceGroup {
-    private final int mLayoutResId;
-    private final String mTitle;
+  private final int mLayoutResId;
+  private final String mTitle;
 
-    public PreferenceHelp(Context context, AttributeSet attrs) {
-        super(context, attrs, R.attr.preferenceHelpStyle);
-        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.PreferenceHelp);
-        try {
-            mLayoutResId = a.getResourceId(R.styleable.PreferenceHelp_dialogLayout, 0);
-            mTitle = a.getString(R.styleable.PreferenceHelp_dialogTitle);
-        } finally {
-            a.recycle();
-        }
+  public PreferenceHelp(Context context, AttributeSet attrs) {
+    super(context, attrs, R.attr.preferenceHelpStyle);
+    TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.PreferenceHelp);
+    try {
+      mLayoutResId = a.getResourceId(R.styleable.PreferenceHelp_dialogLayout, 0);
+      mTitle = a.getString(R.styleable.PreferenceHelp_dialogTitle);
+    } finally {
+      a.recycle();
     }
+  }
 
-    @Override
-    protected void onClick() {
-        if (mLayoutResId == 0) {
-            return;
-        }
-        new AlertDialog.Builder(getContext())
-                .setTitle(mTitle)
-                .setView(mLayoutResId)
-                .setPositiveButton(R.string.got_it, null)
-                .create()
-                .show();
+  @Override
+  protected void onClick() {
+    if (mLayoutResId == 0) {
+      return;
     }
+    new AlertDialog.Builder(getContext())
+        .setTitle(mTitle)
+        .setView(mLayoutResId)
+        .setPositiveButton(R.string.got_it, null)
+        .create()
+        .show();
+  }
 
-    @Override
-    public void onBindViewHolder(PreferenceViewHolder holder) {
-        super.onBindViewHolder(holder);
-        holder.setDividerAllowedAbove(false);
-    }
+  @Override
+  public void onBindViewHolder(PreferenceViewHolder holder) {
+    super.onBindViewHolder(holder);
+    holder.setDividerAllowedAbove(false);
+  }
 }

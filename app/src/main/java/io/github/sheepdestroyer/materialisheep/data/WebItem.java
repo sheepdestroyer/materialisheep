@@ -18,116 +18,113 @@ package io.github.sheepdestroyer.materialisheep.data;
 
 import android.content.Context;
 import android.os.Parcelable;
+import android.text.Spannable;
 import androidx.annotation.NonNull;
 import androidx.annotation.StringDef;
-import android.text.Spannable;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-/**
- * An interface for an item that can be displayed in a {@link android.webkit.WebView}.
- */
+/** An interface for an item that can be displayed in a {@link android.webkit.WebView}. */
 public interface WebItem extends Parcelable {
-    /**
-     * An annotation for defining the type of an item.
-     */
-    @Retention(RetentionPolicy.SOURCE)
-    @StringDef({
-            JOB_TYPE,
-            STORY_TYPE,
-            COMMENT_TYPE,
-            POLL_TYPE
-    })
-    @interface Type {}
-    /**
-     * The type for a job item.
-     */
-    String JOB_TYPE = "job";
-    /**
-     * The type for a story item.
-     */
-    String STORY_TYPE = "story";
-    /**
-     * The type for a comment item.
-     */
-    String COMMENT_TYPE = "comment";
-    /**
-     * The type for a poll item.
-     */
-    String POLL_TYPE = "poll";
+  /** An annotation for defining the type of an item. */
+  @Retention(RetentionPolicy.SOURCE)
+  @StringDef({JOB_TYPE, STORY_TYPE, COMMENT_TYPE, POLL_TYPE})
+  @interface Type {}
 
-    /**
-     * Gets formatted title to display
-     * @return formatted title or null
-     */
-    String getDisplayedTitle();
+  /** The type for a job item. */
+  String JOB_TYPE = "job";
 
-    /**
-     * Gets item URL to pass to {@link android.webkit.WebView#loadUrl(String)}
-     * @return URL or null
-     */
-    String getUrl();
+  /** The type for a story item. */
+  String STORY_TYPE = "story";
 
-    /**
-     * Checks if item is not a comment
-     * @return true if is not a comment, false otherwise
-     */
-    boolean isStoryType();
+  /** The type for a comment item. */
+  String COMMENT_TYPE = "comment";
 
-    /**
-     * Gets item ID string
-     * @return item ID string
-     */
-    String getId();
+  /** The type for a poll item. */
+  String POLL_TYPE = "poll";
 
-    /**
-     * Gets item ID
-     * @return item ID
-     */
-    long getLongId();
+  /**
+   * Gets formatted title to display
+   *
+   * @return formatted title or null
+   */
+  String getDisplayedTitle();
 
-    /**
-     * Gets item source
-     * @return item source or null
-     */
-    String getSource();
+  /**
+   * Gets item URL to pass to {@link android.webkit.WebView#loadUrl(String)}
+   *
+   * @return URL or null
+   */
+  String getUrl();
 
-    /**
-     * Gets formatted author for display
-     * @param context       an instance of {@link Context}
-     * @param linkify       true to display author as a hyperlink, false otherwise
-     * @param color         optional decorator color for author, or 0
-     * @return  displayed author
-     */
-    Spannable getDisplayedAuthor(Context context, boolean linkify, int color);
+  /**
+   * Checks if item is not a comment
+   *
+   * @return true if is not a comment, false otherwise
+   */
+  boolean isStoryType();
 
-    /**
-     * Gets formatted posted time for display
-     * @param context    resources provider
-     * @return  displayed time
-     */
-    Spannable getDisplayedTime(Context context);
+  /**
+   * Gets item ID string
+   *
+   * @return item ID string
+   */
+  String getId();
 
-    /**
-     * Gets item type
-     * @return item type
-     */
-    @NonNull
-    @Type
-    String getType();
+  /**
+   * Gets item ID
+   *
+   * @return item ID
+   */
+  long getLongId();
 
-    /**
-     * Checks if item is marked as favorite
-     * @return true if favorite, false otherwise
-     * @see #setFavorite(boolean)
-     */
-    boolean isFavorite();
+  /**
+   * Gets item source
+   *
+   * @return item source or null
+   */
+  String getSource();
 
-    /**
-     * Updates item's favorite status to given status
-     * @param favorite true if favorite, false otherwise
-     * @see #isFavorite()
-     */
-    void setFavorite(boolean favorite);
+  /**
+   * Gets formatted author for display
+   *
+   * @param context an instance of {@link Context}
+   * @param linkify true to display author as a hyperlink, false otherwise
+   * @param color optional decorator color for author, or 0
+   * @return displayed author
+   */
+  Spannable getDisplayedAuthor(Context context, boolean linkify, int color);
+
+  /**
+   * Gets formatted posted time for display
+   *
+   * @param context resources provider
+   * @return displayed time
+   */
+  Spannable getDisplayedTime(Context context);
+
+  /**
+   * Gets item type
+   *
+   * @return item type
+   */
+  @NonNull
+  @Type
+  String getType();
+
+  /**
+   * Checks if item is marked as favorite
+   *
+   * @return true if favorite, false otherwise
+   * @see #setFavorite(boolean)
+   */
+  boolean isFavorite();
+
+  /**
+   * Updates item's favorite status to given status
+   *
+   * @param favorite true if favorite, false otherwise
+   * @see #isFavorite()
+   */
+  void setFavorite(boolean favorite);
 }

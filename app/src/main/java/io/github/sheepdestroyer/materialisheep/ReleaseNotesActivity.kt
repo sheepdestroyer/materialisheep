@@ -29,53 +29,60 @@ import android.webkit.WebViewClient
  */
 class ReleaseNotesActivity : ThemedActivity() {
 
-  /**
-   * Called when the activity is first created.
-   *
-   * @param savedInstanceState If the activity is being re-initialized after
-   *                           previously being shut down then this Bundle contains the data it most
-   *                           recently supplied in {@link #onSaveInstanceState(Bundle)}.
-   *                           Otherwise it is null.
-   */
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    (application as MaterialisticApplication).applicationComponent.inject(this)
-    supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
-    setContentView(R.layout.activity_release)
-    findViewById<View>(R.id.button_ok).setOnClickListener { _ -> finish() }
-    findViewById<View>(R.id.button_rate).setOnClickListener { _ ->
-      AppUtils.openPlayStore(this)
-      finish()
+    /**
+     * Called when the activity is first created.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after
+     *                           previously being shut down then this Bundle contains the data it most
+     *                           recently supplied in {@link #onSaveInstanceState(Bundle)}.
+     *                           Otherwise it is null.
+     */
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        (application as MaterialisticApplication).applicationComponent.inject(this)
+        supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
+        setContentView(R.layout.activity_release)
+        findViewById<View>(R.id.button_ok).setOnClickListener { _ -> finish() }
+        findViewById<View>(R.id.button_rate).setOnClickListener { _ ->
+            AppUtils.openPlayStore(this)
+            finish()
+        }
+        with(findViewById<WebView>(R.id.web_view)) {
+            webViewClient = WebViewClient()
+            webChromeClient = WebChromeClient()
+            setBackgroundColor(Color.TRANSPARENT)
+            loadDataWithBaseURL(
+                null,
+                getString(
+                    R.string.release_notes,
+                    AppUtils.toHtmlColor(this@ReleaseNotesActivity, android.R.attr.textColorPrimary),
+                    AppUtils.toHtmlColor(this@ReleaseNotesActivity, android.R.attr.textColorLink),
+                ),
+                "text/html",
+                "UTF-8",
+                null,
+            )
+        }
+        Preferences.setReleaseNotesSeen(this)
     }
-    with(findViewById<WebView>(R.id.web_view)) {
-      webViewClient = WebViewClient()
-      webChromeClient = WebChromeClient()
-      setBackgroundColor(Color.TRANSPARENT)
-      loadDataWithBaseURL(null, getString(R.string.release_notes,
-          AppUtils.toHtmlColor(this@ReleaseNotesActivity, android.R.attr.textColorPrimary),
-          AppUtils.toHtmlColor(this@ReleaseNotesActivity, android.R.attr.textColorLink)),
-          "text/html", "UTF-8", null)
-    }
-    Preferences.setReleaseNotesSeen(this)
-  }
 
-  /**
-   * Called when the activity is finishing.
-   */
-  override fun finish() {
-    super.finish()
-    if (android.os.Build.VERSION.SDK_INT >= 34) {
-      overrideActivityTransition(android.app.Activity.OVERRIDE_TRANSITION_CLOSE, 0, R.anim.slide_out_down)
-    } else {
-      @Suppress("DEPRECATION")
-      overridePendingTransition(0, R.anim.slide_out_down)
+    /**
+     * Called when the activity is finishing.
+     */
+    override fun finish() {
+        super.finish()
+        if (android.os.Build.VERSION.SDK_INT >= 34) {
+            overrideActivityTransition(android.app.Activity.OVERRIDE_TRANSITION_CLOSE, 0, R.anim.slide_out_down)
+        } else {
+            @Suppress("DEPRECATION")
+            overridePendingTransition(0, R.anim.slide_out_down)
+        }
     }
-  }
 
-  /**
-   * Checks if the activity should be displayed as a dialog.
-   *
-   * @return True if the activity should be displayed as a dialog, false otherwise.
-   */
-  override fun isDialogTheme() = true
+    /**
+     * Checks if the activity should be displayed as a dialog.
+     *
+     * @return True if the activity should be displayed as a dialog, false otherwise.
+     */
+    override fun isDialogTheme() = true
 }

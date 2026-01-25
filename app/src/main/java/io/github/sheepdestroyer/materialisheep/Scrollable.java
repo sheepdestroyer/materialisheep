@@ -16,26 +16,22 @@
 
 package io.github.sheepdestroyer.materialisheep;
 
-/**
- * An interface for views that can be scrolled vertically.
- */
+/** An interface for views that can be scrolled vertically. */
 public interface Scrollable {
-    /**
-     * Scrolls this instance to the top, i.e., until no more content is above.
-     */
-    void scrollToTop();
+  /** Scrolls this instance to the top, i.e., until no more content is above. */
+  void scrollToTop();
 
-    /**
-     * Scrolls to reveal more content below the current content.
-     *
-     * @return True if successful, false if unable to scroll.
-     */
-    boolean scrollToNext();
+  /**
+   * Scrolls to reveal more content below the current content.
+   *
+   * @return True if successful, false if unable to scroll.
+   */
+  boolean scrollToNext();
 
-    /**
-     * Scrolls to reveal more content above the current content.
-     *
-     * @return True if successful, false if unable to scroll.
-     */
-    boolean scrollToPrevious();
+  /**
+   * Scrolls to reveal more content above the current content.
+   *
+   * @return True if successful, false if unable to scroll.
+   */
+  boolean scrollToPrevious();
 }

@@ -22,10 +22,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Indicates that the visibility of a target and its members can be made public to allow for
- * API discoverability.
+ * Indicates that the visibility of a target and its members can be made public to allow for API
+ * discoverability.
  */
 @Retention(RetentionPolicy.SOURCE)
 @Target({ElementType.CONSTRUCTOR, ElementType.METHOD, ElementType.TYPE})
-public @interface PublicApi {
-}
+public @interface PublicApi {}

@@ -18,45 +18,43 @@ package io.github.sheepdestroyer.materialisheep;
 
 import android.content.Context;
 import android.graphics.Typeface;
-import androidx.collection.ArrayMap;
 import android.text.TextUtils;
+import androidx.collection.ArrayMap;
 
-/**
- * A simple cache for Typeface objects.
- */
+/** A simple cache for Typeface objects. */
 public class FontCache {
 
-    private static FontCache sInstance;
-    private final ArrayMap<String, Typeface> mTypefaceMap = new ArrayMap<>();
+  private static FontCache sInstance;
+  private final ArrayMap<String, Typeface> mTypefaceMap = new ArrayMap<>();
 
-    /**
-     * Gets the singleton instance of the FontCache.
-     *
-     * @return The singleton instance of the FontCache.
-     */
-    public static FontCache getInstance() {
-        if (sInstance == null) {
-            sInstance = new FontCache();
-        }
-        return sInstance;
+  /**
+   * Gets the singleton instance of the FontCache.
+   *
+   * @return The singleton instance of the FontCache.
+   */
+  public static FontCache getInstance() {
+    if (sInstance == null) {
+      sInstance = new FontCache();
     }
+    return sInstance;
+  }
 
-    private FontCache() { }
+  private FontCache() {}
 
-    /**
-     * Gets a Typeface from the cache.
-     *
-     * @param context      The context.
-     * @param typefaceName The name of the typeface.
-     * @return The Typeface object.
-     */
-    public Typeface get(Context context, String typefaceName) {
-        if (TextUtils.isEmpty(typefaceName)) {
-            return null;
-        }
-        if (!mTypefaceMap.containsKey(typefaceName)) {
-            mTypefaceMap.put(typefaceName, Typeface.createFromAsset(context.getAssets(), typefaceName));
-        }
-        return mTypefaceMap.get(typefaceName);
+  /**
+   * Gets a Typeface from the cache.
+   *
+   * @param context The context.
+   * @param typefaceName The name of the typeface.
+   * @return The Typeface object.
+   */
+  public Typeface get(Context context, String typefaceName) {
+    if (TextUtils.isEmpty(typefaceName)) {
+      return null;
     }
+    if (!mTypefaceMap.containsKey(typefaceName)) {
+      mTypefaceMap.put(typefaceName, Typeface.createFromAsset(context.getAssets(), typefaceName));
+    }
+    return mTypefaceMap.get(typefaceName);
+  }
 }

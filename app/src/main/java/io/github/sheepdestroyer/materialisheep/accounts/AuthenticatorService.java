@@ -21,31 +21,26 @@ import android.content.Intent;
 import android.os.IBinder;
 import androidx.annotation.Nullable;
 
-/**
- * A service that provides the account authenticator.
- */
+/** A service that provides the account authenticator. */
 public class AuthenticatorService extends Service {
-    private AccountAuthenticator mAuthenticator;
+  private AccountAuthenticator mAuthenticator;
 
-    /**
-     * Called by the system when the service is first created.
-     */
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        mAuthenticator = new AccountAuthenticator(this);
-    }
+  /** Called by the system when the service is first created. */
+  @Override
+  public void onCreate() {
+    super.onCreate();
+    mAuthenticator = new AccountAuthenticator(this);
+  }
 
-    /**
-     * Return the communication channel to the service.
-     *
-     * @param intent The Intent that was used to bind to this service.
-     * @return Return an IBinder through which clients can call on to the
-     *         service.
-     */
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        return mAuthenticator.getIBinder();
-    }
+  /**
+   * Return the communication channel to the service.
+   *
+   * @param intent The Intent that was used to bind to this service.
+   * @return Return an IBinder through which clients can call on to the service.
+   */
+  @Nullable
+  @Override
+  public IBinder onBind(Intent intent) {
+    return mAuthenticator.getIBinder();
+  }
 }
