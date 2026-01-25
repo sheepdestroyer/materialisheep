@@ -24,17 +24,17 @@ import androidx.annotation.Nullable;
  * @param <T> the type of the response
  */
 public interface ResponseListener<T> {
-    /**
-     * Called when the request is successful.
-     *
-     * @param response the response from the API
-     */
-    void onResponse(@Nullable T response);
+  /**
+   * Called when the request is successful.
+   *
+   * @param response the response from the API
+   */
+  void onResponse(@Nullable T response);
 
-    /**
-     * Called when the request fails.
-     *
-     * @param errorMessage an error message, or `null` if no error message is available
-     */
-    void onError(String errorMessage);
+  /**
+   * Called when the request fails.
+   *
+   * @param errorMessage an error message, or `null` if no error message is available
+   */
+  void onError(String errorMessage);
 }

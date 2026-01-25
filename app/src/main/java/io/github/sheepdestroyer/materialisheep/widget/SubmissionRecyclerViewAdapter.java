@@ -16,89 +16,94 @@
 
 package io.github.sheepdestroyer.materialisheep.widget;
 
-import android.content.Intent;
 import android.content.Context;
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
+import android.content.Intent;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
-
-import io.github.sheepdestroyer.materialisheep.MaterialisticApplication;
-
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 import io.github.sheepdestroyer.materialisheep.ItemActivity;
+import io.github.sheepdestroyer.materialisheep.MaterialisticApplication;
 import io.github.sheepdestroyer.materialisheep.R;
 import io.github.sheepdestroyer.materialisheep.ThreadPreviewActivity;
 import io.github.sheepdestroyer.materialisheep.data.Item;
 import io.github.sheepdestroyer.materialisheep.data.ItemManager;
 
 public class SubmissionRecyclerViewAdapter extends ItemRecyclerViewAdapter<SubmissionViewHolder> {
-    private final Item[] mItems;
+  private final Item[] mItems;
 
-    public SubmissionRecyclerViewAdapter(ItemManager itemManager, @NonNull Item[] items) {
-        super(itemManager);
-        mItems = items;
+  public SubmissionRecyclerViewAdapter(ItemManager itemManager, @NonNull Item[] items) {
+    super(itemManager);
+    mItems = items;
+  }
+
+  @Override
+  public void attach(Context context, RecyclerView recyclerView) {
+    super.attach(context, recyclerView);
+    ((MaterialisticApplication) context.getApplicationContext()).applicationComponent.inject(this);
+  }
+
+  @Override
+  public SubmissionViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    return new SubmissionViewHolder(
+        mLayoutInflater.inflate(R.layout.item_submission, parent, false));
+  }
+
+  @Override
+  public int getItemCount() {
+    return mItems.length;
+  }
+
+  @Override
+  protected Item getItem(int position) {
+    return mItems[position];
+  }
+
+  @Override
+  protected void bind(final SubmissionViewHolder holder, final Item item) {
+    super.bind(holder, item);
+    if (item == null) {
+      return;
     }
-
-    @Override
-    public void attach(Context context, RecyclerView recyclerView) {
-        super.attach(context, recyclerView);
-        ((MaterialisticApplication) context.getApplicationContext()).applicationComponent.inject(this);
+    final boolean isComment = TextUtils.equals(item.getType(), Item.COMMENT_TYPE);
+    holder.mPostedTextView.setText(item.getDisplayedTime(mContext));
+    holder.mPostedTextView.append(item.getDisplayedAuthor(mContext, false, 0));
+    if (isComment) {
+      holder.mTitleTextView.setText(null);
+      holder.mCommentButton.setText(R.string.view_thread);
+    } else {
+      holder.mPostedTextView.append(" - ");
+      holder.mPostedTextView.append(
+          mContext
+              .getResources()
+              .getQuantityString(R.plurals.score, item.getScore(), item.getScore()));
+      holder.mTitleTextView.setText(item.getDisplayedTitle());
+      holder.mCommentButton.setText(R.string.view_story);
     }
-
-    @Override
-    public SubmissionViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new SubmissionViewHolder(mLayoutInflater.inflate(R.layout.item_submission, parent, false));
-    }
-
-    @Override
-    public int getItemCount() {
-        return mItems.length;
-    }
-
-    @Override
-    protected Item getItem(int position) {
-        return mItems[position];
-    }
-
-    @Override
-    protected void bind(final SubmissionViewHolder holder, final Item item) {
-        super.bind(holder, item);
-        if (item == null) {
-            return;
-        }
-        final boolean isComment = TextUtils.equals(item.getType(), Item.COMMENT_TYPE);
-        holder.mPostedTextView.setText(item.getDisplayedTime(mContext));
-        holder.mPostedTextView.append(item.getDisplayedAuthor(mContext, false, 0));
-        if (isComment) {
-            holder.mTitleTextView.setText(null);
-            holder.mCommentButton.setText(R.string.view_thread);
-        } else {
-            holder.mPostedTextView.append(" - ");
-            holder.mPostedTextView.append(mContext.getResources()
-                    .getQuantityString(R.plurals.score, item.getScore(), item.getScore()));
-            holder.mTitleTextView.setText(item.getDisplayedTitle());
-            holder.mCommentButton.setText(R.string.view_story);
-        }
-        holder.mTitleTextView.setVisibility(holder.mTitleTextView.length() > 0 ? View.VISIBLE : View.GONE);
-        holder.mContentTextView.setVisibility(holder.mContentTextView.length() > 0 ? View.VISIBLE : View.GONE);
-        holder.mCommentButton.setVisibility(item.isDeleted() ? View.GONE : View.VISIBLE);
-        holder.mCommentButton.setOnClickListener(v -> {
-            if (isComment) {
-                openPreview(item);
-            } else {
-                openItem(item);
-            }
+    holder.mTitleTextView.setVisibility(
+        holder.mTitleTextView.length() > 0 ? View.VISIBLE : View.GONE);
+    holder.mContentTextView.setVisibility(
+        holder.mContentTextView.length() > 0 ? View.VISIBLE : View.GONE);
+    holder.mCommentButton.setVisibility(item.isDeleted() ? View.GONE : View.VISIBLE);
+    holder.mCommentButton.setOnClickListener(
+        v -> {
+          if (isComment) {
+            openPreview(item);
+          } else {
+            openItem(item);
+          }
         });
-    }
+  }
 
-    private void openItem(Item item) {
-        mContext.startActivity(new Intent(mContext, ItemActivity.class)
-                .putExtra(ItemActivity.EXTRA_ITEM, item));
-    }
+  private void openItem(Item item) {
+    mContext.startActivity(
+        new Intent(mContext, ItemActivity.class).putExtra(ItemActivity.EXTRA_ITEM, item));
+  }
 
-    private void openPreview(Item item) {
-        mContext.startActivity(new Intent(mContext, ThreadPreviewActivity.class)
-                .putExtra(ThreadPreviewActivity.EXTRA_ITEM, item));
-    }
+  private void openPreview(Item item) {
+    mContext.startActivity(
+        new Intent(mContext, ThreadPreviewActivity.class)
+            .putExtra(ThreadPreviewActivity.EXTRA_ITEM, item));
+  }
 }

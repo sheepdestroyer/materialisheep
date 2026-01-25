@@ -19,113 +19,103 @@ package io.github.sheepdestroyer.materialisheep.data;
 import android.os.Handler;
 import android.os.Looper;
 import androidx.annotation.NonNull;
-
+import io.reactivex.rxjava3.schedulers.Schedulers;
 import java.util.concurrent.Executor;
-
 import javax.inject.Inject;
-
 import okhttp3.Call;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
-import io.reactivex.rxjava3.schedulers.Schedulers;
 
-/**
- * A factory for creating REST services.
- */
+/** A factory for creating REST services. */
 public interface RestServiceFactory {
-    /**
-     * A cache control header that forces the use of cached data.
-     */
-    String CACHE_CONTROL_FORCE_CACHE = "Cache-Control: only-if-cached, max-stale=" + Integer.MAX_VALUE;
-    /**
-     * A cache control header that forces a network request.
-     */
-    String CACHE_CONTROL_FORCE_NETWORK = "Cache-Control: no-cache";
-    /**
-     * A cache control header that sets the maximum age of cached data to 30
-     * minutes.
-     */
-    String CACHE_CONTROL_MAX_AGE_30M = "Cache-Control: max-age=" + (30 * 60);
-    /**
-     * A cache control header that sets the maximum age of cached data to 24 hours.
-     */
-    String CACHE_CONTROL_MAX_AGE_24H = "Cache-Control: max-age=" + (24 * 60 * 60);
+  /** A cache control header that forces the use of cached data. */
+  String CACHE_CONTROL_FORCE_CACHE =
+      "Cache-Control: only-if-cached, max-stale=" + Integer.MAX_VALUE;
 
-    /**
-     * Enables or disables RxJava support for the created services.
-     *
-     * @param enabled `true` to enable RxJava support, `false` otherwise
-     * @return this {@code RestServiceFactory} instance
-     */
-    RestServiceFactory rxEnabled(boolean enabled);
+  /** A cache control header that forces a network request. */
+  String CACHE_CONTROL_FORCE_NETWORK = "Cache-Control: no-cache";
 
-    /**
-     * Creates a new REST service.
-     *
-     * @param baseUrl the base URL of the service
-     * @param clazz   the class of the service
-     * @param <T>     the type of the service
-     * @return a new REST service
-     */
-    <T> T create(String baseUrl, Class<T> clazz);
+  /** A cache control header that sets the maximum age of cached data to 30 minutes. */
+  String CACHE_CONTROL_MAX_AGE_30M = "Cache-Control: max-age=" + (30 * 60);
 
-    /**
-     * Creates a new REST service.
-     *
-     * @param baseUrl          the base URL of the service
-     * @param clazz            the class of the service
-     * @param callbackExecutor the executor to use for callbacks
-     * @param <T>              the type of the service
-     * @return a new REST service
-     */
-    <T> T create(String baseUrl, Class<T> clazz, Executor callbackExecutor);
+  /** A cache control header that sets the maximum age of cached data to 24 hours. */
+  String CACHE_CONTROL_MAX_AGE_24H = "Cache-Control: max-age=" + (24 * 60 * 60);
 
-    /**
-     * An implementation of {@link RestServiceFactory}.
-     */
-    class Impl implements RestServiceFactory {
-        private final Call.Factory mCallFactory;
-        private boolean mRxEnabled;
+  /**
+   * Enables or disables RxJava support for the created services.
+   *
+   * @param enabled `true` to enable RxJava support, `false` otherwise
+   * @return this {@code RestServiceFactory} instance
+   */
+  RestServiceFactory rxEnabled(boolean enabled);
 
-        @Inject
-        public Impl(Call.Factory callFactory) {
-            this.mCallFactory = callFactory;
-        }
+  /**
+   * Creates a new REST service.
+   *
+   * @param baseUrl the base URL of the service
+   * @param clazz the class of the service
+   * @param <T> the type of the service
+   * @return a new REST service
+   */
+  <T> T create(String baseUrl, Class<T> clazz);
 
-        @Override
-        public RestServiceFactory rxEnabled(boolean enabled) {
-            mRxEnabled = enabled;
-            return this;
-        }
+  /**
+   * Creates a new REST service.
+   *
+   * @param baseUrl the base URL of the service
+   * @param clazz the class of the service
+   * @param callbackExecutor the executor to use for callbacks
+   * @param <T> the type of the service
+   * @return a new REST service
+   */
+  <T> T create(String baseUrl, Class<T> clazz, Executor callbackExecutor);
 
-        @Override
-        public <T> T create(String baseUrl, Class<T> clazz) {
-            return create(baseUrl, clazz, null);
-        }
+  /** An implementation of {@link RestServiceFactory}. */
+  class Impl implements RestServiceFactory {
+    private final Call.Factory mCallFactory;
+    private boolean mRxEnabled;
 
-        @Override
-        public <T> T create(String baseUrl, Class<T> clazz, Executor callbackExecutor) {
-            Retrofit.Builder builder = new Retrofit.Builder();
-            if (mRxEnabled) {
-                builder.addCallAdapterFactory(RxJava3CallAdapterFactory
-                        .createWithScheduler(Schedulers.io()));
-            }
-            builder.callFactory(mCallFactory)
-                    .callbackExecutor(callbackExecutor != null ? callbackExecutor : new MainThreadExecutor());
-            return builder.baseUrl(baseUrl)
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .build()
-                    .create(clazz);
-        }
+    @Inject
+    public Impl(Call.Factory callFactory) {
+      this.mCallFactory = callFactory;
     }
 
-    class MainThreadExecutor implements Executor {
-        private final Handler handler = new Handler(Looper.getMainLooper());
-
-        @Override
-        public void execute(@NonNull Runnable r) {
-            handler.post(r);
-        }
+    @Override
+    public RestServiceFactory rxEnabled(boolean enabled) {
+      mRxEnabled = enabled;
+      return this;
     }
+
+    @Override
+    public <T> T create(String baseUrl, Class<T> clazz) {
+      return create(baseUrl, clazz, null);
+    }
+
+    @Override
+    public <T> T create(String baseUrl, Class<T> clazz, Executor callbackExecutor) {
+      Retrofit.Builder builder = new Retrofit.Builder();
+      if (mRxEnabled) {
+        builder.addCallAdapterFactory(
+            RxJava3CallAdapterFactory.createWithScheduler(Schedulers.io()));
+      }
+      builder
+          .callFactory(mCallFactory)
+          .callbackExecutor(callbackExecutor != null ? callbackExecutor : new MainThreadExecutor());
+      return builder
+          .baseUrl(baseUrl)
+          .addConverterFactory(GsonConverterFactory.create())
+          .build()
+          .create(clazz);
+    }
+  }
+
+  class MainThreadExecutor implements Executor {
+    private final Handler handler = new Handler(Looper.getMainLooper());
+
+    @Override
+    public void execute(@NonNull Runnable r) {
+      handler.post(r);
+    }
+  }
 }

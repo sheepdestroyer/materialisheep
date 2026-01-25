@@ -22,64 +22,64 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
-
+import androidx.recyclerview.widget.RecyclerView;
 import io.github.sheepdestroyer.materialisheep.AppUtils;
 import io.github.sheepdestroyer.materialisheep.Preferences;
 import io.github.sheepdestroyer.materialisheep.R;
 
 public class CommentItemDecoration extends RecyclerView.ItemDecoration {
-    private final int mHorizontalMargin;
-    private final Paint mPaint;
-    private final TypedArray mColors;
-    private final int mLevelIndicatorWidth;
-    private boolean mColorCodeEnabled;
-    private boolean mThreadIndicatorEnabled;
+  private final int mHorizontalMargin;
+  private final Paint mPaint;
+  private final TypedArray mColors;
+  private final int mLevelIndicatorWidth;
+  private boolean mColorCodeEnabled;
+  private boolean mThreadIndicatorEnabled;
 
-    public CommentItemDecoration(Context context) {
-        mPaint = new Paint();
-        mPaint.setStrokeWidth(context.getResources().getDimensionPixelSize(R.dimen.divider));
-        mHorizontalMargin = context.getResources()
-                .getDimensionPixelSize(R.dimen.cardview_horizontal_margin);
-        mLevelIndicatorWidth = AppUtils.getDimensionInDp(context, R.dimen.level_indicator_width);
-        mColors = context.getResources().obtainTypedArray(R.array.color_codes);
-        mColorCodeEnabled = Preferences.colorCodeEnabled(context);
-        mThreadIndicatorEnabled = Preferences.threadIndicatorEnabled(context);
+  public CommentItemDecoration(Context context) {
+    mPaint = new Paint();
+    mPaint.setStrokeWidth(context.getResources().getDimensionPixelSize(R.dimen.divider));
+    mHorizontalMargin =
+        context.getResources().getDimensionPixelSize(R.dimen.cardview_horizontal_margin);
+    mLevelIndicatorWidth = AppUtils.getDimensionInDp(context, R.dimen.level_indicator_width);
+    mColors = context.getResources().obtainTypedArray(R.array.color_codes);
+    mColorCodeEnabled = Preferences.colorCodeEnabled(context);
+    mThreadIndicatorEnabled = Preferences.threadIndicatorEnabled(context);
+  }
+
+  @Override
+  public void getItemOffsets(
+      Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+    outRect.set(mHorizontalMargin, 0, mHorizontalMargin, 0);
+  }
+
+  @Override
+  public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
+    if (!mThreadIndicatorEnabled) {
+      return;
     }
-
-    @Override
-    public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
-        outRect.set(mHorizontalMargin, 0, mHorizontalMargin, 0);
-    }
-
-    @Override
-    public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
-        if (!mThreadIndicatorEnabled) {
-            return;
+    for (int i = 0; i < parent.getChildCount(); i++) {
+      View child = parent.getChildAt(i);
+      int level = parent.getChildViewHolder(child).getItemViewType();
+      for (int j = 0; j < level; j++) {
+        int left = mHorizontalMargin + j * mLevelIndicatorWidth + mLevelIndicatorWidth / 2;
+        if (mColorCodeEnabled) {
+          mPaint.setColor(mColors.getColor(j % mColors.length(), 0));
+          mPaint.setAlpha(31); // 12% alpha
+        } else {
+          mPaint.setColor(Color.GRAY);
+          mPaint.setAlpha(Math.max(0, 31 - 4 * j));
         }
-        for (int i = 0; i < parent.getChildCount(); i++) {
-            View child = parent.getChildAt(i);
-            int level = parent.getChildViewHolder(child).getItemViewType();
-            for (int j = 0; j < level; j++) {
-                int left = mHorizontalMargin + j * mLevelIndicatorWidth + mLevelIndicatorWidth / 2;
-                if (mColorCodeEnabled) {
-                    mPaint.setColor(mColors.getColor(j % mColors.length(), 0));
-                    mPaint.setAlpha(31); // 12% alpha
-                } else {
-                    mPaint.setColor(Color.GRAY);
-                    mPaint.setAlpha(Math.max(0, 31 - 4 * j));
-                }
-                c.drawLine(left, child.getTop(), left, child.getBottom(), mPaint);
-            }
-        }
+        c.drawLine(left, child.getTop(), left, child.getBottom(), mPaint);
+      }
     }
+  }
 
-    public void setColorCodeEnabled(boolean colorCodeEnabled) {
-        mColorCodeEnabled = colorCodeEnabled;
-    }
+  public void setColorCodeEnabled(boolean colorCodeEnabled) {
+    mColorCodeEnabled = colorCodeEnabled;
+  }
 
-    public void setThreadIndicatorEnabled(boolean threadIndicatorEnabled) {
-        mThreadIndicatorEnabled = threadIndicatorEnabled;
-    }
+  public void setThreadIndicatorEnabled(boolean threadIndicatorEnabled) {
+    mThreadIndicatorEnabled = threadIndicatorEnabled;
+  }
 }

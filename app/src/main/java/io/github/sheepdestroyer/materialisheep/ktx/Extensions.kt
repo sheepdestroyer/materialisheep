@@ -64,13 +64,15 @@ fun Uri.toSendIntentChooser(context: Context) =
  * @param name      the name of the notification channel
  * @return this builder
  */
-fun NotificationCompat.Builder.setChannel(context: Context,
+fun NotificationCompat.Builder.setChannel(
+    context: Context,
     channelId: String,
-    name: CharSequence): NotificationCompat.Builder {
-  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-    (context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
-        .createNotificationChannel(NotificationChannel(channelId, name, NotificationManager.IMPORTANCE_LOW))
-    this.setChannelId(channelId)
-  }
-  return this
+    name: CharSequence,
+): NotificationCompat.Builder {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        (context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
+            .createNotificationChannel(NotificationChannel(channelId, name, NotificationManager.IMPORTANCE_LOW))
+        this.setChannelId(channelId)
+    }
+    return this
 }

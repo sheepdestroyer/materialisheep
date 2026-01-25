@@ -19,145 +19,143 @@ package io.github.sheepdestroyer.materialisheep.data;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Parcel;
-import androidx.annotation.NonNull;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
-
+import androidx.annotation.NonNull;
 import io.github.sheepdestroyer.materialisheep.AppUtils;
 import io.github.sheepdestroyer.materialisheep.R;
 import io.github.sheepdestroyer.materialisheep.annotation.Synthetic;
 
-/**
- * Represents a favorite item
- */
+/** Represents a favorite item */
 public class Favorite implements WebItem {
-    private String itemId;
-    private String url;
-    private String title;
-    private long time;
-    private boolean favorite;
-    private Spannable displayedTime;
-    private final Spannable displayedAuthor = new SpannableString("");
+  private String itemId;
+  private String url;
+  private String title;
+  private long time;
+  private boolean favorite;
+  private Spannable displayedTime;
+  private final Spannable displayedAuthor = new SpannableString("");
 
-    /**
-     * A {@link Creator} that creates {@link Favorite} instances from a {@link Parcel}.
-     */
-    public static final Creator<Favorite> CREATOR = new Creator<Favorite>() {
+  /** A {@link Creator} that creates {@link Favorite} instances from a {@link Parcel}. */
+  public static final Creator<Favorite> CREATOR =
+      new Creator<Favorite>() {
         @Override
         public Favorite createFromParcel(Parcel source) {
-            return new Favorite(source);
+          return new Favorite(source);
         }
 
         @Override
         public Favorite[] newArray(int size) {
-            return new Favorite[size];
+          return new Favorite[size];
         }
-    };
+      };
 
-    Favorite(String itemId, String url, String title, long time) {
-        this.itemId = itemId;
-        this.url = url;
-        this.title = title;
-        this.time = time;
-        this.favorite = true;
-    }
+  Favorite(String itemId, String url, String title, long time) {
+    this.itemId = itemId;
+    this.url = url;
+    this.title = title;
+    this.time = time;
+    this.favorite = true;
+  }
 
-    @Synthetic
-    Favorite(Parcel source) {
-        itemId = source.readString();
-        url = source.readString();
-        title = source.readString();
-        favorite = source.readInt() != 0;
-        time = source.readLong();
-    }
+  @Synthetic
+  Favorite(Parcel source) {
+    itemId = source.readString();
+    url = source.readString();
+    title = source.readString();
+    favorite = source.readInt() != 0;
+    time = source.readLong();
+  }
 
-    @Override
-    public String getUrl() {
-        return url;
-    }
+  @Override
+  public String getUrl() {
+    return url;
+  }
 
-    @Override
-    public boolean isStoryType() {
-        return true;
-    }
+  @Override
+  public boolean isStoryType() {
+    return true;
+  }
 
-    @Override
-    public String getId() {
-        return itemId;
-    }
+  @Override
+  public String getId() {
+    return itemId;
+  }
 
-    @Override
-    public long getLongId() {
-        return Long.valueOf(itemId);
-    }
+  @Override
+  public long getLongId() {
+    return Long.valueOf(itemId);
+  }
 
-    @Override
-    public String getDisplayedTitle() {
-        return title;
-    }
+  @Override
+  public String getDisplayedTitle() {
+    return title;
+  }
 
-    @Override
-    public Spannable getDisplayedAuthor(Context context, boolean linkify, int color) {
-        return displayedAuthor;
-    }
+  @Override
+  public Spannable getDisplayedAuthor(Context context, boolean linkify, int color) {
+    return displayedAuthor;
+  }
 
-    @Override
-    public Spannable getDisplayedTime(Context context) {
-        if (displayedTime == null) {
-            displayedTime = new SpannableString(context.getString(R.string.saved,
-                    AppUtils.getAbbreviatedTimeSpan(time)));
-        }
-        return displayedTime;
+  @Override
+  public Spannable getDisplayedTime(Context context) {
+    if (displayedTime == null) {
+      displayedTime =
+          new SpannableString(
+              context.getString(R.string.saved, AppUtils.getAbbreviatedTimeSpan(time)));
     }
+    return displayedTime;
+  }
 
-    @Override
-    public String getSource() {
-        return TextUtils.isEmpty(url) ? null : Uri.parse(url).getHost();
-    }
+  @Override
+  public String getSource() {
+    return TextUtils.isEmpty(url) ? null : Uri.parse(url).getHost();
+  }
 
-    @NonNull
-    @Override
-    public String getType() {
-        // TODO treating all saved items as stories for now
-        return STORY_TYPE;
-    }
+  @NonNull
+  @Override
+  public String getType() {
+    // TODO treating all saved items as stories for now
+    return STORY_TYPE;
+  }
 
-    @Override
-    public boolean isFavorite() {
-        return favorite;
-    }
+  @Override
+  public boolean isFavorite() {
+    return favorite;
+  }
 
-    @Override
-    public void setFavorite(boolean favorite) {
-        this.favorite = favorite;
-    }
+  @Override
+  public void setFavorite(boolean favorite) {
+    this.favorite = favorite;
+  }
 
-    @Override
-    public String toString() {
-        return String.format("%s (%s) - %s", title, url, String.format(HackerNewsClient.WEB_ITEM_PATH, itemId));
-    }
+  @Override
+  public String toString() {
+    return String.format(
+        "%s (%s) - %s", title, url, String.format(HackerNewsClient.WEB_ITEM_PATH, itemId));
+  }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
+  @Override
+  public int describeContents() {
+    return 0;
+  }
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(itemId);
-        dest.writeString(url);
-        dest.writeString(title);
-        dest.writeInt(favorite ? 1 : 0);
-        dest.writeLong(time);
-    }
+  @Override
+  public void writeToParcel(Parcel dest, int flags) {
+    dest.writeString(itemId);
+    dest.writeString(url);
+    dest.writeString(title);
+    dest.writeInt(favorite ? 1 : 0);
+    dest.writeLong(time);
+  }
 
-    /**
-     * Gets the time that the item was favorited.
-     *
-     * @return the time in milliseconds since the epoch
-     */
-    long getTime() {
-        return time;
-    }
+  /**
+   * Gets the time that the item was favorited.
+   *
+   * @return the time in milliseconds since the epoch
+   */
+  long getTime() {
+    return time;
+  }
 }

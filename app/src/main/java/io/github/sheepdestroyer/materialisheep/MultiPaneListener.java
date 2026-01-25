@@ -17,31 +17,28 @@
 package io.github.sheepdestroyer.materialisheep;
 
 import androidx.annotation.Nullable;
-
 import io.github.sheepdestroyer.materialisheep.data.WebItem;
 
-/**
- * An interface for listening to multi-pane view events.
- */
+/** An interface for listening to multi-pane view events. */
 public interface MultiPaneListener {
-    /**
-     * Fired when an item has been selected in the list view when multi-pane is active.
-     *
-     * @param item The selected item, or null if the selection is cleared.
-     */
-    void onItemSelected(@Nullable WebItem item);
+  /**
+   * Fired when an item has been selected in the list view when multi-pane is active.
+   *
+   * @param item The selected item, or null if the selection is cleared.
+   */
+  void onItemSelected(@Nullable WebItem item);
 
-    /**
-     * Gets the item that has been opened via {@link #onItemSelected(WebItem)}.
-     *
-     * @return The opened item, or null.
-     */
-    WebItem getSelectedItem();
+  /**
+   * Gets the item that has been opened via {@link #onItemSelected(WebItem)}.
+   *
+   * @return The opened item, or null.
+   */
+  WebItem getSelectedItem();
 
-    /**
-     * Checks if the multi-pane configuration is active.
-     *
-     * @return True if multi-pane, false if single-pane.
-     */
-    boolean isMultiPane();
+  /**
+   * Checks if the multi-pane configuration is active.
+   *
+   * @return True if multi-pane, false if single-pane.
+   */
+  boolean isMultiPane();
 }

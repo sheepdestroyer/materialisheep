@@ -20,26 +20,18 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Canvas;
-import com.google.android.material.snackbar.Snackbar;
-import androidx.core.content.ContextCompat;
-import androidx.collection.ArrayMap;
-import androidx.appcompat.view.ActionMode;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.ItemTouchHelper;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
-
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import javax.inject.Inject;
-
+import androidx.appcompat.view.ActionMode;
+import androidx.collection.ArrayMap;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.RecyclerView;
+import com.google.android.material.snackbar.Snackbar;
 import io.github.sheepdestroyer.materialisheep.AppUtils;
 import io.github.sheepdestroyer.materialisheep.ComposeActivity;
 import io.github.sheepdestroyer.materialisheep.MenuTintDelegate;
@@ -49,345 +41,362 @@ import io.github.sheepdestroyer.materialisheep.annotation.Synthetic;
 import io.github.sheepdestroyer.materialisheep.data.Favorite;
 import io.github.sheepdestroyer.materialisheep.data.ItemManager;
 import io.github.sheepdestroyer.materialisheep.data.SyncScheduler;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import javax.inject.Inject;
 
 public class FavoriteRecyclerViewAdapter
-        extends ListRecyclerViewAdapter<ListRecyclerViewAdapter.ItemViewHolder, Favorite> {
+    extends ListRecyclerViewAdapter<ListRecyclerViewAdapter.ItemViewHolder, Favorite> {
 
-    @Inject
-    SyncScheduler mSyncScheduler;
+  @Inject SyncScheduler mSyncScheduler;
 
-    public interface ActionModeDelegate {
+  public interface ActionModeDelegate {
 
-        boolean startActionMode(ActionMode.Callback callback);
+    boolean startActionMode(ActionMode.Callback callback);
 
-        boolean isInActionMode();
+    boolean isInActionMode();
 
-        void stopActionMode();
-    }
+    void stopActionMode();
+  }
 
-    private final ItemTouchHelper mItemTouchHelper;
-    private final ActionMode.Callback mActionModeCallback = new ActionMode.Callback() {
+  private final ItemTouchHelper mItemTouchHelper;
+  private final ActionMode.Callback mActionModeCallback =
+      new ActionMode.Callback() {
         private boolean mPendingClear;
 
         @Override
         public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
-            actionMode.getMenuInflater().inflate(R.menu.menu_favorite_action, menu);
-            mMenuTintDelegate.onOptionsMenuCreated(menu);
-            return true;
+          actionMode.getMenuInflater().inflate(R.menu.menu_favorite_action, menu);
+          mMenuTintDelegate.onOptionsMenuCreated(menu);
+          return true;
         }
 
         @Override
         public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
-            return false;
+          return false;
         }
 
         @Override
         public boolean onActionItemClicked(final ActionMode actionMode, MenuItem menuItem) {
-            if (menuItem.getItemId() == R.id.menu_clear) {
-                mAlertDialogBuilder
-                        .init(mContext)
-                        .setMessage(R.string.confirm_clear_selected)
-                        .setPositiveButton(android.R.string.ok,
-                                (dialog, which) -> {
-                                    mPendingClear = true;
-                                    removeSelection();
-                                    actionMode.finish();
-                                })
-                        .setNegativeButton(android.R.string.cancel, null)
-                        .create()
-                        .show();
-                return true;
-            }
-            if (menuItem.getItemId() == R.id.menu_refresh) {
-                refreshSelection();
-                actionMode.finish();
-            }
-            return false;
+          if (menuItem.getItemId() == R.id.menu_clear) {
+            mAlertDialogBuilder
+                .init(mContext)
+                .setMessage(R.string.confirm_clear_selected)
+                .setPositiveButton(
+                    android.R.string.ok,
+                    (dialog, which) -> {
+                      mPendingClear = true;
+                      removeSelection();
+                      actionMode.finish();
+                    })
+                .setNegativeButton(android.R.string.cancel, null)
+                .create()
+                .show();
+            return true;
+          }
+          if (menuItem.getItemId() == R.id.menu_refresh) {
+            refreshSelection();
+            actionMode.finish();
+          }
+          return false;
         }
 
         @SuppressLint("NotifyDataSetChanged")
         @Override
         public void onDestroyActionMode(ActionMode actionMode) {
-            if (!isAttached()) {
-                return;
-            }
-            mActionModeDelegate.stopActionMode();
-            if (mPendingClear) {
-                mPendingClear = false;
-            } else {
-                mSelected.clear();
-            }
-            notifyDataSetChanged();
+          if (!isAttached()) {
+            return;
+          }
+          mActionModeDelegate.stopActionMode();
+          if (mPendingClear) {
+            mPendingClear = false;
+          } else {
+            mSelected.clear();
+          }
+          notifyDataSetChanged();
         }
-    };
-    @Synthetic
-    final ActionModeDelegate mActionModeDelegate;
-    @Synthetic
-    final MenuTintDelegate mMenuTintDelegate;
-    @Synthetic
-    final ArrayMap<Integer, String> mSelected = new ArrayMap<>();
-    private int mPendingAdd = -1;
+      };
+  @Synthetic final ActionModeDelegate mActionModeDelegate;
+  @Synthetic final MenuTintDelegate mMenuTintDelegate;
+  @Synthetic final ArrayMap<Integer, String> mSelected = new ArrayMap<>();
+  private int mPendingAdd = -1;
 
-    public FavoriteRecyclerViewAdapter(Context context, ActionModeDelegate actionModeDelegate) {
-        super(context);
-        mActionModeDelegate = actionModeDelegate;
-        mMenuTintDelegate = new MenuTintDelegate();
-        mMenuTintDelegate.onActivityCreated(mContext);
-        mItemTouchHelper = new ItemTouchHelper(new ItemTouchHelperCallback(mContext) {
-            @Override
-            public int getSwipeDirs(RecyclerView recyclerView,
-                    RecyclerView.ViewHolder viewHolder) {
+  public FavoriteRecyclerViewAdapter(Context context, ActionModeDelegate actionModeDelegate) {
+    super(context);
+    mActionModeDelegate = actionModeDelegate;
+    mMenuTintDelegate = new MenuTintDelegate();
+    mMenuTintDelegate.onActivityCreated(mContext);
+    mItemTouchHelper =
+        new ItemTouchHelper(
+            new ItemTouchHelperCallback(mContext) {
+              @Override
+              public int getSwipeDirs(
+                  RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
                 if (mActionModeDelegate != null && mActionModeDelegate.isInActionMode()) {
-                    return 0;
+                  return 0;
                 }
                 return super.getSwipeDirs(recyclerView, viewHolder);
-            }
+              }
 
-            @Override
-            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+              @Override
+              public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
                 int position = viewHolder.getBindingAdapterPosition();
                 if (position == RecyclerView.NO_POSITION) {
-                    return;
+                  return;
                 }
                 if (direction == ItemTouchHelper.LEFT) {
-                    dismiss(viewHolder.itemView, position);
+                  dismiss(viewHolder.itemView, position);
                 } else {
-                    Favorite item = getItem(position);
-                    if (item != null) {
-                        mSyncScheduler.scheduleSync(mContext, item.getId());
-                    }
-                    notifyItemChanged(position);
+                  Favorite item = getItem(position);
+                  if (item != null) {
+                    mSyncScheduler.scheduleSync(mContext, item.getId());
+                  }
+                  notifyItemChanged(position);
                 }
-            }
+              }
+            });
+  }
+
+  @Override
+  public void onAttachedToRecyclerView(final RecyclerView recyclerView) {
+    super.onAttachedToRecyclerView(recyclerView);
+    mItemTouchHelper.attachToRecyclerView(recyclerView);
+  }
+
+  @Override
+  public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
+    super.onDetachedFromRecyclerView(recyclerView);
+    mItemTouchHelper.attachToRecyclerView(null);
+  }
+
+  @Override
+  protected ItemViewHolder create(ViewGroup parent, int viewType) {
+    return new ItemViewHolder(mInflater.inflate(R.layout.item_favorite, parent, false));
+  }
+
+  @Override
+  public int getItemCount() {
+    return mFavoriteManager.getSize();
+  }
+
+  @Override
+  protected void bindItem(final ItemViewHolder holder, int position) {
+    final Favorite favorite = getItem(position);
+    holder.setOnLongClickListener(
+        v -> {
+          int adapterPosition = holder.getBindingAdapterPosition();
+          if (adapterPosition != RecyclerView.NO_POSITION
+              && mActionModeDelegate.startActionMode(mActionModeCallback)) {
+            toggle(favorite.getId(), adapterPosition);
+            return true;
+          }
+          return false;
         });
-    }
+    holder.bindMoreOptions(v -> showMoreOptions(v, favorite), false);
+  }
 
-    @Override
-    public void onAttachedToRecyclerView(final RecyclerView recyclerView) {
-        super.onAttachedToRecyclerView(recyclerView);
-        mItemTouchHelper.attachToRecyclerView(recyclerView);
-    }
+  @Override
+  protected boolean isItemAvailable(Favorite item) {
+    return item != null;
+  }
 
-    @Override
-    public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
-        super.onDetachedFromRecyclerView(recyclerView);
-        mItemTouchHelper.attachToRecyclerView(null);
+  @Override
+  protected void handleItemClick(Favorite item, ItemViewHolder holder) {
+    if (!mActionModeDelegate.isInActionMode()) {
+      super.handleItemClick(item, holder);
+    } else {
+      int position = holder.getBindingAdapterPosition();
+      if (position != RecyclerView.NO_POSITION) {
+        toggle(item.getId(), position);
+      }
     }
+  }
 
-    @Override
-    protected ItemViewHolder create(ViewGroup parent, int viewType) {
-        return new ItemViewHolder(mInflater.inflate(R.layout.item_favorite, parent, false));
+  @Override
+  protected Favorite getItem(int position) {
+    return mFavoriteManager.getItem(position);
+  }
+
+  @Override
+  protected boolean isSelected(String itemId) {
+    return super.isSelected(itemId) || mSelected.containsValue(itemId);
+  }
+
+  @Override
+  protected int getItemCacheMode() {
+    return ItemManager.MODE_CACHE;
+  }
+
+  @SuppressLint("NotifyDataSetChanged")
+  public void notifyChanged() {
+    if (getItemCount() == 0) {
+      notifyDataSetChanged();
+      return;
     }
-
-    @Override
-    public int getItemCount() {
-        return mFavoriteManager.getSize();
+    if (!mSelected.isEmpty()) { // has pending removals, notify removed
+      List<Integer> positions = new ArrayList<>(mSelected.keySet());
+      Collections.sort(positions);
+      mSelected.clear();
+      for (int i = positions.size() - 1; i >= 0; i--) {
+        notifyItemRemoved(positions.get(i));
+      }
+    } else if (mPendingAdd >= 0) { // has pending insertion, notify inserted
+      notifyItemInserted(mPendingAdd);
+      mPendingAdd = -1;
+    } else { // no pending changes, simply refresh list
+      notifyDataSetChanged();
     }
+  }
 
-    @Override
-    protected void bindItem(final ItemViewHolder holder, int position) {
-        final Favorite favorite = getItem(position);
-        holder.setOnLongClickListener(v -> {
-            int adapterPosition = holder.getBindingAdapterPosition();
-            if (adapterPosition != RecyclerView.NO_POSITION
-                    && mActionModeDelegate.startActionMode(mActionModeCallback)) {
-                toggle(favorite.getId(), adapterPosition);
+  @Synthetic
+  void removeSelection() {
+    mFavoriteManager.remove(mContext, mSelected.values());
+  }
+
+  @Synthetic
+  void refreshSelection() {
+    for (String id : mSelected.values()) {
+      mSyncScheduler.scheduleSync(mContext, id);
+    }
+  }
+
+  @Synthetic
+  void dismiss(View view, final int position) {
+    final Favorite item = getItem(position);
+    mSelected.put(position, item.getId());
+    mFavoriteManager.remove(mContext, mSelected.values());
+    Snackbar.make(view, R.string.toast_removed, Snackbar.LENGTH_LONG)
+        .setAction(
+            R.string.undo,
+            v -> {
+              mPendingAdd = position;
+              mFavoriteManager.add(mContext, item);
+            })
+        .show();
+  }
+
+  private void toggle(String itemId, int position) {
+    if (mSelected.containsValue(itemId)) {
+      mSelected.remove(position);
+    } else {
+      mSelected.put(position, itemId);
+    }
+    notifyItemChanged(position);
+  }
+
+  private void showMoreOptions(View v, final Favorite item) {
+    mPopupMenu
+        .create(mContext, v, Gravity.NO_GRAVITY)
+        .inflate(R.menu.menu_contextual_favorite)
+        .setOnMenuItemClickListener(
+            menuItem -> {
+              if (menuItem.getItemId() == R.id.menu_contextual_vote) {
+                vote(item);
                 return true;
-            }
-            return false;
-        });
-        holder.bindMoreOptions(v -> showMoreOptions(v, favorite), false);
-    }
+              }
+              if (menuItem.getItemId() == R.id.menu_contextual_comment) {
+                mContext.startActivity(
+                    new Intent(mContext, ComposeActivity.class)
+                        .putExtra(ComposeActivity.EXTRA_PARENT_ID, item.getId())
+                        .putExtra(ComposeActivity.EXTRA_PARENT_TEXT, item.getDisplayedTitle()));
+                return true;
+              }
+              if (menuItem.getItemId() == R.id.menu_contextual_share) {
+                AppUtils.share(mContext, item.getDisplayedTitle(), item.getUrl());
+                return true;
+              }
+              return false;
+            })
+        .show();
+  }
 
-    @Override
-    protected boolean isItemAvailable(Favorite item) {
-        return item != null;
-    }
+  private void vote(final Favorite item) {
+    mUserServices.voteUp(mContext, item.getId(), new VoteCallback(this));
+  }
 
-    @Override
-    protected void handleItemClick(Favorite item, ItemViewHolder holder) {
-        if (!mActionModeDelegate.isInActionMode()) {
-            super.handleItemClick(item, holder);
-        } else {
-            int position = holder.getBindingAdapterPosition();
-            if (position != RecyclerView.NO_POSITION) {
-                toggle(item.getId(), position);
-            }
-        }
+  @Synthetic
+  void onVoted(Boolean successful) {
+    if (successful == null) {
+      Toast.makeText(mContext, R.string.vote_failed, Toast.LENGTH_SHORT).show();
+    } else if (successful) {
+      Toast.makeText(mContext, R.string.voted, Toast.LENGTH_SHORT).show();
+    } else {
+      AppUtils.showLogin(mContext, mAlertDialogBuilder);
     }
+  }
 
-    @Override
-    protected Favorite getItem(int position) {
-        return mFavoriteManager.getItem(position);
-    }
-
-    @Override
-    protected boolean isSelected(String itemId) {
-        return super.isSelected(itemId) || mSelected.containsValue(itemId);
-    }
-
-    @Override
-    protected int getItemCacheMode() {
-        return ItemManager.MODE_CACHE;
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
-    public void notifyChanged() {
-        if (getItemCount() == 0) {
-            notifyDataSetChanged();
-            return;
-        }
-        if (!mSelected.isEmpty()) { // has pending removals, notify removed
-            List<Integer> positions = new ArrayList<>(mSelected.keySet());
-            Collections.sort(positions);
-            mSelected.clear();
-            for (int i = positions.size() - 1; i >= 0; i--) {
-                notifyItemRemoved(positions.get(i));
-            }
-        } else if (mPendingAdd >= 0) { // has pending insertion, notify inserted
-            notifyItemInserted(mPendingAdd);
-            mPendingAdd = -1;
-        } else { // no pending changes, simply refresh list
-            notifyDataSetChanged();
-        }
-    }
+  static class VoteCallback extends UserServices.Callback {
+    private final WeakReference<FavoriteRecyclerViewAdapter> mAdapter;
 
     @Synthetic
-    void removeSelection() {
-        mFavoriteManager.remove(mContext, mSelected.values());
+    VoteCallback(FavoriteRecyclerViewAdapter adapter) {
+      mAdapter = new WeakReference<>(adapter);
     }
 
-    @Synthetic
-    void refreshSelection() {
-        for (String id : mSelected.values()) {
-            mSyncScheduler.scheduleSync(mContext, id);
-        }
+    @Override
+    public void onDone(boolean successful) {
+      if (mAdapter.get() != null && mAdapter.get().isAttached()) {
+        mAdapter.get().onVoted(successful);
+      }
     }
 
-    @Synthetic
-    void dismiss(View view, final int position) {
-        final Favorite item = getItem(position);
-        mSelected.put(position, item.getId());
-        mFavoriteManager.remove(mContext, mSelected.values());
-        Snackbar.make(view, R.string.toast_removed, Snackbar.LENGTH_LONG)
-                .setAction(R.string.undo, v -> {
-                    mPendingAdd = position;
-                    mFavoriteManager.add(mContext, item);
-                })
-                .show();
+    @Override
+    public void onError(Throwable throwable) {
+      if (mAdapter.get() != null && mAdapter.get().isAttached()) {
+        mAdapter.get().onVoted(null);
+      }
+    }
+  }
+
+  abstract static class ItemTouchHelperCallback extends PeekabooTouchHelperCallback {
+
+    private final String mDeleteText;
+    private final String mRefreshText;
+    private final int mDeleteColor;
+    private final int mRefreshColor;
+
+    ItemTouchHelperCallback(Context context) {
+      super(context);
+      mDeleteText = context.getString(R.string.delete);
+      mRefreshText = context.getString(R.string.refresh);
+      mDeleteColor = ContextCompat.getColor(context, R.color.red500);
+      mRefreshColor = ContextCompat.getColor(context, R.color.lightBlueA700);
     }
 
-    private void toggle(String itemId, int position) {
-        if (mSelected.containsValue(itemId)) {
-            mSelected.remove(position);
-        } else {
-            mSelected.put(position, itemId);
-        }
-        notifyItemChanged(position);
+    @Override
+    public void onChildDraw(
+        Canvas c,
+        RecyclerView recyclerView,
+        RecyclerView.ViewHolder viewHolder,
+        float dX,
+        float dY,
+        int actionState,
+        boolean isCurrentlyActive) {
+      float alpha = 1 - Math.abs(dX) / viewHolder.itemView.getWidth();
+      viewHolder.itemView.setAlpha(alpha);
+      super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
     }
 
-    private void showMoreOptions(View v, final Favorite item) {
-        mPopupMenu.create(mContext, v, Gravity.NO_GRAVITY)
-                .inflate(R.menu.menu_contextual_favorite)
-                .setOnMenuItemClickListener(menuItem -> {
-                    if (menuItem.getItemId() == R.id.menu_contextual_vote) {
-                        vote(item);
-                        return true;
-                    }
-                    if (menuItem.getItemId() == R.id.menu_contextual_comment) {
-                        mContext.startActivity(new Intent(mContext, ComposeActivity.class)
-                                .putExtra(ComposeActivity.EXTRA_PARENT_ID, item.getId())
-                                .putExtra(ComposeActivity.EXTRA_PARENT_TEXT, item.getDisplayedTitle()));
-                        return true;
-                    }
-                    if (menuItem.getItemId() == R.id.menu_contextual_share) {
-                        AppUtils.share(mContext, item.getDisplayedTitle(), item.getUrl());
-                        return true;
-                    }
-                    return false;
-                })
-                .show();
+    @Override
+    protected String getLeftText() {
+      return mDeleteText;
     }
 
-    private void vote(final Favorite item) {
-        mUserServices.voteUp(mContext, item.getId(), new VoteCallback(this));
+    @Override
+    protected String getRightText() {
+      return mRefreshText;
     }
 
-    @Synthetic
-    void onVoted(Boolean successful) {
-        if (successful == null) {
-            Toast.makeText(mContext, R.string.vote_failed, Toast.LENGTH_SHORT).show();
-        } else if (successful) {
-            Toast.makeText(mContext, R.string.voted, Toast.LENGTH_SHORT).show();
-        } else {
-            AppUtils.showLogin(mContext, mAlertDialogBuilder);
-        }
+    @Override
+    protected int getLeftTextColor() {
+      return mDeleteColor;
     }
 
-    static class VoteCallback extends UserServices.Callback {
-        private final WeakReference<FavoriteRecyclerViewAdapter> mAdapter;
-
-        @Synthetic
-        VoteCallback(FavoriteRecyclerViewAdapter adapter) {
-            mAdapter = new WeakReference<>(adapter);
-        }
-
-        @Override
-        public void onDone(boolean successful) {
-            if (mAdapter.get() != null && mAdapter.get().isAttached()) {
-                mAdapter.get().onVoted(successful);
-            }
-        }
-
-        @Override
-        public void onError(Throwable throwable) {
-            if (mAdapter.get() != null && mAdapter.get().isAttached()) {
-                mAdapter.get().onVoted(null);
-            }
-        }
+    @Override
+    protected int getRightTextColor() {
+      return mRefreshColor;
     }
-
-    static abstract class ItemTouchHelperCallback extends PeekabooTouchHelperCallback {
-
-        private final String mDeleteText;
-        private final String mRefreshText;
-        private final int mDeleteColor;
-        private final int mRefreshColor;
-
-        ItemTouchHelperCallback(Context context) {
-            super(context);
-            mDeleteText = context.getString(R.string.delete);
-            mRefreshText = context.getString(R.string.refresh);
-            mDeleteColor = ContextCompat.getColor(context, R.color.red500);
-            mRefreshColor = ContextCompat.getColor(context, R.color.lightBlueA700);
-        }
-
-        @Override
-        public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX,
-                float dY, int actionState, boolean isCurrentlyActive) {
-            float alpha = 1 - Math.abs(dX) / viewHolder.itemView.getWidth();
-            viewHolder.itemView.setAlpha(alpha);
-            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
-        }
-
-        @Override
-        protected String getLeftText() {
-            return mDeleteText;
-        }
-
-        @Override
-        protected String getRightText() {
-            return mRefreshText;
-        }
-
-        @Override
-        protected int getLeftTextColor() {
-            return mDeleteColor;
-        }
-
-        @Override
-        protected int getRightTextColor() {
-            return mRefreshColor;
-        }
-    }
+  }
 }

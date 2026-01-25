@@ -16,12 +16,12 @@
 
 package io.github.sheepdestroyer.materialisheep.data
 
+import android.annotation.SuppressLint
 import androidx.annotation.WorkerThread
 import io.github.sheepdestroyer.materialisheep.DataModule
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Scheduler
 import javax.inject.Inject
-import android.annotation.SuppressLint
 import javax.inject.Named
 import javax.inject.Singleton
 
@@ -32,33 +32,35 @@ import javax.inject.Singleton
 class SessionManager @Inject constructor(
     @param:Named(DataModule.IO_THREAD)
     private val ioScheduler: Scheduler,
-    private val cache: LocalCache) {
+    private val cache: LocalCache,
+) {
 
-  /**
-   * Checks if an item has been viewed.
-   *
-   * @param itemId the ID of the item to check
-   * @return an [Observable] that emits `true` if the item has been viewed, `false` otherwise
-   */
-  @WorkerThread
-  fun isViewed(itemId: String?): Observable<Boolean> = Observable.just(
-      if (itemId.isNullOrEmpty()) {
-        false
-      } else {
-        cache.isViewed(itemId)
-      })
+    /**
+     * Checks if an item has been viewed.
+     *
+     * @param itemId the ID of the item to check
+     * @return an [Observable] that emits `true` if the item has been viewed, `false` otherwise
+     */
+    @WorkerThread
+    fun isViewed(itemId: String?): Observable<Boolean> = Observable.just(
+        if (itemId.isNullOrEmpty()) {
+            false
+        } else {
+            cache.isViewed(itemId)
+        },
+    )
 
-  /**
-   * Marks an item as having been viewed.
-   *
-   * @param itemId the ID of the item that has been viewed
-   */
-  @SuppressLint("CheckResult")
-  fun view(itemId: String?) {
-    if (itemId.isNullOrEmpty()) return
-    Observable.defer { Observable.just(itemId) }
-        .subscribeOn(ioScheduler)
-        .observeOn(ioScheduler)
-        .subscribe({ cache.setViewed(it) }, { t -> android.util.Log.e("SessionManager", "Failed to set viewed", t) })
-  }
+    /**
+     * Marks an item as having been viewed.
+     *
+     * @param itemId the ID of the item that has been viewed
+     */
+    @SuppressLint("CheckResult")
+    fun view(itemId: String?) {
+        if (itemId.isNullOrEmpty()) return
+        Observable.defer { Observable.just(itemId) }
+            .subscribeOn(ioScheduler)
+            .observeOn(ioScheduler)
+            .subscribe({ cache.setViewed(it) }, { t -> android.util.Log.e("SessionManager", "Failed to set viewed", t) })
+    }
 }

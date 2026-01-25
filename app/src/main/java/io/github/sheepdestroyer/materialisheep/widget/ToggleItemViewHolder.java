@@ -18,22 +18,21 @@ package io.github.sheepdestroyer.materialisheep.widget;
 
 import android.view.View;
 import android.widget.TextView;
-
 import io.github.sheepdestroyer.materialisheep.R;
 
 public class ToggleItemViewHolder extends ItemRecyclerViewAdapter.ItemViewHolder {
-    View mToggleButton;
-    TextView mToggle;
-    View mLevel;
+  View mToggleButton;
+  TextView mToggle;
+  View mLevel;
 
-    ToggleItemViewHolder(View itemView) {
-        super(itemView);
-        mToggleButton = itemView.findViewById(R.id.button_toggle);
-        mToggle = (TextView) itemView.findViewById(R.id.toggle);
-        mLevel = itemView.findViewById(R.id.level);
-    }
+  ToggleItemViewHolder(View itemView) {
+    super(itemView);
+    mToggleButton = itemView.findViewById(R.id.button_toggle);
+    mToggle = (TextView) itemView.findViewById(R.id.toggle);
+    mLevel = itemView.findViewById(R.id.level);
+  }
 
-    ToggleItemViewHolder(View itemView, Object payload) {
-        super(itemView, payload);
-    }
+  ToggleItemViewHolder(View itemView, Object payload) {
+    super(itemView, payload);
+  }
 }

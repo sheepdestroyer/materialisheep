@@ -22,41 +22,35 @@ package io.github.sheepdestroyer.materialisheep.data;
  * @param <T> the type of item
  */
 public interface LocalItemManager<T> {
-    /**
-     * Gets the number of items.
-     *
-     * @return the number of items, or 0 if there are none
-     */
-    int getSize();
+  /**
+   * Gets the number of items.
+   *
+   * @return the number of items, or 0 if there are none
+   */
+  int getSize();
 
-    /**
-     * Gets the item at the given position.
-     *
-     * @param position the position of the item
-     * @return the item at the given position, or `null` if there is no item at that position
-     */
-    T getItem(int position);
+  /**
+   * Gets the item at the given position.
+   *
+   * @param position the position of the item
+   * @return the item at the given position, or `null` if there is no item at that position
+   */
+  T getItem(int position);
 
-    /**
-     * Initiates an asynchronous query for local items.
-     *
-     * @param observer the listener that will be informed of changes
-     * @param filter   the query filter, if any
-     */
-    void attach(Observer observer, String filter);
+  /**
+   * Initiates an asynchronous query for local items.
+   *
+   * @param observer the listener that will be informed of changes
+   * @param filter the query filter, if any
+   */
+  void attach(Observer observer, String filter);
 
-    /**
-     * Cleans up any extra state created by {@link #attach(Observer, String)}.
-     */
-    void detach();
+  /** Cleans up any extra state created by {@link #attach(Observer, String)}. */
+  void detach();
 
-    /**
-     * A callback interface for local item change events.
-     */
-    interface Observer {
-        /**
-         * Called when local items change (i.e., are added, removed, or edited).
-         */
-        void onChanged();
-    }
+  /** A callback interface for local item change events. */
+  interface Observer {
+    /** Called when local items change (i.e., are added, removed, or edited). */
+    void onChanged();
+  }
 }

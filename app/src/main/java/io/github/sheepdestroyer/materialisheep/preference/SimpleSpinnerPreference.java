@@ -23,30 +23,29 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import io.github.sheepdestroyer.materialisheep.R;
-
 public class SimpleSpinnerPreference extends SpinnerPreference {
 
-    private final LayoutInflater mLayoutInflater;
+  private final LayoutInflater mLayoutInflater;
 
-    @SuppressWarnings("unused")
-    public SimpleSpinnerPreference(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
-    }
+  @SuppressWarnings("unused")
+  public SimpleSpinnerPreference(Context context, AttributeSet attrs) {
+    this(context, attrs, 0);
+  }
 
-    public SimpleSpinnerPreference(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        mLayoutInflater = LayoutInflater.from(getContext());
-    }
+  public SimpleSpinnerPreference(Context context, AttributeSet attrs, int defStyleAttr) {
+    super(context, attrs, defStyleAttr);
+    mLayoutInflater = LayoutInflater.from(getContext());
+  }
 
-    @Override
-    protected View createDropDownView(int position, ViewGroup parent) {
-        return mLayoutInflater.inflate(androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, parent, false);
-    }
+  @Override
+  protected View createDropDownView(int position, ViewGroup parent) {
+    return mLayoutInflater.inflate(
+        androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, parent, false);
+  }
 
-    @Override
-    protected void bindDropDownView(int position, View view) {
-        TextView textView = (TextView) view.findViewById(android.R.id.text1);
-        textView.setText(mEntries[position]);
-    }
+  @Override
+  protected void bindDropDownView(int position, View view) {
+    TextView textView = (TextView) view.findViewById(android.R.id.text1);
+    textView.setText(mEntries[position]);
+  }
 }

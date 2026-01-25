@@ -17,38 +17,31 @@
 
 package io.github.sheepdestroyer.materialisheep;
 
-import android.app.Application;
 import android.graphics.Typeface;
-import androidx.appcompat.app.AppCompatDelegate;
 import android.os.StrictMode;
+import androidx.appcompat.app.AppCompatDelegate;
 import io.github.sheepdestroyer.materialisheep.data.AlgoliaClient;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class MaterialisticApplication extends android.app.Application {
-    public static Typeface TYPE_FACE = null;
-    public ApplicationComponent applicationComponent;
+  public static Typeface TYPE_FACE = null;
+  public ApplicationComponent applicationComponent;
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        applicationComponent = DaggerApplicationComponent.builder()
-                .applicationModule(new ApplicationModule(this))
-                .build();
-        AppCompatDelegate.setDefaultNightMode(Preferences.Theme.getAutoDayNightMode(this));
-        AlgoliaClient.sSortByTime = Preferences.isSortByRecent(this);
-        if (BuildConfig.DEBUG) {
-            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
-                    .detectAll()
-                    .penaltyFlashScreen()
-                    .build());
-            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
-                    .detectAll()
-                    .penaltyLog()
-                    .build());
-        }
-        Preferences.migrate(this);
-        TYPE_FACE = FontCache.getInstance().get(this, Preferences.Theme.getTypeface(this));
-        AppUtils.registerAccountsUpdatedListener(this);
-        AdBlocker.init(this, Schedulers.io());
+  @Override
+  public void onCreate() {
+    super.onCreate();
+    applicationComponent =
+        DaggerApplicationComponent.builder().applicationModule(new ApplicationModule(this)).build();
+    AppCompatDelegate.setDefaultNightMode(Preferences.Theme.getAutoDayNightMode(this));
+    AlgoliaClient.sSortByTime = Preferences.isSortByRecent(this);
+    if (BuildConfig.DEBUG) {
+      StrictMode.setThreadPolicy(
+          new StrictMode.ThreadPolicy.Builder().detectAll().penaltyFlashScreen().build());
+      StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().detectAll().penaltyLog().build());
     }
+    Preferences.migrate(this);
+    TYPE_FACE = FontCache.getInstance().get(this, Preferences.Theme.getTypeface(this));
+    AppUtils.registerAccountsUpdatedListener(this);
+    AdBlocker.init(this, Schedulers.io());
+  }
 }
