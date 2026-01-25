@@ -18,38 +18,35 @@ package io.github.sheepdestroyer.materialisheep;
 
 import android.os.Bundle;
 import androidx.annotation.NonNull;
-
 import io.github.sheepdestroyer.materialisheep.data.ItemManager;
 
-/**
- * Activity to display best stories
- */
+/** Activity to display best stories */
 public class BestActivity extends BaseStoriesActivity {
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        ((MaterialisticApplication) getApplication()).applicationComponent.inject(this);
-    }
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    ((MaterialisticApplication) getApplication()).applicationComponent.inject(this);
+  }
 
-    /**
-     * Gets the fetch mode for the stories.
-     *
-     * @return The fetch mode.
-     */
-    @NonNull
-    @Override
-    protected String getFetchMode() {
-        return ItemManager.BEST_FETCH_MODE;
-    }
+  /**
+   * Gets the fetch mode for the stories.
+   *
+   * @return The fetch mode.
+   */
+  @NonNull
+  @Override
+  protected String getFetchMode() {
+    return ItemManager.BEST_FETCH_MODE;
+  }
 
-    /**
-     * Gets the default title for the activity.
-     *
-     * @return The default title.
-     */
-    @Override
-    protected String getDefaultTitle() {
-        return getString(R.string.title_activity_best);
-    }
+  /**
+   * Gets the default title for the activity.
+   *
+   * @return The default title.
+   */
+  @Override
+  protected String getDefaultTitle() {
+    return getString(R.string.title_activity_best);
+  }
 }

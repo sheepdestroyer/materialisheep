@@ -16,64 +16,56 @@
 
 package io.github.sheepdestroyer.materialisheep.data;
 
-import android.annotation.TargetApi;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
-import android.os.Build;
+import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
-import android.text.TextUtils;
-
+import io.github.sheepdestroyer.materialisheep.MaterialisticApplication;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.inject.Inject;
 
-import io.github.sheepdestroyer.materialisheep.MaterialisticApplication;
-
-/**
- * A {@link JobService} that syncs items.
- */
+/** A {@link JobService} that syncs items. */
 public class ItemSyncJobService extends JobService {
-    @Inject
-    RestServiceFactory mFactory;
-    @Inject
-    ReadabilityClient mReadabilityClient;
-    private final Map<String, SyncDelegate> mSyncDelegates = new HashMap<>();
+  @Inject RestServiceFactory mFactory;
+  @Inject ReadabilityClient mReadabilityClient;
+  private final Map<String, SyncDelegate> mSyncDelegates = new HashMap<>();
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        ((MaterialisticApplication) getApplication()).applicationComponent.inject(this);
-    }
+  @Override
+  public void onCreate() {
+    super.onCreate();
+    ((MaterialisticApplication) getApplication()).applicationComponent.inject(this);
+  }
 
-    @Override
-    public boolean onStartJob(JobParameters jobParameters) {
-        String jobId = String.valueOf(jobParameters.getJobId());
-        SyncDelegate syncDelegate = createSyncDelegate();
-        mSyncDelegates.put(jobId, syncDelegate);
-        syncDelegate.subscribe(token -> {
-            if (TextUtils.equals(jobId, token)) {
-                jobFinished(jobParameters, false);
-                mSyncDelegates.remove(jobId);
-            }
+  @Override
+  public boolean onStartJob(JobParameters jobParameters) {
+    String jobId = String.valueOf(jobParameters.getJobId());
+    SyncDelegate syncDelegate = createSyncDelegate();
+    mSyncDelegates.put(jobId, syncDelegate);
+    syncDelegate.subscribe(
+        token -> {
+          if (TextUtils.equals(jobId, token)) {
+            jobFinished(jobParameters, false);
+            mSyncDelegates.remove(jobId);
+          }
         });
-        syncDelegate.performSync(new SyncDelegate.Job(jobParameters.getExtras()));
-        return true;
-    }
+    syncDelegate.performSync(new SyncDelegate.Job(jobParameters.getExtras()));
+    return true;
+  }
 
-    @Override
-    public boolean onStopJob(JobParameters jobParameters) {
-        String key = String.valueOf(jobParameters.getJobId());
-        if (mSyncDelegates.containsKey(key)) {
-            mSyncDelegates.remove(key).stopSync();
-        }
-        return true;
+  @Override
+  public boolean onStopJob(JobParameters jobParameters) {
+    String key = String.valueOf(jobParameters.getJobId());
+    if (mSyncDelegates.containsKey(key)) {
+      mSyncDelegates.remove(key).stopSync();
     }
+    return true;
+  }
 
-    @VisibleForTesting
-    @NonNull
-    SyncDelegate createSyncDelegate() {
-        return new SyncDelegate(this, mFactory, mReadabilityClient);
-    }
+  @VisibleForTesting
+  @NonNull
+  SyncDelegate createSyncDelegate() {
+    return new SyncDelegate(this, mFactory, mReadabilityClient);
+  }
 }

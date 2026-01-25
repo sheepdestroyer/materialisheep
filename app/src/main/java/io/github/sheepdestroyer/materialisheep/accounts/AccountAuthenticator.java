@@ -22,42 +22,45 @@ import android.accounts.NetworkErrorException;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-
 import io.github.sheepdestroyer.materialisheep.LoginActivity;
 
-/**
- * A partial implementation of {@link android.accounts.AbstractAccountAuthenticator}.
- */
+/** A partial implementation of {@link android.accounts.AbstractAccountAuthenticator}. */
 public class AccountAuthenticator extends EmptyAccountAuthenticator {
-    private final Context mContext;
+  private final Context mContext;
 
-    /**
-     * Constructs a new AccountAuthenticator.
-     *
-     * @param context The context.
-     */
-    public AccountAuthenticator(Context context) {
-        super(context);
-        mContext = context;
-    }
+  /**
+   * Constructs a new AccountAuthenticator.
+   *
+   * @param context The context.
+   */
+  public AccountAuthenticator(Context context) {
+    super(context);
+    mContext = context;
+  }
 
-    /**
-     * Called when the user wants to add a new account.
-     *
-     * @param response         The response from the AccountManager.
-     * @param accountType      The type of account to add.
-     * @param authTokenType    The type of auth token to get.
-     * @param requiredFeatures The required features.
-     * @param options          The options.
-     * @return A Bundle with the intent to launch the login activity.
-     * @throws NetworkErrorException If there is a network error.
-     */
-    @Override
-    public Bundle addAccount(AccountAuthenticatorResponse response, String accountType, String authTokenType, String[] requiredFeatures, Bundle options) throws NetworkErrorException {
-        Intent intent = new Intent(mContext, LoginActivity.class);
-        intent.putExtra(LoginActivity.EXTRA_ADD_ACCOUNT, true);
-        Bundle bundle = new Bundle();
-        bundle.putParcelable(AccountManager.KEY_INTENT, intent);
-        return bundle;
-    }
+  /**
+   * Called when the user wants to add a new account.
+   *
+   * @param response The response from the AccountManager.
+   * @param accountType The type of account to add.
+   * @param authTokenType The type of auth token to get.
+   * @param requiredFeatures The required features.
+   * @param options The options.
+   * @return A Bundle with the intent to launch the login activity.
+   * @throws NetworkErrorException If there is a network error.
+   */
+  @Override
+  public Bundle addAccount(
+      AccountAuthenticatorResponse response,
+      String accountType,
+      String authTokenType,
+      String[] requiredFeatures,
+      Bundle options)
+      throws NetworkErrorException {
+    Intent intent = new Intent(mContext, LoginActivity.class);
+    intent.putExtra(LoginActivity.EXTRA_ADD_ACCOUNT, true);
+    Bundle bundle = new Bundle();
+    bundle.putParcelable(AccountManager.KEY_INTENT, intent);
+    return bundle;
+  }
 }

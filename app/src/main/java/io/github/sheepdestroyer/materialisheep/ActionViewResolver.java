@@ -24,13 +24,13 @@ import android.view.View;
  * This class can be injected to facilitate testing and customization of menu item behaviors.
  */
 class ActionViewResolver {
-    /**
-     * Returns the currently set action view for this menu item.
-     *
-     * @param menuItem the item to query
-     * @return This item's action view
-     */
-    View getActionView(MenuItem menuItem) {
-        return menuItem.getActionView();
-    }
+  /**
+   * Returns the currently set action view for this menu item.
+   *
+   * @param menuItem the item to query
+   * @return This item's action view
+   */
+  View getActionView(MenuItem menuItem) {
+    return menuItem.getActionView();
+  }
 }

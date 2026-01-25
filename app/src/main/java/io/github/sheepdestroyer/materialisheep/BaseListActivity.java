@@ -29,16 +29,7 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-
 import androidx.activity.OnBackPressedCallback;
-
-import com.google.android.material.appbar.AppBarLayout;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-import com.google.android.material.tabs.TabLayout;
-
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
@@ -46,8 +37,13 @@ import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.viewpager2.widget.ViewPager2;
+import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 import io.github.sheepdestroyer.materialisheep.annotation.Synthetic;
 import io.github.sheepdestroyer.materialisheep.data.ItemManager;
 import io.github.sheepdestroyer.materialisheep.data.SessionManager;
@@ -55,597 +51,589 @@ import io.github.sheepdestroyer.materialisheep.data.WebItem;
 import io.github.sheepdestroyer.materialisheep.widget.ItemPagerAdapter;
 import io.github.sheepdestroyer.materialisheep.widget.NavFloatingActionButton;
 import io.github.sheepdestroyer.materialisheep.widget.PopupMenu;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.viewpager2.adapter.FragmentStateAdapter;
-import androidx.fragment.app.FragmentManager;
-import androidx.viewpager2.widget.ViewPager2;
-import com.google.android.material.tabs.TabLayoutMediator;
+import javax.inject.Inject;
 
 /**
- * An abstract base activity for displaying a list of items. This activity
- * handles different layouts
+ * An abstract base activity for displaying a list of items. This activity handles different layouts
  * for portrait and landscape orientations and manages multi-pane functionality.
  */
 @SuppressWarnings("deprecation") // TODO: Uses deprecated LocalBroadcastManager, Parcelable APIs
 public abstract class BaseListActivity extends DrawerActivity implements MultiPaneListener {
 
-    protected static final String LIST_FRAGMENT_TAG = BaseListActivity.class.getName() +
-            ".LIST_FRAGMENT_TAG";
-    private static final String STATE_SELECTED_ITEM = "state:selectedItem";
-    private static final String STATE_FULLSCREEN = "state:fullscreen";
-    private boolean mIsMultiPane;
-    protected WebItem mSelectedItem;
-    private Preferences.StoryViewMode mStoryViewMode;
-    private boolean mExternalBrowser;
-    private ViewPager2 mViewPager;
-    @Inject
-    ActionViewResolver mActionViewResolver;
-    @Inject
-    PopupMenu mPopupMenu;
-    @Inject
-    SessionManager mSessionManager;
-    @Inject
-    CustomTabsDelegate mCustomTabsDelegate;
-    @Inject
-    KeyDelegate mKeyDelegate;
-    private AppBarLayout mAppBar;
-    private TabLayout mTabLayout;
-    private FloatingActionButton mReplyButton;
-    private NavFloatingActionButton mNavButton;
-    private View mListView;
-    @Synthetic
-    boolean mFullscreen;
-    private boolean mMultiWindowEnabled;
-    private final Preferences.Observable mPreferenceObservable = new Preferences.Observable();
-    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+  protected static final String LIST_FRAGMENT_TAG =
+      BaseListActivity.class.getName() + ".LIST_FRAGMENT_TAG";
+  private static final String STATE_SELECTED_ITEM = "state:selectedItem";
+  private static final String STATE_FULLSCREEN = "state:fullscreen";
+  private boolean mIsMultiPane;
+  protected WebItem mSelectedItem;
+  private Preferences.StoryViewMode mStoryViewMode;
+  private boolean mExternalBrowser;
+  private ViewPager2 mViewPager;
+  @Inject ActionViewResolver mActionViewResolver;
+  @Inject PopupMenu mPopupMenu;
+  @Inject SessionManager mSessionManager;
+  @Inject CustomTabsDelegate mCustomTabsDelegate;
+  @Inject KeyDelegate mKeyDelegate;
+  private AppBarLayout mAppBar;
+  private TabLayout mTabLayout;
+  private FloatingActionButton mReplyButton;
+  private NavFloatingActionButton mNavButton;
+  private View mListView;
+  @Synthetic boolean mFullscreen;
+  private boolean mMultiWindowEnabled;
+  private final Preferences.Observable mPreferenceObservable = new Preferences.Observable();
+  private final BroadcastReceiver mReceiver =
+      new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            mFullscreen = intent.getBooleanExtra(WebFragment.EXTRA_FULLSCREEN, false);
-            setFullscreen();
+          mFullscreen = intent.getBooleanExtra(WebFragment.EXTRA_FULLSCREEN, false);
+          setFullscreen();
         }
-    };
-    private final OnBackPressedCallback mBackPressedCallback = new OnBackPressedCallback(false) {
+      };
+  private final OnBackPressedCallback mBackPressedCallback =
+      new OnBackPressedCallback(false) {
         @Override
         public void handleOnBackPressed() {
-            LocalBroadcastManager.getInstance(BaseListActivity.this).sendBroadcast(new Intent(
-                    WebFragment.ACTION_FULLSCREEN).putExtra(WebFragment.EXTRA_FULLSCREEN, false));
+          LocalBroadcastManager.getInstance(BaseListActivity.this)
+              .sendBroadcast(
+                  new Intent(WebFragment.ACTION_FULLSCREEN)
+                      .putExtra(WebFragment.EXTRA_FULLSCREEN, false));
         }
-    };
-    private ItemPagerAdapter mAdapter;
-    private TabLayoutMediator mTabLayoutMediator;
-    private ViewPager2.OnPageChangeCallback mPageChangeCallback;
-    private TabLayout.OnTabSelectedListener mTabSelectedListener;
+      };
+  private ItemPagerAdapter mAdapter;
+  private TabLayoutMediator mTabLayoutMediator;
+  private ViewPager2.OnPageChangeCallback mPageChangeCallback;
+  private TabLayout.OnTabSelectedListener mTabSelectedListener;
 
-    /**
-     * Called when the activity is first created.
-     *
-     * @param savedInstanceState If the activity is being re-initialized after
-     *                           previously being shut down then this Bundle
-     *                           contains the data it most
-     *                           recently supplied in
-     *                           {@link #onSaveInstanceState(Bundle)}.
-     *                           Otherwise it is null.
-     */
-    @SuppressWarnings("ConstantConditions")
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_list);
-        setTitle(getDefaultTitle());
-        setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
-        getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME |
-                ActionBar.DISPLAY_HOME_AS_UP | ActionBar.DISPLAY_SHOW_TITLE);
-        findViewById(R.id.toolbar).setOnClickListener(v -> {
-            Scrollable scrollable = getScrollableList();
-            if (scrollable != null) {
+  /**
+   * Called when the activity is first created.
+   *
+   * @param savedInstanceState If the activity is being re-initialized after previously being shut
+   *     down then this Bundle contains the data it most recently supplied in {@link
+   *     #onSaveInstanceState(Bundle)}. Otherwise it is null.
+   */
+  @SuppressWarnings("ConstantConditions")
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_list);
+    setTitle(getDefaultTitle());
+    setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
+    getSupportActionBar()
+        .setDisplayOptions(
+            ActionBar.DISPLAY_SHOW_HOME
+                | ActionBar.DISPLAY_HOME_AS_UP
+                | ActionBar.DISPLAY_SHOW_TITLE);
+    findViewById(R.id.toolbar)
+        .setOnClickListener(
+            v -> {
+              Scrollable scrollable = getScrollableList();
+              if (scrollable != null) {
                 scrollable.scrollToTop();
-            }
-        });
-        mAppBar = (AppBarLayout) findViewById(R.id.appbar);
-        mIsMultiPane = getResources().getBoolean(R.bool.multi_pane);
-        if (mIsMultiPane) {
-            LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
-                    new IntentFilter(WebFragment.ACTION_FULLSCREEN));
-            mListView = findViewById(android.R.id.list);
-            mTabLayout = (TabLayout) findViewById(R.id.tab_layout);
-            mTabLayout.setVisibility(View.GONE);
-            mViewPager = (ViewPager2) findViewById(R.id.content);
-            mViewPager.setVisibility(View.GONE);
-            mReplyButton = (FloatingActionButton) findViewById(R.id.reply_button);
-            mNavButton = (NavFloatingActionButton) findViewById(R.id.navigation_button);
-            mNavButton.setNavigable(direction -> {
-                // if callback is fired navigable should not be null
-                Fragment fragment = getFragment(0);
-                if (fragment instanceof Navigable) {
-                    ((Navigable) fragment).onNavigate(direction);
-                }
+              }
             });
-            AppUtils.toggleFab(mNavButton, false);
-            AppUtils.toggleFab(mReplyButton, false);
-        }
-        mMultiWindowEnabled = Preferences.multiWindowEnabled(this);
-        mStoryViewMode = Preferences.getDefaultStoryView(this);
-        mExternalBrowser = Preferences.externalBrowserEnabled(this);
-        if (savedInstanceState == null) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(android.R.id.list,
-                            instantiateListFragment(),
-                            LIST_FRAGMENT_TAG)
-                    .commit();
-        } else {
-            mSelectedItem = savedInstanceState.getParcelable(STATE_SELECTED_ITEM);
-            mFullscreen = savedInstanceState.getBoolean(STATE_FULLSCREEN);
-            if (mIsMultiPane) {
-                openMultiPaneItem();
-            } else {
-                unbindViewPager();
+    mAppBar = (AppBarLayout) findViewById(R.id.appbar);
+    mIsMultiPane = getResources().getBoolean(R.bool.multi_pane);
+    if (mIsMultiPane) {
+      LocalBroadcastManager.getInstance(this)
+          .registerReceiver(mReceiver, new IntentFilter(WebFragment.ACTION_FULLSCREEN));
+      mListView = findViewById(android.R.id.list);
+      mTabLayout = (TabLayout) findViewById(R.id.tab_layout);
+      mTabLayout.setVisibility(View.GONE);
+      mViewPager = (ViewPager2) findViewById(R.id.content);
+      mViewPager.setVisibility(View.GONE);
+      mReplyButton = (FloatingActionButton) findViewById(R.id.reply_button);
+      mNavButton = (NavFloatingActionButton) findViewById(R.id.navigation_button);
+      mNavButton.setNavigable(
+          direction -> {
+            // if callback is fired navigable should not be null
+            Fragment fragment = getFragment(0);
+            if (fragment instanceof Navigable) {
+              ((Navigable) fragment).onNavigate(direction);
             }
-        }
-        mPreferenceObservable.subscribe(this, this::onPreferenceChanged,
-                R.string.pref_navigation,
-                R.string.pref_external,
-                R.string.pref_story_display,
-                R.string.pref_multi_window);
-        getOnBackPressedDispatcher().addCallback(this, mBackPressedCallback);
+          });
+      AppUtils.toggleFab(mNavButton, false);
+      AppUtils.toggleFab(mReplyButton, false);
     }
-
-    /**
-     * Called after {@link #onCreate(Bundle)} has completed.
-     *
-     * @param savedInstanceState If the activity is being re-initialized after
-     *                           previously being shut down then this Bundle
-     *                           contains the data it most
-     *                           recently supplied in
-     *                           {@link #onSaveInstanceState(Bundle)}.
-     *                           Otherwise it is null.
-     */
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        if (!Preferences.isReleaseNotesSeen(this)) {
-            Snackbar snackbar = Snackbar.make(findViewById(R.id.content_frame),
-                    R.string.hint_update, Snackbar.LENGTH_INDEFINITE);
-            snackbar.setAction(R.string.title_activity_release,
-                    v -> {
-                        snackbar.dismiss();
-                        startActivity(new Intent(BaseListActivity.this, ReleaseNotesActivity.class));
-                    })
-                    .setActionTextColor(ContextCompat.getColor(this, R.color.orange500))
-                    .addCallback(new Snackbar.Callback() {
-                        @Override
-                        public void onDismissed(Snackbar transientBottomBar, int event) {
-                            Preferences.setReleaseNotesSeen(BaseListActivity.this);
-                        }
-                    })
-                    .show();
-        }
+    mMultiWindowEnabled = Preferences.multiWindowEnabled(this);
+    mStoryViewMode = Preferences.getDefaultStoryView(this);
+    mExternalBrowser = Preferences.externalBrowserEnabled(this);
+    if (savedInstanceState == null) {
+      getSupportFragmentManager()
+          .beginTransaction()
+          .replace(android.R.id.list, instantiateListFragment(), LIST_FRAGMENT_TAG)
+          .commit();
+    } else {
+      mSelectedItem = savedInstanceState.getParcelable(STATE_SELECTED_ITEM);
+      mFullscreen = savedInstanceState.getBoolean(STATE_FULLSCREEN);
+      if (mIsMultiPane) {
+        openMultiPaneItem();
+      } else {
+        unbindViewPager();
+      }
     }
+    mPreferenceObservable.subscribe(
+        this,
+        this::onPreferenceChanged,
+        R.string.pref_navigation,
+        R.string.pref_external,
+        R.string.pref_story_display,
+        R.string.pref_multi_window);
+    getOnBackPressedDispatcher().addCallback(this, mBackPressedCallback);
+  }
 
-    /**
-     * Called when the activity is becoming visible to the user.
-     */
-    @Override
-    protected void onStart() {
-        super.onStart();
-        mCustomTabsDelegate.bindCustomTabsService(this);
-        mKeyDelegate.attach(this);
+  /**
+   * Called after {@link #onCreate(Bundle)} has completed.
+   *
+   * @param savedInstanceState If the activity is being re-initialized after previously being shut
+   *     down then this Bundle contains the data it most recently supplied in {@link
+   *     #onSaveInstanceState(Bundle)}. Otherwise it is null.
+   */
+  @Override
+  protected void onPostCreate(Bundle savedInstanceState) {
+    super.onPostCreate(savedInstanceState);
+    if (!Preferences.isReleaseNotesSeen(this)) {
+      Snackbar snackbar =
+          Snackbar.make(
+              findViewById(R.id.content_frame), R.string.hint_update, Snackbar.LENGTH_INDEFINITE);
+      snackbar
+          .setAction(
+              R.string.title_activity_release,
+              v -> {
+                snackbar.dismiss();
+                startActivity(new Intent(BaseListActivity.this, ReleaseNotesActivity.class));
+              })
+          .setActionTextColor(ContextCompat.getColor(this, R.color.orange500))
+          .addCallback(
+              new Snackbar.Callback() {
+                @Override
+                public void onDismissed(Snackbar transientBottomBar, int event) {
+                  Preferences.setReleaseNotesSeen(BaseListActivity.this);
+                }
+              })
+          .show();
     }
+  }
 
-    /**
-     * Initialize the contents of the Activity's standard options menu.
-     *
-     * @param menu The options menu in which you place your items.
-     * @return You must return true for the menu to be displayed;
-     *         if you return false it will not be shown.
-     */
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        if (mIsMultiPane) {
-            getMenuInflater().inflate(R.menu.menu_item_compact, menu);
-        }
-        if (isSearchable()) {
-            getMenuInflater().inflate(R.menu.menu_search, menu);
-            MenuItem menuSearch = menu.findItem(R.id.menu_search);
-            SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-            SearchView searchView = (SearchView) mActionViewResolver.getActionView(menuSearch);
-            searchView.setSearchableInfo(searchManager.getSearchableInfo(
-                    new ComponentName(this, SearchActivity.class)));
-            searchView.setIconified(true);
-            searchView.setQuery("", false);
-        }
-        return super.onCreateOptionsMenu(menu);
+  /** Called when the activity is becoming visible to the user. */
+  @Override
+  protected void onStart() {
+    super.onStart();
+    mCustomTabsDelegate.bindCustomTabsService(this);
+    mKeyDelegate.attach(this);
+  }
+
+  /**
+   * Initialize the contents of the Activity's standard options menu.
+   *
+   * @param menu The options menu in which you place your items.
+   * @return You must return true for the menu to be displayed; if you return false it will not be
+   *     shown.
+   */
+  @Override
+  public boolean onCreateOptionsMenu(Menu menu) {
+    if (mIsMultiPane) {
+      getMenuInflater().inflate(R.menu.menu_item_compact, menu);
     }
-
-    /**
-     * Prepare the Screen's standard options menu to be displayed.
-     *
-     * @param menu The options menu as last shown or first initialized by
-     *             onCreateOptionsMenu().
-     * @return You must return true for the menu to be displayed;
-     *         if you return false it will not be shown.
-     */
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        if (mIsMultiPane) {
-            menu.findItem(R.id.menu_share).setVisible(mSelectedItem != null);
-            menu.findItem(R.id.menu_external).setVisible(mSelectedItem != null);
-        }
-        return isSearchable() || super.onPrepareOptionsMenu(menu);
+    if (isSearchable()) {
+      getMenuInflater().inflate(R.menu.menu_search, menu);
+      MenuItem menuSearch = menu.findItem(R.id.menu_search);
+      SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+      SearchView searchView = (SearchView) mActionViewResolver.getActionView(menuSearch);
+      searchView.setSearchableInfo(
+          searchManager.getSearchableInfo(new ComponentName(this, SearchActivity.class)));
+      searchView.setIconified(true);
+      searchView.setQuery("", false);
     }
+    return super.onCreateOptionsMenu(menu);
+  }
 
-    /**
-     * This hook is called whenever an item in your options menu is selected.
-     *
-     * @param item The menu item that was selected.
-     * @return boolean Return false to allow normal menu processing to
-     *         proceed, true to consume it here.
-     */
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.menu_share) {
-            View anchor = findViewById(R.id.menu_share);
-            AppUtils.share(this, mPopupMenu, anchor == null ? findViewById(R.id.toolbar) : anchor, mSelectedItem);
-            return true;
-        }
-        if (item.getItemId() == R.id.menu_external) {
-            View anchor = findViewById(R.id.menu_external);
-            AppUtils.openExternal(this, mPopupMenu, anchor == null ? findViewById(R.id.toolbar) : anchor,
-                    mSelectedItem, mCustomTabsDelegate.getSession());
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+  /**
+   * Prepare the Screen's standard options menu to be displayed.
+   *
+   * @param menu The options menu as last shown or first initialized by onCreateOptionsMenu().
+   * @return You must return true for the menu to be displayed; if you return false it will not be
+   *     shown.
+   */
+  @Override
+  public boolean onPrepareOptionsMenu(Menu menu) {
+    if (mIsMultiPane) {
+      menu.findItem(R.id.menu_share).setVisible(mSelectedItem != null);
+      menu.findItem(R.id.menu_external).setVisible(mSelectedItem != null);
     }
+    return isSearchable() || super.onPrepareOptionsMenu(menu);
+  }
 
-    /**
-     * Called to retrieve per-instance state from an activity before being killed
-     * so that the state can be restored in {@link #onCreate(Bundle)} or
-     * {@link #onRestoreInstanceState(Bundle)}.
-     *
-     * @param outState Bundle in which to place your saved state.
-     */
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelable(STATE_SELECTED_ITEM, mSelectedItem);
-        outState.putBoolean(STATE_FULLSCREEN, mFullscreen);
+  /**
+   * This hook is called whenever an item in your options menu is selected.
+   *
+   * @param item The menu item that was selected.
+   * @return boolean Return false to allow normal menu processing to proceed, true to consume it
+   *     here.
+   */
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    if (item.getItemId() == R.id.menu_share) {
+      View anchor = findViewById(R.id.menu_share);
+      AppUtils.share(
+          this, mPopupMenu, anchor == null ? findViewById(R.id.toolbar) : anchor, mSelectedItem);
+      return true;
     }
-
-    /**
-     * Called when the activity is no longer visible to the user.
-     */
-    @Override
-    protected void onStop() {
-        super.onStop();
-        mCustomTabsDelegate.unbindCustomTabsService(this);
-        mKeyDelegate.detach(this);
+    if (item.getItemId() == R.id.menu_external) {
+      View anchor = findViewById(R.id.menu_external);
+      AppUtils.openExternal(
+          this,
+          mPopupMenu,
+          anchor == null ? findViewById(R.id.toolbar) : anchor,
+          mSelectedItem,
+          mCustomTabsDelegate.getSession());
+      return true;
     }
+    return super.onOptionsItemSelected(item);
+  }
 
-    /**
-     * Called before the activity is destroyed.
-     */
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mPreferenceObservable.unsubscribe(this);
-        if (mIsMultiPane) {
-            LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiver);
-        }
+  /**
+   * Called to retrieve per-instance state from an activity before being killed so that the state
+   * can be restored in {@link #onCreate(Bundle)} or {@link #onRestoreInstanceState(Bundle)}.
+   *
+   * @param outState Bundle in which to place your saved state.
+   */
+  @Override
+  protected void onSaveInstanceState(Bundle outState) {
+    super.onSaveInstanceState(outState);
+    outState.putParcelable(STATE_SELECTED_ITEM, mSelectedItem);
+    outState.putBoolean(STATE_FULLSCREEN, mFullscreen);
+  }
+
+  /** Called when the activity is no longer visible to the user. */
+  @Override
+  protected void onStop() {
+    super.onStop();
+    mCustomTabsDelegate.unbindCustomTabsService(this);
+    mKeyDelegate.detach(this);
+  }
+
+  /** Called before the activity is destroyed. */
+  @Override
+  protected void onDestroy() {
+    super.onDestroy();
+    mPreferenceObservable.unsubscribe(this);
+    if (mIsMultiPane) {
+      LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiver);
     }
+  }
 
-    /**
-     * Called when a key was pressed down and not handled by any of the views
-     * inside of the activity.
-     *
-     * @param keyCode The value in {@link KeyEvent#getKeyCode()}.
-     * @param event   Description of the key event.
-     * @return If you handled the event, return true. If you want to allow the
-     *         event to be handled by the next receiver, return false.
-     */
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        mKeyDelegate.setScrollable(getScrollableList(), mAppBar);
-        mKeyDelegate.setBackInterceptor(getBackInterceptor());
-        return mKeyDelegate.onKeyDown(keyCode, event) ||
-                super.onKeyDown(keyCode, event);
+  /**
+   * Called when a key was pressed down and not handled by any of the views inside of the activity.
+   *
+   * @param keyCode The value in {@link KeyEvent#getKeyCode()}.
+   * @param event Description of the key event.
+   * @return If you handled the event, return true. If you want to allow the event to be handled by
+   *     the next receiver, return false.
+   */
+  @Override
+  public boolean onKeyDown(int keyCode, KeyEvent event) {
+    mKeyDelegate.setScrollable(getScrollableList(), mAppBar);
+    mKeyDelegate.setBackInterceptor(getBackInterceptor());
+    return mKeyDelegate.onKeyDown(keyCode, event) || super.onKeyDown(keyCode, event);
+  }
+
+  /**
+   * Called when a key was released and not handled by any of the views inside of the activity.
+   *
+   * @param keyCode The value in {@link KeyEvent#getKeyCode()}.
+   * @param event Description of the key event.
+   * @return If you handled the event, return true. If you want to allow the event to be handled by
+   *     the next receiver, return false.
+   */
+  @Override
+  public boolean onKeyUp(int keyCode, KeyEvent event) {
+    return mKeyDelegate.onKeyUp(keyCode, event) || super.onKeyUp(keyCode, event);
+  }
+
+  /**
+   * Called when a long press has occurred and not handled by any of the views inside of the
+   * activity.
+   *
+   * @param keyCode The value in {@link KeyEvent#getKeyCode()}.
+   * @param event Description of the key event.
+   * @return If you handled the event, return true. If you want to allow the event to be handled by
+   *     the next receiver, return false.
+   */
+  @Override
+  public boolean onKeyLongPress(int keyCode, KeyEvent event) {
+    return mKeyDelegate.onKeyLongPress(keyCode, event) || super.onKeyLongPress(keyCode, event);
+  }
+
+  /**
+   * Retrieves the {@link ActionBar} for this activity.
+   *
+   * @return The support action bar.
+   */
+  @NonNull
+  @Override
+  public ActionBar getSupportActionBar() {
+    // noinspection ConstantConditions
+    return super.getSupportActionBar();
+  }
+
+  /**
+   * Called when an item in the list is selected.
+   *
+   * @param item The selected item.
+   */
+  @Override
+  public void onItemSelected(@Nullable WebItem item) {
+    WebItem previousItem = mSelectedItem;
+    mSelectedItem = item;
+    if (mIsMultiPane) {
+      if (previousItem != null
+          && item != null
+          && TextUtils.equals(item.getId(), previousItem.getId())) {
+        return;
+      }
+      if (previousItem == null && item != null || previousItem != null && item == null) {
+        supportInvalidateOptionsMenu();
+      }
+      openMultiPaneItem();
+    } else if (item != null) {
+      openSinglePaneItem();
     }
+  }
 
-    /**
-     * Called when a key was released and not handled by any of the views
-     * inside of the activity.
-     *
-     * @param keyCode The value in {@link KeyEvent#getKeyCode()}.
-     * @param event   Description of the key event.
-     * @return If you handled the event, return true. If you want to allow the
-     *         event to be handled by the next receiver, return false.
-     */
-    @Override
-    public boolean onKeyUp(int keyCode, KeyEvent event) {
-        return mKeyDelegate.onKeyUp(keyCode, event) ||
-                super.onKeyUp(keyCode, event);
+  /**
+   * Gets the currently selected item.
+   *
+   * @return The selected item.
+   */
+  @Override
+  public WebItem getSelectedItem() {
+    return mSelectedItem;
+  }
+
+  /**
+   * Checks if the activity is in multi-pane mode.
+   *
+   * @return True if in multi-pane mode, false otherwise.
+   */
+  @Override
+  public boolean isMultiPane() {
+    return mIsMultiPane;
+  }
+
+  /**
+   * Checks if activity should have search view.
+   *
+   * @return true if is searchable, false otherwise.
+   */
+  protected boolean isSearchable() {
+    return true;
+  }
+
+  /**
+   * Gets default title to be displayed in list-only layout.
+   *
+   * @return displayed title.
+   */
+  protected abstract String getDefaultTitle();
+
+  /**
+   * Creates list fragment to host list data.
+   *
+   * @return list fragment.
+   */
+  protected abstract Fragment instantiateListFragment();
+
+  /**
+   * Gets cache mode for {@link ItemManager}.
+   *
+   * @return cache mode.
+   */
+  @ItemManager.CacheMode
+  protected int getItemCacheMode() {
+    return ItemManager.MODE_DEFAULT;
+  }
+
+  /** Toggles the fullscreen mode of the activity. */
+  @Synthetic
+  void setFullscreen() {
+    mAppBar.setExpanded(!mFullscreen, true);
+    mTabLayout.setVisibility(mFullscreen ? View.GONE : View.VISIBLE);
+    mListView.setVisibility(mFullscreen ? View.GONE : View.VISIBLE);
+    mKeyDelegate.setAppBarEnabled(!mFullscreen);
+    mViewPager.setUserInputEnabled(!mFullscreen);
+    AppUtils.toggleFab(mReplyButton, !mFullscreen);
+    mBackPressedCallback.setEnabled(mIsMultiPane && mFullscreen);
+  }
+
+  private Scrollable getScrollableList() {
+    // TODO landscape behavior?
+    return (Scrollable) getSupportFragmentManager().findFragmentByTag(LIST_FRAGMENT_TAG);
+  }
+
+  private KeyDelegate.BackInterceptor getBackInterceptor() {
+    if (mViewPager == null || mViewPager.getAdapter() == null || mViewPager.getCurrentItem() < 0) {
+      return null;
     }
-
-    /**
-     * Called when a long press has occurred and not handled by any of the views
-     * inside of the activity.
-     *
-     * @param keyCode The value in {@link KeyEvent#getKeyCode()}.
-     * @param event   Description of the key event.
-     * @return If you handled the event, return true. If you want to allow the
-     *         event to be handled by the next receiver, return false.
-     */
-    @Override
-    public boolean onKeyLongPress(int keyCode, KeyEvent event) {
-        return mKeyDelegate.onKeyLongPress(keyCode, event) ||
-                super.onKeyLongPress(keyCode, event);
+    Fragment item = getFragment(mViewPager.getCurrentItem());
+    if (item instanceof KeyDelegate.BackInterceptor) {
+      return (KeyDelegate.BackInterceptor) item;
+    } else {
+      return null;
     }
+  }
 
-    /**
-     * Retrieves the {@link ActionBar} for this activity.
-     *
-     * @return The support action bar.
-     */
-    @NonNull
-    @Override
-    public ActionBar getSupportActionBar() {
-        // noinspection ConstantConditions
-        return super.getSupportActionBar();
+  private void openSinglePaneItem() {
+    if (mExternalBrowser && mStoryViewMode != Preferences.StoryViewMode.Comment) {
+      AppUtils.openWebUrlExternal(
+          this, mSelectedItem, mSelectedItem.getUrl(), mCustomTabsDelegate.getSession());
+    } else {
+      Intent intent =
+          new Intent(this, ItemActivity.class)
+              .putExtra(ItemActivity.EXTRA_CACHE_MODE, getItemCacheMode())
+              .putExtra(ItemActivity.EXTRA_ITEM, mSelectedItem);
+      startActivity(mMultiWindowEnabled ? AppUtils.multiWindowIntent(this, intent) : intent);
     }
+  }
 
-    /**
-     * Called when an item in the list is selected.
-     *
-     * @param item The selected item.
-     */
-    @Override
-    public void onItemSelected(@Nullable WebItem item) {
-        WebItem previousItem = mSelectedItem;
-        mSelectedItem = item;
-        if (mIsMultiPane) {
-            if (previousItem != null && item != null &&
-                    TextUtils.equals(item.getId(), previousItem.getId())) {
-                return;
-            }
-            if (previousItem == null && item != null ||
-                    previousItem != null && item == null) {
-                supportInvalidateOptionsMenu();
-            }
-            openMultiPaneItem();
-        } else if (item != null) {
-            openSinglePaneItem();
-        }
+  private void openMultiPaneItem() {
+    if (mSelectedItem == null) {
+      setTitle(getDefaultTitle());
+      findViewById(R.id.empty_selection).setVisibility(View.VISIBLE);
+      mTabLayout.setVisibility(View.GONE);
+      mViewPager.setVisibility(View.GONE);
+      mViewPager.setAdapter(null);
+      AppUtils.toggleFab(mNavButton, false);
+      AppUtils.toggleFab(mReplyButton, false);
+    } else {
+      setTitle(mSelectedItem.getDisplayedTitle());
+      findViewById(R.id.empty_selection).setVisibility(View.GONE);
+      mTabLayout.setVisibility(View.VISIBLE);
+      mViewPager.setVisibility(View.VISIBLE);
+      bindViewPager();
+      mSessionManager.view(mSelectedItem.getId());
     }
+  }
 
-    /**
-     * Gets the currently selected item.
-     *
-     * @return The selected item.
-     */
-    @Override
-    public WebItem getSelectedItem() {
-        return mSelectedItem;
-    }
-
-    /**
-     * Checks if the activity is in multi-pane mode.
-     *
-     * @return True if in multi-pane mode, false otherwise.
-     */
-    @Override
-    public boolean isMultiPane() {
-        return mIsMultiPane;
-    }
-
-    /**
-     * Checks if activity should have search view.
-     *
-     * @return true if is searchable, false otherwise.
-     */
-    protected boolean isSearchable() {
-        return true;
-    }
-
-    /**
-     * Gets default title to be displayed in list-only layout.
-     *
-     * @return displayed title.
-     */
-    protected abstract String getDefaultTitle();
-
-    /**
-     * Creates list fragment to host list data.
-     *
-     * @return list fragment.
-     */
-    protected abstract Fragment instantiateListFragment();
-
-    /**
-     * Gets cache mode for {@link ItemManager}.
-     *
-     * @return cache mode.
-     */
-    @ItemManager.CacheMode
-    protected int getItemCacheMode() {
-        return ItemManager.MODE_DEFAULT;
-    }
-
-    /**
-     * Toggles the fullscreen mode of the activity.
-     */
-    @Synthetic
-    void setFullscreen() {
-        mAppBar.setExpanded(!mFullscreen, true);
-        mTabLayout.setVisibility(mFullscreen ? View.GONE : View.VISIBLE);
-        mListView.setVisibility(mFullscreen ? View.GONE : View.VISIBLE);
-        mKeyDelegate.setAppBarEnabled(!mFullscreen);
-        mViewPager.setUserInputEnabled(!mFullscreen);
-        AppUtils.toggleFab(mReplyButton, !mFullscreen);
-        mBackPressedCallback.setEnabled(mIsMultiPane && mFullscreen);
-    }
-
-    private Scrollable getScrollableList() {
-        // TODO landscape behavior?
-        return (Scrollable) getSupportFragmentManager().findFragmentByTag(LIST_FRAGMENT_TAG);
-    }
-
-    private KeyDelegate.BackInterceptor getBackInterceptor() {
-        if (mViewPager == null ||
-                mViewPager.getAdapter() == null ||
-                mViewPager.getCurrentItem() < 0) {
-            return null;
-        }
-        Fragment item = getFragment(mViewPager.getCurrentItem());
-        if (item instanceof KeyDelegate.BackInterceptor) {
-            return (KeyDelegate.BackInterceptor) item;
-        } else {
-            return null;
-        }
-    }
-
-    private void openSinglePaneItem() {
-        if (mExternalBrowser && mStoryViewMode != Preferences.StoryViewMode.Comment) {
-            AppUtils.openWebUrlExternal(this, mSelectedItem, mSelectedItem.getUrl(), mCustomTabsDelegate.getSession());
-        } else {
-            Intent intent = new Intent(this, ItemActivity.class)
-                    .putExtra(ItemActivity.EXTRA_CACHE_MODE, getItemCacheMode())
-                    .putExtra(ItemActivity.EXTRA_ITEM, mSelectedItem);
-            startActivity(mMultiWindowEnabled ? AppUtils.multiWindowIntent(this, intent) : intent);
-        }
-    }
-
-    private void openMultiPaneItem() {
-        if (mSelectedItem == null) {
-            setTitle(getDefaultTitle());
-            findViewById(R.id.empty_selection).setVisibility(View.VISIBLE);
-            mTabLayout.setVisibility(View.GONE);
-            mViewPager.setVisibility(View.GONE);
-            mViewPager.setAdapter(null);
-            AppUtils.toggleFab(mNavButton, false);
-            AppUtils.toggleFab(mReplyButton, false);
-        } else {
-            setTitle(mSelectedItem.getDisplayedTitle());
-            findViewById(R.id.empty_selection).setVisibility(View.GONE);
-            mTabLayout.setVisibility(View.VISIBLE);
-            mViewPager.setVisibility(View.VISIBLE);
-            bindViewPager();
-            mSessionManager.view(mSelectedItem.getId());
-        }
-    }
-
-    /**
-     * Binds the ViewPager2 with the adapter and TabLayoutMediator.
-     */
-    private void bindViewPager() {
-        mAdapter = new ItemPagerAdapter(this, new ItemPagerAdapter.Builder()
+  /** Binds the ViewPager2 with the adapter and TabLayoutMediator. */
+  private void bindViewPager() {
+    mAdapter =
+        new ItemPagerAdapter(
+            this,
+            new ItemPagerAdapter.Builder()
                 .setItem(mSelectedItem)
                 .setCacheMode(getItemCacheMode())
                 .setShowArticle(true)
                 .setDefaultViewMode(mStoryViewMode));
-        mViewPager.setAdapter(mAdapter);
-        mViewPager.setOffscreenPageLimit(2);
-        mTabLayoutMediator = new TabLayoutMediator(mTabLayout, mViewPager,
-                (tab, position) -> tab.setText(mAdapter.getPageTitle(position)));
-        mTabLayoutMediator.attach();
+    mViewPager.setAdapter(mAdapter);
+    mViewPager.setOffscreenPageLimit(2);
+    mTabLayoutMediator =
+        new TabLayoutMediator(
+            mTabLayout,
+            mViewPager,
+            (tab, position) -> tab.setText(mAdapter.getPageTitle(position)));
+    mTabLayoutMediator.attach();
 
-        mPageChangeCallback = new ViewPager2.OnPageChangeCallback() {
-            @Override
-            public void onPageSelected(int position) {
-                super.onPageSelected(position);
-                updateFabState(position);
-            }
+    mPageChangeCallback =
+        new ViewPager2.OnPageChangeCallback() {
+          @Override
+          public void onPageSelected(int position) {
+            super.onPageSelected(position);
+            updateFabState(position);
+          }
         };
-        mViewPager.registerOnPageChangeCallback(mPageChangeCallback);
+    mViewPager.registerOnPageChangeCallback(mPageChangeCallback);
 
-        mTabSelectedListener = new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-            }
+    mTabSelectedListener =
+        new TabLayout.OnTabSelectedListener() {
+          @Override
+          public void onTabSelected(TabLayout.Tab tab) {}
 
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-            }
+          @Override
+          public void onTabUnselected(TabLayout.Tab tab) {}
 
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-                Fragment fragment = getFragment(mViewPager.getCurrentItem());
-                if (fragment instanceof Scrollable) {
-                    ((Scrollable) fragment).scrollToTop();
-                }
+          @Override
+          public void onTabReselected(TabLayout.Tab tab) {
+            Fragment fragment = getFragment(mViewPager.getCurrentItem());
+            if (fragment instanceof Scrollable) {
+              ((Scrollable) fragment).scrollToTop();
             }
+          }
         };
-        mTabLayout.addOnTabSelectedListener(mTabSelectedListener);
+    mTabLayout.addOnTabSelectedListener(mTabSelectedListener);
 
-        // Initial FAB state
-        updateFabState(mViewPager.getCurrentItem());
+    // Initial FAB state
+    updateFabState(mViewPager.getCurrentItem());
 
-        if (mFullscreen) {
-            setFullscreen();
-        }
+    if (mFullscreen) {
+      setFullscreen();
+    }
+  }
+
+  /**
+   * Unbinds the ViewPager2, detaching the mediator and removing callbacks. Also removes fragments
+   * managed by the adapter to prevent leaks.
+   */
+  @SuppressLint("RestrictedApi")
+  private void unbindViewPager() {
+    if (mViewPager == null) {
+      return;
+    }
+    if (mTabLayoutMediator != null) {
+      mTabLayoutMediator.detach();
+      mTabLayoutMediator = null;
     }
 
-    /**
-     * Unbinds the ViewPager2, detaching the mediator and removing callbacks.
-     * Also removes fragments managed by the adapter to prevent leaks.
-     */
-    @SuppressLint("RestrictedApi")
-    private void unbindViewPager() {
-        if (mViewPager == null) {
-            return;
-        }
-        if (mTabLayoutMediator != null) {
-            mTabLayoutMediator.detach();
-            mTabLayoutMediator = null;
-        }
-
-        if (mPageChangeCallback != null) {
-            mViewPager.unregisterOnPageChangeCallback(mPageChangeCallback);
-            mPageChangeCallback = null;
-        }
-        if (mTabSelectedListener != null) {
-            mTabLayout.removeOnTabSelectedListener(mTabSelectedListener);
-            mTabSelectedListener = null;
-        }
-
-        // Clearing adapter should be enough for ViewPager2 to clean up fragments
-        mViewPager.setAdapter(null);
+    if (mPageChangeCallback != null) {
+      mViewPager.unregisterOnPageChangeCallback(mPageChangeCallback);
+      mPageChangeCallback = null;
+    }
+    if (mTabSelectedListener != null) {
+      mTabLayout.removeOnTabSelectedListener(mTabSelectedListener);
+      mTabSelectedListener = null;
     }
 
-    private void updateFabState(int position) {
-        AppUtils.toggleFab(mNavButton, position == 0 && Preferences.navigationEnabled(BaseListActivity.this));
-        AppUtils.toggleFab(mReplyButton, true);
-        AppUtils.toggleFabAction(mReplyButton, mSelectedItem, position == 0);
+    // Clearing adapter should be enough for ViewPager2 to clean up fragments
+    mViewPager.setAdapter(null);
+  }
 
-        Fragment fragment = getFragment(position);
-        if (fragment instanceof LazyLoadFragment) {
-            ((LazyLoadFragment) fragment).loadNow();
-        }
-    }
+  private void updateFabState(int position) {
+    AppUtils.toggleFab(
+        mNavButton, position == 0 && Preferences.navigationEnabled(BaseListActivity.this));
+    AppUtils.toggleFab(mReplyButton, true);
+    AppUtils.toggleFabAction(mReplyButton, mSelectedItem, position == 0);
 
-    /**
-     * Retrieves the fragment at the specified position.
-     *
-     * @param position The position of the fragment.
-     * @return The fragment, or null.
-     */
-    private Fragment getFragment(int position) {
-        return mAdapter != null ? mAdapter.findFragment(getSupportFragmentManager(), position) : null;
+    Fragment fragment = getFragment(position);
+    if (fragment instanceof LazyLoadFragment) {
+      ((LazyLoadFragment) fragment).loadNow();
     }
+  }
 
-    private void onPreferenceChanged(int key, boolean contextChanged) {
-        if (key == R.string.pref_external) {
-            mExternalBrowser = Preferences.externalBrowserEnabled(this);
-        } else if (key == R.string.pref_story_display) {
-            mStoryViewMode = Preferences.getDefaultStoryView(this);
-        } else if (key == R.string.pref_navigation) {
-            boolean enabled = Preferences.navigationEnabled(this);
-            if (!enabled) {
-                NavFloatingActionButton.resetPosition(this);
-            }
-            if (mNavButton != null) {
-                AppUtils.toggleFab(mNavButton, mViewPager.getCurrentItem() == 0 && enabled);
-            }
-        } else if (key == R.string.pref_multi_window) {
-            mMultiWindowEnabled = Preferences.multiWindowEnabled(this);
-        }
+  /**
+   * Retrieves the fragment at the specified position.
+   *
+   * @param position The position of the fragment.
+   * @return The fragment, or null.
+   */
+  private Fragment getFragment(int position) {
+    return mAdapter != null ? mAdapter.findFragment(getSupportFragmentManager(), position) : null;
+  }
+
+  private void onPreferenceChanged(int key, boolean contextChanged) {
+    if (key == R.string.pref_external) {
+      mExternalBrowser = Preferences.externalBrowserEnabled(this);
+    } else if (key == R.string.pref_story_display) {
+      mStoryViewMode = Preferences.getDefaultStoryView(this);
+    } else if (key == R.string.pref_navigation) {
+      boolean enabled = Preferences.navigationEnabled(this);
+      if (!enabled) {
+        NavFloatingActionButton.resetPosition(this);
+      }
+      if (mNavButton != null) {
+        AppUtils.toggleFab(mNavButton, mViewPager.getCurrentItem() == 0 && enabled);
+      }
+    } else if (key == R.string.pref_multi_window) {
+      mMultiWindowEnabled = Preferences.multiWindowEnabled(this);
     }
+  }
 }

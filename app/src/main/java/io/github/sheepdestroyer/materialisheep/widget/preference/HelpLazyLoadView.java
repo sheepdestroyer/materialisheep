@@ -17,39 +17,38 @@
 package io.github.sheepdestroyer.materialisheep.widget.preference;
 
 import android.content.Context;
-import com.google.android.material.tabs.TabLayout;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.ScrollView;
-
+import com.google.android.material.tabs.TabLayout;
 import io.github.sheepdestroyer.materialisheep.Preferences;
 import io.github.sheepdestroyer.materialisheep.R;
 
 public class HelpLazyLoadView extends ScrollView {
-    public HelpLazyLoadView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        addView(LayoutInflater.from(context).inflate(R.layout.include_help_lazy_load, this, false));
-    }
+  public HelpLazyLoadView(Context context, AttributeSet attrs) {
+    super(context, attrs);
+    addView(LayoutInflater.from(context).inflate(R.layout.include_help_lazy_load, this, false));
+  }
 
-    @Override
-    protected void onFinishInflate() {
-        super.onFinishInflate();
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
-        tabLayout.addTab(tabLayout.newTab().setText(R.string.comments));
-        tabLayout.addTab(tabLayout.newTab().setText(R.string.article));
-        Preferences.StoryViewMode defaultView = Preferences.getDefaultStoryView(getContext());
-        int defaultTab;
-        switch (defaultView) {
-            case Comment:
-            default:
-                defaultTab = 0;
-                break;
-            case Article:
-            case Readability:
-                defaultTab = 1;
-                break;
-        }
-        //noinspection ConstantConditions
-        tabLayout.getTabAt(defaultTab).select();
+  @Override
+  protected void onFinishInflate() {
+    super.onFinishInflate();
+    TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
+    tabLayout.addTab(tabLayout.newTab().setText(R.string.comments));
+    tabLayout.addTab(tabLayout.newTab().setText(R.string.article));
+    Preferences.StoryViewMode defaultView = Preferences.getDefaultStoryView(getContext());
+    int defaultTab;
+    switch (defaultView) {
+      case Comment:
+      default:
+        defaultTab = 0;
+        break;
+      case Article:
+      case Readability:
+        defaultTab = 1;
+        break;
     }
+    //noinspection ConstantConditions
+    tabLayout.getTabAt(defaultTab).select();
+  }
 }

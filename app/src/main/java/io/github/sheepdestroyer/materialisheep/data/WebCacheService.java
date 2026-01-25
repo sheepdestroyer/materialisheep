@@ -19,46 +19,42 @@ package io.github.sheepdestroyer.materialisheep.data;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
-import androidx.annotation.Nullable;
 import android.webkit.WebView;
-
+import androidx.annotation.Nullable;
 import io.github.sheepdestroyer.materialisheep.Preferences;
 import io.github.sheepdestroyer.materialisheep.widget.AdBlockWebViewClient;
 import io.github.sheepdestroyer.materialisheep.widget.CacheableWebView;
 
-/**
- * A {@link Service} that caches web pages for offline viewing.
- */
+/** A {@link Service} that caches web pages for offline viewing. */
 public class WebCacheService extends Service {
-    /**
-     * An extra that contains the URL of the web page to cache.
-     */
-    static final String EXTRA_URL = "extra:url";
+  /** An extra that contains the URL of the web page to cache. */
+  static final String EXTRA_URL = "extra:url";
 
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
+  @Nullable
+  @Override
+  public IBinder onBind(Intent intent) {
+    return null;
+  }
+
+  @Override
+  public int onStartCommand(Intent intent, int flags, int startId) {
+    if (intent == null) { // restarted
+      stopSelf(startId);
+      return START_STICKY;
     }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent == null) { // restarted
-            stopSelf(startId);
-            return START_STICKY;
-        }
-        CacheableWebView webView = new CacheableWebView(this);
-        webView.setWebViewClient(new AdBlockWebViewClient(Preferences.adBlockEnabled(this)));
-        webView.setWebChromeClient(new CacheableWebView.ArchiveClient() {
-            @Override
-            public void onProgressChanged(WebView view, int newProgress) {
-                super.onProgressChanged(view, newProgress);
-                if (newProgress == 100) {
-                    stopSelf(startId);
-                }
+    CacheableWebView webView = new CacheableWebView(this);
+    webView.setWebViewClient(new AdBlockWebViewClient(Preferences.adBlockEnabled(this)));
+    webView.setWebChromeClient(
+        new CacheableWebView.ArchiveClient() {
+          @Override
+          public void onProgressChanged(WebView view, int newProgress) {
+            super.onProgressChanged(view, newProgress);
+            if (newProgress == 100) {
+              stopSelf(startId);
             }
+          }
         });
-        webView.loadUrl(intent.getStringExtra(EXTRA_URL));
-        return START_STICKY;
-    }
+    webView.loadUrl(intent.getStringExtra(EXTRA_URL));
+    return START_STICKY;
+  }
 }
