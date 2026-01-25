@@ -1,6 +1,13 @@
 version = 1
 
 [[analyzers]]
+name = "kotlin"
+
+  [analyzers.meta]
+  runtime_version = "21"
+  language_version = "2.1"
+
+[[analyzers]]
 name = "java"
 
   [analyzers.meta]
@@ -8,3 +15,6 @@ name = "java"
 
 [[code_formatters]]
 name = "google-java-format"
+
+[[code_formatters]]
+name = "ktlint"
