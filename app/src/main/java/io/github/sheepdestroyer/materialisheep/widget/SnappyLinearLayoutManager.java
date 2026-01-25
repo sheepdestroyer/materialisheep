@@ -21,46 +21,43 @@ import android.graphics.PointF;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
-
 import io.github.sheepdestroyer.materialisheep.AppUtils;
 
 /**
- * Light extension to {@link LinearLayoutManager} that overrides smooth scroller
- * to
- * always snap to start
+ * Light extension to {@link LinearLayoutManager} that overrides smooth scroller to always snap to
+ * start
  */
 @SuppressWarnings("deprecation") // TODO: Uses deprecated getExtraLayoutSpace API
 public class SnappyLinearLayoutManager extends LinearLayoutManager {
 
-    private final int mExtraSpace;
+  private final int mExtraSpace;
 
-    public SnappyLinearLayoutManager(Context context, boolean preload) {
-        super(context);
-        mExtraSpace = preload ? AppUtils.getDisplayHeight(context) : 0;
-    }
+  public SnappyLinearLayoutManager(Context context, boolean preload) {
+    super(context);
+    mExtraSpace = preload ? AppUtils.getDisplayHeight(context) : 0;
+  }
 
-    @Override
-    public void smoothScrollToPosition(RecyclerView recyclerView,
-            RecyclerView.State state,
-            int position) {
-        RecyclerView.SmoothScroller smoothScroller = new LinearSmoothScroller(recyclerView.getContext()) {
-            @Override
-            public PointF computeScrollVectorForPosition(int targetPosition) {
-                return SnappyLinearLayoutManager.this
-                        .computeScrollVectorForPosition(targetPosition);
-            }
+  @Override
+  public void smoothScrollToPosition(
+      RecyclerView recyclerView, RecyclerView.State state, int position) {
+    RecyclerView.SmoothScroller smoothScroller =
+        new LinearSmoothScroller(recyclerView.getContext()) {
+          @Override
+          public PointF computeScrollVectorForPosition(int targetPosition) {
+            return SnappyLinearLayoutManager.this.computeScrollVectorForPosition(targetPosition);
+          }
 
-            @Override
-            protected int getVerticalSnapPreference() {
-                return SNAP_TO_START; // override base class behavior
-            }
+          @Override
+          protected int getVerticalSnapPreference() {
+            return SNAP_TO_START; // override base class behavior
+          }
         };
-        smoothScroller.setTargetPosition(position);
-        startSmoothScroll(smoothScroller);
-    }
+    smoothScroller.setTargetPosition(position);
+    startSmoothScroll(smoothScroller);
+  }
 
-    @Override
-    protected int getExtraLayoutSpace(RecyclerView.State state) {
-        return mExtraSpace == 0 ? super.getExtraLayoutSpace(state) : mExtraSpace;
-    }
+  @Override
+  protected int getExtraLayoutSpace(RecyclerView.State state) {
+    return mExtraSpace == 0 ? super.getExtraLayoutSpace(state) : mExtraSpace;
+  }
 }

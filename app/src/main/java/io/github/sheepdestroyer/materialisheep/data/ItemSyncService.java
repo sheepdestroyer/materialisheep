@@ -19,35 +19,33 @@ package io.github.sheepdestroyer.materialisheep.data;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
-
-import javax.inject.Inject;
-
 import io.github.sheepdestroyer.materialisheep.MaterialisticApplication;
+import javax.inject.Inject;
 
 /**
  * A {@link Service} that provides an {@link IBinder} for the {@link ItemSyncAdapter} to sync data.
  */
 public class ItemSyncService extends Service {
 
-    private static ItemSyncAdapter sItemSyncAdapter = null;
-    private static final Object sItemSyncAdapterLock = new Object();
-    @Inject RestServiceFactory mFactory;
-    @Inject ReadabilityClient mReadabilityClient;
+  private static ItemSyncAdapter sItemSyncAdapter = null;
+  private static final Object sItemSyncAdapterLock = new Object();
+  @Inject RestServiceFactory mFactory;
+  @Inject ReadabilityClient mReadabilityClient;
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        ((MaterialisticApplication) getApplication()).applicationComponent.inject(this);
-        synchronized (sItemSyncAdapterLock) {
-            if (sItemSyncAdapter == null) {
-                sItemSyncAdapter = new ItemSyncAdapter(getApplicationContext(),
-                        mFactory, mReadabilityClient);
-            }
-        }
+  @Override
+  public void onCreate() {
+    super.onCreate();
+    ((MaterialisticApplication) getApplication()).applicationComponent.inject(this);
+    synchronized (sItemSyncAdapterLock) {
+      if (sItemSyncAdapter == null) {
+        sItemSyncAdapter =
+            new ItemSyncAdapter(getApplicationContext(), mFactory, mReadabilityClient);
+      }
     }
+  }
 
-    @Override
-    public IBinder onBind(Intent intent) {
-        return sItemSyncAdapter.getSyncAdapterBinder();
-    }
+  @Override
+  public IBinder onBind(Intent intent) {
+    return sItemSyncAdapter.getSyncAdapterBinder();
+  }
 }

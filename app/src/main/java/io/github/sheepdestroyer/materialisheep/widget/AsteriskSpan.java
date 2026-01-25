@@ -19,40 +19,49 @@ package io.github.sheepdestroyer.materialisheep.widget;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.text.style.ReplacementSpan;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
-import android.text.style.ReplacementSpan;
-
 import io.github.sheepdestroyer.materialisheep.AppUtils;
 import io.github.sheepdestroyer.materialisheep.R;
 
 public class AsteriskSpan extends ReplacementSpan {
-    private final int mBackgroundColor;
-    private final int mTextColor;
-    private final float mPadding;
+  private final int mBackgroundColor;
+  private final int mTextColor;
+  private final float mPadding;
 
-    public AsteriskSpan(Context context) {
-        super();
-        mBackgroundColor = ContextCompat.getColor(context,
-                AppUtils.getThemedResId(context, androidx.appcompat.R.attr.colorAccent));
-        mTextColor = ContextCompat.getColor(context, android.R.color.transparent);
-        mPadding = context.getResources().getDimension(R.dimen.padding_asterisk);
-    }
+  public AsteriskSpan(Context context) {
+    super();
+    mBackgroundColor =
+        ContextCompat.getColor(
+            context, AppUtils.getThemedResId(context, androidx.appcompat.R.attr.colorAccent));
+    mTextColor = ContextCompat.getColor(context, android.R.color.transparent);
+    mPadding = context.getResources().getDimension(R.dimen.padding_asterisk);
+  }
 
-    @Override
-    public int getSize(@NonNull Paint paint, CharSequence text, int start, int end, Paint.FontMetricsInt fm) {
-        return Math.round(mPadding * 4); // padding let + radius * 2 + padding right
-    }
+  @Override
+  public int getSize(
+      @NonNull Paint paint, CharSequence text, int start, int end, Paint.FontMetricsInt fm) {
+    return Math.round(mPadding * 4); // padding let + radius * 2 + padding right
+  }
 
-    @Override
-    public void draw(@NonNull Canvas canvas, CharSequence text, int start, int end, float x, int top, int y, int bottom,
-            @NonNull Paint paint) {
-        float radius = mPadding;
-        float centerX = x + radius + mPadding;
-        float centerY = top + radius + mPadding;
-        paint.setColor(mBackgroundColor);
-        canvas.drawCircle(centerX, centerY, radius, paint);
-        paint.setColor(mTextColor);
-        canvas.drawText(text, start, end, x + mPadding * 2, y, paint);
-    }
+  @Override
+  public void draw(
+      @NonNull Canvas canvas,
+      CharSequence text,
+      int start,
+      int end,
+      float x,
+      int top,
+      int y,
+      int bottom,
+      @NonNull Paint paint) {
+    float radius = mPadding;
+    float centerX = x + radius + mPadding;
+    float centerY = top + radius + mPadding;
+    paint.setColor(mBackgroundColor);
+    canvas.drawCircle(centerX, centerY, radius, paint);
+    paint.setColor(mTextColor);
+    canvas.drawText(text, start, end, x + mPadding * 2, y, paint);
+  }
 }

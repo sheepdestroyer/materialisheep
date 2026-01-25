@@ -18,98 +18,95 @@ package io.github.sheepdestroyer.materialisheep.data;
 
 import android.content.Context;
 import android.os.Parcel;
+import android.text.format.DateUtils;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
-import android.text.format.DateUtils;
-
 import io.github.sheepdestroyer.materialisheep.annotation.Synthetic;
 
-/**
- * A data model for a Hacker News user.
- */
+/** A data model for a Hacker News user. */
 class UserItem implements UserManager.User {
-    /**
-     * A {@link Creator} that creates {@link UserItem} instances from a {@link Parcel}.
-     */
-    public static final Creator<UserItem> CREATOR = new Creator<UserItem>() {
+  /** A {@link Creator} that creates {@link UserItem} instances from a {@link Parcel}. */
+  public static final Creator<UserItem> CREATOR =
+      new Creator<UserItem>() {
         @Override
         public UserItem createFromParcel(Parcel source) {
-            return new UserItem(source);
+          return new UserItem(source);
         }
 
         @Override
         public UserItem[] newArray(int size) {
-            return new UserItem[size];
+          return new UserItem[size];
         }
-    };
-    @Keep private String id;
-    @Keep private long delay;
-    @Keep private long created;
-    @Keep private long karma;
-    @Keep private String about;
-    @Keep private int[] submitted;
+      };
 
-    // view state
-    private HackerNewsItem[] submittedItems = new HackerNewsItem[0];
+  @Keep private String id;
+  @Keep private long delay;
+  @Keep private long created;
+  @Keep private long karma;
+  @Keep private String about;
+  @Keep private int[] submitted;
 
-    @Synthetic
-    UserItem(Parcel source) {
-        id = source.readString();
-        delay = source.readLong();
-        created = source.readLong();
-        karma = source.readLong();
-        about = source.readString();
-        submitted = source.createIntArray();
-        submittedItems = source.createTypedArray(HackerNewsItem.CREATOR);
-    }
+  // view state
+  private HackerNewsItem[] submittedItems = new HackerNewsItem[0];
 
-    @Override
-    public String getId() {
-        return id;
-    }
+  @Synthetic
+  UserItem(Parcel source) {
+    id = source.readString();
+    delay = source.readLong();
+    created = source.readLong();
+    karma = source.readLong();
+    about = source.readString();
+    submitted = source.createIntArray();
+    submittedItems = source.createTypedArray(HackerNewsItem.CREATOR);
+  }
 
-    @Override
-    public String getAbout() {
-        return about;
-    }
+  @Override
+  public String getId() {
+    return id;
+  }
 
-    @Override
-    public long getKarma() {
-        return karma;
-    }
+  @Override
+  public String getAbout() {
+    return about;
+  }
 
-    @Override
-    public String getCreated(Context context) {
-        return DateUtils.formatDateTime(context, created * 1000, DateUtils.FORMAT_SHOW_DATE);
-    }
+  @Override
+  public long getKarma() {
+    return karma;
+  }
 
-    @NonNull
-    @Override
-    public Item[] getItems() {
-        return submittedItems;
-    }
+  @Override
+  public String getCreated(Context context) {
+    return DateUtils.formatDateTime(context, created * 1000, DateUtils.FORMAT_SHOW_DATE);
+  }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
+  @NonNull
+  @Override
+  public Item[] getItems() {
+    return submittedItems;
+  }
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(id);
-        dest.writeLong(delay);
-        dest.writeLong(created);
-        dest.writeLong(karma);
-        dest.writeString(about);
-        dest.writeIntArray(submitted);
-        dest.writeTypedArray(submittedItems, flags);
-    }
+  @Override
+  public int describeContents() {
+    return 0;
+  }
 
-    void setSubmittedItems(HackerNewsItem[] submittedItems) {
-        this.submittedItems = submittedItems != null ? submittedItems : new HackerNewsItem[0];
-    }
+  @Override
+  public void writeToParcel(Parcel dest, int flags) {
+    dest.writeString(id);
+    dest.writeLong(delay);
+    dest.writeLong(created);
+    dest.writeLong(karma);
+    dest.writeString(about);
+    dest.writeIntArray(submitted);
+    dest.writeTypedArray(submittedItems, flags);
+  }
 
-    int[] getSubmitted() {
-        return submitted;
-    }
+  void setSubmittedItems(HackerNewsItem[] submittedItems) {
+    this.submittedItems = submittedItems != null ? submittedItems : new HackerNewsItem[0];
+  }
+
+  int[] getSubmitted() {
+    return submitted;
+  }
 }

@@ -18,15 +18,14 @@ package io.github.sheepdestroyer.materialisheep.widget;
 
 import android.view.View;
 import android.widget.TextView;
-
 import io.github.sheepdestroyer.materialisheep.R;
 
 class SubmissionViewHolder extends ItemRecyclerViewAdapter.ItemViewHolder {
-    final TextView mTitleTextView;
+  final TextView mTitleTextView;
 
-    SubmissionViewHolder(View itemView) {
-        super(itemView);
-        mTitleTextView = (android.widget.TextView) itemView.findViewById(R.id.title);
-        mCommentButton.setText(R.string.view_story);
-    }
+  SubmissionViewHolder(View itemView) {
+    super(itemView);
+    mTitleTextView = (android.widget.TextView) itemView.findViewById(R.id.title);
+    mCommentButton.setText(R.string.view_story);
+  }
 }

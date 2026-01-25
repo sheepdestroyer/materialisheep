@@ -18,39 +18,35 @@ package io.github.sheepdestroyer.materialisheep;
 
 import android.os.Bundle;
 import androidx.annotation.NonNull;
-
 import io.github.sheepdestroyer.materialisheep.data.ItemManager;
 
-/**
- * List activity that displays top stories
- */
+/** List activity that displays top stories */
 public class ListActivity extends BaseStoriesActivity {
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        ((MaterialisticApplication) getApplication()).applicationComponent.inject(this);
-    }
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    ((MaterialisticApplication) getApplication()).applicationComponent.inject(this);
+  }
 
-    /**
-     * Gets the default title for the activity.
-     *
-     * @return The default title.
-     */
-    @Override
-    protected String getDefaultTitle() {
-        return getString(R.string.title_activity_list);
-    }
+  /**
+   * Gets the default title for the activity.
+   *
+   * @return The default title.
+   */
+  @Override
+  protected String getDefaultTitle() {
+    return getString(R.string.title_activity_list);
+  }
 
-    /**
-     * Gets the fetch mode for the stories.
-     *
-     * @return The fetch mode.
-     */
-    @NonNull
-    @Override
-    protected String getFetchMode() {
-        return ItemManager.TOP_FETCH_MODE;
-    }
-
+  /**
+   * Gets the fetch mode for the stories.
+   *
+   * @return The fetch mode.
+   */
+  @NonNull
+  @Override
+  protected String getFetchMode() {
+    return ItemManager.TOP_FETCH_MODE;
+  }
 }

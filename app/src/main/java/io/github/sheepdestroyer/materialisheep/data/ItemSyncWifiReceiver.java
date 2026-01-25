@@ -20,24 +20,19 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
-import android.os.Build;
 import android.text.TextUtils;
-
 import io.github.sheepdestroyer.materialisheep.AppUtils;
 
-/**
- * A {@link BroadcastReceiver} that triggers a sync when the device connects to
- * a Wi-Fi network.
- */
+/** A {@link BroadcastReceiver} that triggers a sync when the device connects to a Wi-Fi network. */
 @SuppressWarnings("deprecation") // TODO: Uses deprecated ConnectivityManager/NetworkInfo APIs
 public class ItemSyncWifiReceiver extends BroadcastReceiver {
-    @Override
-    public void onReceive(Context context, Intent intent) {
-        if (!TextUtils.equals(intent.getAction(), ConnectivityManager.CONNECTIVITY_ACTION)) {
-            return;
-        }
-        if (AppUtils.isOnWiFi(context)) {
-            SyncDelegate.scheduleSync(context, new SyncDelegate.JobBuilder(context, null).build());
-        }
+  @Override
+  public void onReceive(Context context, Intent intent) {
+    if (!TextUtils.equals(intent.getAction(), ConnectivityManager.CONNECTIVITY_ACTION)) {
+      return;
     }
+    if (AppUtils.isOnWiFi(context)) {
+      SyncDelegate.scheduleSync(context, new SyncDelegate.JobBuilder(context, null).build());
+    }
+  }
 }

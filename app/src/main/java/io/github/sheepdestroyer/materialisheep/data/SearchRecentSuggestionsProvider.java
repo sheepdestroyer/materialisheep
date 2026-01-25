@@ -19,20 +19,17 @@ package io.github.sheepdestroyer.materialisheep.data;
 /**
  * A {@link android.content.SearchRecentSuggestionsProvider} that provides recent search queries.
  */
-public class SearchRecentSuggestionsProvider extends android.content.SearchRecentSuggestionsProvider {
-    /**
-     * The authority of the search recent suggestions provider.
-     */
-    public static final String PROVIDER_AUTHORITY = "io.github.sheepdestroyer.materialisheep.recentprovider";
-    /**
-     * The mode of the search recent suggestions provider.
-     */
-    public static final int MODE = DATABASE_MODE_QUERIES;
+public class SearchRecentSuggestionsProvider
+    extends android.content.SearchRecentSuggestionsProvider {
+  /** The authority of the search recent suggestions provider. */
+  public static final String PROVIDER_AUTHORITY =
+      "io.github.sheepdestroyer.materialisheep.recentprovider";
 
-    /**
-     * Constructs a new {@code SearchRecentSuggestionsProvider}.
-     */
-    public SearchRecentSuggestionsProvider() {
-        setupSuggestions(PROVIDER_AUTHORITY, MODE);
-    }
+  /** The mode of the search recent suggestions provider. */
+  public static final int MODE = DATABASE_MODE_QUERIES;
+
+  /** Constructs a new {@code SearchRecentSuggestionsProvider}. */
+  public SearchRecentSuggestionsProvider() {
+    setupSuggestions(PROVIDER_AUTHORITY, MODE);
+  }
 }

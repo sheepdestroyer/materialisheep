@@ -18,106 +18,108 @@ package io.github.sheepdestroyer.materialisheep;
 
 import android.content.Context;
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
 import android.view.Menu;
 import android.view.MenuInflater;
+import androidx.fragment.app.Fragment;
 
 /**
- * Base fragment which performs injection using its parent activity's object
- * graphs, if available.
- * It also handles menu creation and preparation, and tracks the fragment's
- * attached state.
+ * Base fragment which performs injection using its parent activity's object graphs, if available.
+ * It also handles menu creation and preparation, and tracks the fragment's attached state.
  */
 public abstract class BaseFragment extends Fragment {
-    protected final MenuTintDelegate mMenuTintDelegate = new MenuTintDelegate();
-    private boolean mAttached;
+  protected final MenuTintDelegate mMenuTintDelegate = new MenuTintDelegate();
+  private boolean mAttached;
 
-    /**
-     * Called when a fragment is first attached to its context.
-     *
-     * @param context The context.
-     */
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        mAttached = true;
-    }
+  /**
+   * Called when a fragment is first attached to its context.
+   *
+   * @param context The context.
+   */
+  @Override
+  public void onAttach(Context context) {
+    super.onAttach(context);
+    mAttached = true;
+  }
 
-    /**
-     * Called when the fragment's activity has been created and this
-     * fragment's view hierarchy instantiated.
-     *
-     * @param savedInstanceState If the fragment is being re-created from
-     *                           a previous saved state, this is the state.
-     */
-    /**
-     * Called immediately after
-     * {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}
-     * has returned, but before any saved state has been restored in to the view.
-     */
-    @Override
-    public void onViewCreated(@androidx.annotation.NonNull android.view.View view,
-            @androidx.annotation.Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        mMenuTintDelegate.onActivityCreated(getActivity());
-        requireActivity().addMenuProvider(new androidx.core.view.MenuProvider() {
-            @Override
-            public void onCreateMenu(@androidx.annotation.NonNull Menu menu,
-                    @androidx.annotation.NonNull MenuInflater menuInflater) {
+  /**
+   * Called when the fragment's activity has been created and this fragment's view hierarchy
+   * instantiated.
+   *
+   * @param savedInstanceState If the fragment is being re-created from a previous saved state, this
+   *     is the state.
+   */
+  /**
+   * Called immediately after {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)} has returned,
+   * but before any saved state has been restored in to the view.
+   */
+  @Override
+  public void onViewCreated(
+      @androidx.annotation.NonNull android.view.View view,
+      @androidx.annotation.Nullable Bundle savedInstanceState) {
+    super.onViewCreated(view, savedInstanceState);
+    mMenuTintDelegate.onActivityCreated(getActivity());
+    requireActivity()
+        .addMenuProvider(
+            new androidx.core.view.MenuProvider() {
+              @Override
+              public void onCreateMenu(
+                  @androidx.annotation.NonNull Menu menu,
+                  @androidx.annotation.NonNull MenuInflater menuInflater) {
                 if (isAttached()) {
-                    createOptionsMenu(menu, menuInflater);
-                    mMenuTintDelegate.onOptionsMenuCreated(menu);
+                  createOptionsMenu(menu, menuInflater);
+                  mMenuTintDelegate.onOptionsMenuCreated(menu);
                 }
-            }
+              }
 
-            @Override
-            public boolean onMenuItemSelected(@androidx.annotation.NonNull android.view.MenuItem menuItem) {
+              @Override
+              public boolean onMenuItemSelected(
+                  @androidx.annotation.NonNull android.view.MenuItem menuItem) {
                 return BaseFragment.this.onOptionsItemSelected(menuItem);
-            }
+              }
 
-            @Override
-            public void onPrepareMenu(@androidx.annotation.NonNull Menu menu) {
+              @Override
+              public void onPrepareMenu(@androidx.annotation.NonNull Menu menu) {
                 if (isAttached()) {
-                    prepareOptionsMenu(menu);
+                  prepareOptionsMenu(menu);
                 }
-            }
-        }, getViewLifecycleOwner(), androidx.lifecycle.Lifecycle.State.RESUMED);
-    }
+              }
+            },
+            getViewLifecycleOwner(),
+            androidx.lifecycle.Lifecycle.State.RESUMED);
+  }
 
-    /**
-     * Called when the fragment is no longer attached to its activity.
-     */
-    @Override
-    public void onDetach() {
-        mAttached = false;
-        super.onDetach();
-    }
+  /** Called when the fragment is no longer attached to its activity. */
+  @Override
+  public void onDetach() {
+    mAttached = false;
+    super.onDetach();
+  }
 
-    /**
-     * Checks if the fragment is attached to its activity.
-     *
-     * @return True if the fragment is attached, false otherwise.
-     */
-    public boolean isAttached() {
-        return mAttached;
-    }
+  /**
+   * Checks if the fragment is attached to its activity.
+   *
+   * @return True if the fragment is attached, false otherwise.
+   */
+  public boolean isAttached() {
+    return mAttached;
+  }
 
-    /**
-     * Creates the options menu.
-     *
-     * @param menu     The options menu.
-     * @param inflater The menu inflater.
-     */
-    protected void createOptionsMenu(Menu menu, MenuInflater inflater) {
-        // override to create options menu
-    }
+  /**
+   * Creates the options menu.
+   *
+   * @param menu The options menu.
+   * @param inflater The menu inflater.
+   */
+  protected void createOptionsMenu(Menu menu, MenuInflater inflater) {
+    // override to create options menu
+  }
 
-    /**
-     * Prepares the options menu.
-     *
-     * @param menu The options menu.
-     */
-    protected void prepareOptionsMenu(Menu menu) {
-        // override to prepare options menu
-    }
+  /**
+   * Prepares the options menu.
+   *
+   * @param menu The options menu.
+   */
+  protected void prepareOptionsMenu(Menu menu) {
+    // override to prepare options menu
+  }
 }
