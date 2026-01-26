@@ -86,7 +86,7 @@ android {
 
 ext {
     okHttpVersion = '5.3.2'
-    daggerVersion = '2.57.2'
+    daggerVersion = '2.59'
     retrofitVersion = '3.0.0'
     roomVersion = '2.8.4'
     lifecycleVersion = '2.10.0'
