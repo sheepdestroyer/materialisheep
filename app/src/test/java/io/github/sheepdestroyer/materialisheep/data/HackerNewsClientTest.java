@@ -5,13 +5,16 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import static org.mockito.Mockito.*;
-import static org.junit.Assert.*;
 
-import retrofit2.Call;
-import retrofit2.Response;
 import java.io.IOException;
 
+import retrofit2.Call;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class HackerNewsClientTest {
@@ -25,7 +28,9 @@ public class HackerNewsClientTest {
     @Mock
     private FavoriteManager favoriteManager;
     @Mock
-    private Call<int[]> mockCall;
+    private Call<int[]> mockStoriesCall;
+    @Mock
+    private Call<HackerNewsItem> mockItemCall;
 
     private HackerNewsClient client;
 
@@ -41,12 +46,22 @@ public class HackerNewsClientTest {
 
     @Test
     public void getStories_ioException_returnsEmptyArray() throws IOException {
-        when(restService.topStories()).thenReturn(mockCall);
-        when(mockCall.execute()).thenThrow(new IOException("Network error"));
+        when(restService.topStories()).thenReturn(mockStoriesCall);
+        when(mockStoriesCall.execute()).thenThrow(new IOException("Network error"));
 
         Item[] items = client.getStories(ItemManager.TOP_FETCH_MODE, ItemManager.MODE_DEFAULT);
 
         assertNotNull(items);
         assertEquals(0, items.length);
+    }
+
+    @Test
+    public void testGetItem_IOExceptionReturnsNull() throws IOException {
+        when(restService.item(anyString())).thenReturn(mockItemCall);
+        when(mockItemCall.execute()).thenThrow(new IOException("Test exception"));
+
+        Item item = client.getItem("1", ItemManager.MODE_DEFAULT);
+
+        assertNull("getItem should return null when execute throws IOException", item);
     }
 }
