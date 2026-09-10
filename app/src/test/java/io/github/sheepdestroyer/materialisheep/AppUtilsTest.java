@@ -106,4 +106,22 @@ public class AppUtilsTest {
     AppUtils.openPlayStore(wrapper);
     assertEquals(context.getString(R.string.no_playstore), ShadowToast.getTextOfLatestToast());
   }
+
+  @Test
+  public void testRegisterAccountsUpdatedListener_handlesSecurityExceptionGracefully() {
+    Context context = ApplicationProvider.getApplicationContext();
+    Context wrapper =
+        new ContextWrapper(context) {
+          @Override
+          public Object getSystemService(String name) {
+            if (Context.ACCOUNT_SERVICE.equals(name)) {
+              throw new SecurityException("Permission GET_ACCOUNTS not granted");
+            }
+            return super.getSystemService(name);
+          }
+        };
+
+    // Should catch SecurityException internally and log a warning without crashing
+    AppUtils.registerAccountsUpdatedListener(wrapper);
+  }
 }

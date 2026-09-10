@@ -41,6 +41,7 @@ import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.text.style.ClickableSpan;
 import android.text.style.URLSpan;
+import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -509,7 +510,7 @@ public class AppUtils {
               null,
               true);
     } catch (SecurityException e) {
-      // Permission GET_ACCOUNTS not granted, ignore
+      Log.w("AppUtils", "Permission GET_ACCOUNTS not granted", e);
     }
   }
 
@@ -529,6 +530,7 @@ public class AppUtils {
     try {
       context.startActivity(intent);
     } catch (ActivityNotFoundException e) {
+      Log.w("AppUtils", "Play Store activity not found", e);
       Toast.makeText(context, R.string.no_playstore, Toast.LENGTH_SHORT).show();
     }
   }
