@@ -18,6 +18,7 @@ package io.github.sheepdestroyer.materialisheep.widget;
 
 import android.content.Context;
 import android.graphics.PointF;
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
@@ -56,7 +57,8 @@ public class SnappyLinearLayoutManager extends LinearLayoutManager {
   }
 
   @Override
-  protected void calculateExtraLayoutSpace(RecyclerView.State state, int[] extraLayoutSpace) {
+  protected void calculateExtraLayoutSpace(
+      @NonNull RecyclerView.State state, @NonNull int[] extraLayoutSpace) {
     super.calculateExtraLayoutSpace(state, extraLayoutSpace);
     if (mExtraSpace != 0) {
       extraLayoutSpace[0] = mExtraSpace;
