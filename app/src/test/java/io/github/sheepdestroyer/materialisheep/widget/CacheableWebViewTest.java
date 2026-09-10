@@ -62,7 +62,7 @@ public class CacheableWebViewTest {
     // Wrong extension
     WebResourceRequest wrongExt = mock(WebResourceRequest.class);
     when(wrongExt.isForMainFrame()).thenReturn(true);
-    when(wrongExt.getUrl()).thenReturn(Uri.parse("file://" + context.getCacheDir().getAbsolutePath() + "/archive_test.txt"));
+    when(wrongExt.getUrl()).thenReturn(Uri.parse("file://" + context.getCacheDir().getAbsolutePath() + "/webarchive-test.txt"));
     assertNull(webView.interceptRequest(wrongExt));
   }
 
@@ -71,7 +71,7 @@ public class CacheableWebViewTest {
     Context context = ApplicationProvider.getApplicationContext();
     CacheableWebView webView = new CacheableWebView(context);
 
-    File cacheFile = new File(context.getCacheDir(), "archive_test123.mht");
+    File cacheFile = new File(context.getCacheDir(), "webarchive-test123.mht");
     cacheFile.createNewFile();
     try {
       WebResourceRequest validRequest = mock(WebResourceRequest.class);
@@ -91,7 +91,7 @@ public class CacheableWebViewTest {
     CacheableWebView webView = new CacheableWebView(context);
 
     File siblingDir = new File(context.getCacheDir().getParentFile(), "cache-sibling");
-    File fakeFile = new File(siblingDir, "archive_test.mht");
+    File fakeFile = new File(siblingDir, "webarchive-test.mht");
 
     WebResourceRequest siblingRequest = mock(WebResourceRequest.class);
     when(siblingRequest.isForMainFrame()).thenReturn(true);

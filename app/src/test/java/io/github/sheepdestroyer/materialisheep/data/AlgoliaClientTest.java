@@ -112,7 +112,7 @@ public class AlgoliaClientTest {
 
         algoliaClient.getStories("filter", ItemManager.MODE_DEFAULT, responseListener);
 
-        verify(responseListener).onError(isNull());
+        verify(responseListener).onError(eq(""));
         verify(responseListener, never()).onResponse(any());
     }
 

@@ -351,10 +351,17 @@ public class SyncDelegate {
             webView.destroy();
           });
     }
-    mJob.connectionEnabled = false;
-    int id = Integer.valueOf(mJob.id);
-    mNotificationManager.cancel(id);
-    mHandler.removeMessages(id);
+    if (mJob != null) {
+      mJob.connectionEnabled = false;
+      if (!TextUtils.isEmpty(mJob.id)) {
+        try {
+          int id = Integer.parseInt(mJob.id);
+          mNotificationManager.cancel(id);
+          mHandler.removeMessages(id);
+        } catch (NumberFormatException ignored) {
+        }
+      }
+    }
   }
 
   private PendingIntent getItemActivity(String itemId) {
@@ -373,7 +380,7 @@ public class SyncDelegate {
     private Boolean self;
     private int totalKids, finishedKids, webProgress, maxWebProgress;
     private Boolean readability;
-    String title;
+    volatile String title;
 
     @Synthetic
     SyncProgress(Job job) {
