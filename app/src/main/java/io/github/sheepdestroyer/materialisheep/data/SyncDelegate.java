@@ -199,26 +199,29 @@ public class SyncDelegate {
       sync(cachedItem);
     } else {
       updateProgress();
-      mHnRestService
-          .networkItem(itemId)
-          .enqueue(
-              new Callback<HackerNewsItem>() {
-                @Override
-                public void onResponse(
-                    Call<HackerNewsItem> call, retrofit2.Response<HackerNewsItem> response) {
-                  HackerNewsItem item;
-                  if (response.isSuccessful() && (item = response.body()) != null) {
-                    sync(item);
-                  } else {
-                    notifyItem(itemId, null);
-                  }
-                }
-
-                @Override
-                public void onFailure(Call<HackerNewsItem> call, Throwable t) {
+      Call<HackerNewsItem> call = mHnRestService.networkItem(itemId);
+      if (call != null) {
+        call.enqueue(
+            new Callback<HackerNewsItem>() {
+              @Override
+              public void onResponse(
+                  Call<HackerNewsItem> call, retrofit2.Response<HackerNewsItem> response) {
+                HackerNewsItem item;
+                if (response.isSuccessful() && (item = response.body()) != null) {
+                  sync(item);
+                } else {
                   notifyItem(itemId, null);
                 }
-              });
+              }
+
+              @Override
+              public void onFailure(Call<HackerNewsItem> call, Throwable t) {
+                notifyItem(itemId, null);
+              }
+            });
+      } else {
+        notifyItem(itemId, null);
+      }
     }
   }
 

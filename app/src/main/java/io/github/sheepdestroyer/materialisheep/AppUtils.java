@@ -883,12 +883,16 @@ public class AppUtils {
     if (Preferences.customTabsEnabled(context)) {
       CustomTabsIntent.Builder builder =
           new CustomTabsIntent.Builder(session)
-              .setDefaultColorSchemeParams(
-                  new CustomTabColorSchemeParams.Builder().setToolbarColor(
-                      ContextCompat.getColor(context, AppUtils.getThemedResId(context, androidx.appcompat.R.attr.colorPrimary))).build())
               .setShowTitle(true)
               .setUrlBarHidingEnabled(true)
               .setShareState(CustomTabsIntent.SHARE_STATE_ON);
+      int colorPrimaryRes = AppUtils.getThemedResId(context, androidx.appcompat.R.attr.colorPrimary);
+      if (colorPrimaryRes != 0) {
+        builder.setDefaultColorSchemeParams(
+            new CustomTabColorSchemeParams.Builder()
+                .setToolbarColor(ContextCompat.getColor(context, colorPrimaryRes))
+                .build());
+      }
       if (item != null) {
         builder.addMenuItem(
             context.getString(R.string.comments),

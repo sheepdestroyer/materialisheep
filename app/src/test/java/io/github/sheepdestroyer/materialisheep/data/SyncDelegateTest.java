@@ -147,36 +147,50 @@ public class SyncDelegateTest {
     assertFalse(job.connectionEnabled);
   }
   @Test
-    public void testFinishExecutedOnlyOnce() {
-        SyncDelegate.ProgressListener listener = mock(SyncDelegate.ProgressListener.class);
-        syncDelegate.subscribe(listener);
-        SyncDelegate.Job job = new SyncDelegate.Job("1");
-        job.connectionEnabled = true;
-        job.commentsEnabled = false;
-        job.readabilityEnabled = false;
-        job.articleEnabled = false;
-        syncDelegate.performSync(job);
-        // Max progress for this job: 1 + totalKids(0) + readability(0) + article(0) = 1.
-        // Notify item once to complete sync
-        syncDelegate.notifyItem("1", null);
-        // Try triggering progress updates multiple times
-        syncDelegate.notifyItem("1", null);
-        syncDelegate.notifyArticle(100);
-        // Verify listener.onDone was called exactly once
-        verify(listener, times(1)).onDone("1");
-    }
+  public void testFinishExecutedOnlyOnce() {
+    SyncDelegate.ProgressListener listener = mock(SyncDelegate.ProgressListener.class);
+    syncDelegate.subscribe(listener);
+    Call<HackerNewsItem> networkCall = mock(Call.class);
+    when(hnRestService.networkItem("1")).thenReturn(networkCall);
+    SyncDelegate.Job job =
+        new SyncDelegate.JobBuilder(context, "1")
+            .setConnectionEnabled(true)
+            .setCommentsEnabled(false)
+            .setReadabilityEnabled(false)
+            .setArticleEnabled(false)
+            .setNotificationEnabled(false)
+            .build();
+    syncDelegate.performSync(job);
+    // Max progress for this job: 1 + totalKids(0) + readability(0) + article(0) = 1.
+    // Notify item once to complete sync
+    syncDelegate.notifyItem("1", null);
+    // Try triggering progress updates multiple times
+    syncDelegate.notifyItem("1", null);
+    syncDelegate.notifyArticle(100);
+    // Verify listener.onDone was called exactly once
+    verify(listener, times(1)).onDone("1");
+  }
+
   @Test
-    public void testStopSyncPreventsFinish() {
-        SyncDelegate.ProgressListener listener = mock(SyncDelegate.ProgressListener.class);
-        syncDelegate.subscribe(listener);
-        SyncDelegate.Job job = new SyncDelegate.Job("2");
-        job.connectionEnabled = true;
-        syncDelegate.performSync(job);
-        // Stop sync before progress reaches max
-        syncDelegate.stopSync();
-        // Late callback arrives
-        syncDelegate.notifyItem("2", null);
-        // Verify listener.onDone was never called
-        verify(listener, times(0)).onDone("2");
-    }
+  public void testStopSyncPreventsFinish() {
+    SyncDelegate.ProgressListener listener = mock(SyncDelegate.ProgressListener.class);
+    syncDelegate.subscribe(listener);
+    Call<HackerNewsItem> networkCall = mock(Call.class);
+    when(hnRestService.networkItem("2")).thenReturn(networkCall);
+    SyncDelegate.Job job =
+        new SyncDelegate.JobBuilder(context, "2")
+            .setConnectionEnabled(true)
+            .setCommentsEnabled(false)
+            .setReadabilityEnabled(false)
+            .setArticleEnabled(false)
+            .setNotificationEnabled(false)
+            .build();
+    syncDelegate.performSync(job);
+    // Stop sync before progress reaches max
+    syncDelegate.stopSync();
+    // Late callback arrives
+    syncDelegate.notifyItem("2", null);
+    // Verify listener.onDone was never called
+    verify(listener, times(0)).onDone("2");
+  }
 }

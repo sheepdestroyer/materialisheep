@@ -19,7 +19,6 @@ package io.github.sheepdestroyer.materialisheep.data;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import android.text.TextUtils;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -141,7 +140,7 @@ public class AlgoliaClient implements ItemManager {
         Hit[] hits = algoliaHits.hits;
         List<Item> stories = new ArrayList<>(hits.length);
         for (int i = 0; i < hits.length; i++) {
-            if (hits[i] != null && hits[i].objectID != null && TextUtils.isDigitsOnly(hits[i].objectID)) {
+            if (hits[i] != null && hits[i].objectID != null) {
                 try {
                     HackerNewsItem item = new HackerNewsItem(Long.parseLong(hits[i].objectID));
                     item.rank = stories.size() + 1;
