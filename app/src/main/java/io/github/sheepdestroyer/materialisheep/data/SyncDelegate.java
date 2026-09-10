@@ -55,6 +55,7 @@ import io.github.sheepdestroyer.materialisheep.widget.CacheableWebView;
 import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.inject.Inject;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -77,6 +78,7 @@ public class SyncDelegate {
   private final Context mContext;
   private ProgressListener mListener;
   private Job mJob;
+  private final AtomicBoolean mFinished = new AtomicBoolean();
   @VisibleForTesting CacheableWebView mWebView;
 
   /**
@@ -168,6 +170,7 @@ public class SyncDelegate {
   void performSync(@NonNull Job job) {
     // assume that connection wouldn't change until we finish syncing
     mJob = job;
+    mFinished.set(false);
     if (!TextUtils.isEmpty(mJob.id)) {
       Message message = Message.obtain(mHandler, this::stopSync);
       message.what = Integer.valueOf(mJob.id);
@@ -304,8 +307,8 @@ public class SyncDelegate {
   }
 
   private void updateProgress() {
-    if (mSyncProgress.getProgress() >= mSyncProgress.getMax()) { // TODO may never done
-      finish(); // TODO finish once only
+    if (mSyncProgress.getProgress() >= mSyncProgress.getMax()) {
+      finish();
     } else if (mJob.notificationEnabled) {
       showProgress();
     }
@@ -325,6 +328,9 @@ public class SyncDelegate {
   }
 
   private void finish() {
+    if (!mFinished.compareAndSet(false, true)) {
+      return;
+    }
     if (mListener != null) {
       mListener.onDone(mJob.id);
       mListener = null;
@@ -333,6 +339,7 @@ public class SyncDelegate {
   }
 
   void stopSync() {
+    mFinished.set(true);
     if (mWebView != null) {
       final CacheableWebView webView = mWebView;
       mWebView = null;
