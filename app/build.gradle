@@ -59,6 +59,9 @@ android {
     testOptions {
         unitTests {
             includeAndroidResources = true
+            all {
+                systemProperty 'robolectric.dependency.dir', System.getProperty('robolectric.dependency.dir', "${System.getProperty('user.home')}/.m2/repository/org/robolectric/android-all-instrumented/14-robolectric-10818077-i7")
+            }
         }
     }
 
