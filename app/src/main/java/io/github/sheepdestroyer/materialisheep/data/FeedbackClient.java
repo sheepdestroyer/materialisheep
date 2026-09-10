@@ -26,7 +26,6 @@ import io.github.sheepdestroyer.materialisheep.BuildConfig;
 import io.github.sheepdestroyer.materialisheep.DataModule;
 import io.github.sheepdestroyer.materialisheep.annotation.Synthetic;
 import retrofit2.http.Body;
-import retrofit2.http.Headers;
 import retrofit2.http.POST;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Scheduler;
@@ -93,7 +92,6 @@ public interface FeedbackClient {
             String GITHUB_API_URL = "https://api.github.com/";
 
             @POST("repos/hidroh/materialistic/issues")
-            @Headers("Authorization: token " + BuildConfig.GITHUB_TOKEN)
             Observable<Object> createGithubIssue(@Body Issue issue);
         }
 
