@@ -3,9 +3,9 @@ package io.github.sheepdestroyer.materialisheep;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import android.app.Application;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -16,15 +16,15 @@ import android.content.pm.ResolveInfo;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
+import android.os.Parcel;
 import android.text.format.DateUtils;
 import androidx.preference.PreferenceManager;
 import androidx.test.core.app.ApplicationProvider;
-import io.github.sheepdestroyer.materialisheep.data.HackerNewsItem;
+import io.github.sheepdestroyer.materialisheep.data.WebItem;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.Shadows;
-import org.robolectric.shadows.ShadowApplication;
 import org.robolectric.shadows.ShadowConnectivityManager;
 import org.robolectric.shadows.ShadowNetworkCapabilities;
 import org.robolectric.shadows.ShadowPackageManager;
@@ -82,13 +82,6 @@ public class AppUtilsTest {
     // Default state might have no active network
     shadowConnectivityManager.setDefaultNetworkActive(false);
     assertFalse(AppUtils.hasConnection(context));
-
-    // Since we migrated away from NetworkInfo, setting activeNetworkInfo does not mock the modern
-    // APIs properly
-    // on Robolectric without explicit shadow capability setting for 'getActiveNetwork' and
-    // 'getNetworkCapabilities'.
-    // For simplicity we ensure that our implementation logic handles null inputs safely,
-    // which is verified by passing the null test above.
   }
 
   @Test
@@ -142,7 +135,7 @@ public class AppUtilsTest {
 
     AppUtils.openWebUrlExternal(context, null, "https://example.com", null);
 
-    Intent intent = ShadowApplication.getInstance().getNextStartedActivity();
+    Intent intent = getNextStartedActivity(context);
     assertNotNull(intent);
     assertEquals(OfflineWebActivity.class.getName(), intent.getComponent().getClassName());
     assertEquals("https://example.com", intent.getStringExtra(OfflineWebActivity.EXTRA_URL));
@@ -166,7 +159,7 @@ public class AppUtilsTest {
 
     AppUtils.openWebUrlExternal(context, null, "https://example.com", null);
 
-    Intent startedIntent = ShadowApplication.getInstance().getNextStartedActivity();
+    Intent startedIntent = getNextStartedActivity(context);
     assertNotNull(startedIntent);
     assertEquals(Intent.ACTION_VIEW, startedIntent.getAction());
     assertEquals("https://example.com", startedIntent.getDataString());
@@ -196,7 +189,7 @@ public class AppUtilsTest {
 
     AppUtils.openWebUrlExternal(context, null, hnUrl, null);
 
-    Intent startedIntent = ShadowApplication.getInstance().getNextStartedActivity();
+    Intent startedIntent = getNextStartedActivity(context);
     assertNotNull(startedIntent);
     assertEquals("com.other.browser", startedIntent.getPackage());
     assertEquals(hnUrl, startedIntent.getDataString());
@@ -224,7 +217,7 @@ public class AppUtilsTest {
 
     AppUtils.openWebUrlExternal(context, null, hnUrl, null);
 
-    Intent startedIntent = ShadowApplication.getInstance().getNextStartedActivity();
+    Intent startedIntent = getNextStartedActivity(context);
     assertNotNull(startedIntent);
     assertEquals(Intent.ACTION_CHOOSER, startedIntent.getAction());
   }
@@ -244,10 +237,10 @@ public class AppUtilsTest {
     ShadowPackageManager shadowPackageManager = Shadows.shadowOf(context.getPackageManager());
     shadowPackageManager.addResolveInfoForIntent(viewIntent, createResolveInfo("com.android.chrome", "com.android.chrome.MainActivity"));
 
-    HackerNewsItem item = new HackerNewsItem(123L);
+    TestWebItem item = new TestWebItem("123", url);
     AppUtils.openWebUrlExternal(context, item, url, null);
 
-    Intent startedIntent = ShadowApplication.getInstance().getNextStartedActivity();
+    Intent startedIntent = getNextStartedActivity(context);
     assertNotNull(startedIntent);
     assertEquals(Intent.ACTION_VIEW, startedIntent.getAction());
     assertEquals(url, startedIntent.getDataString());
@@ -256,13 +249,17 @@ public class AppUtilsTest {
   private void setupActiveNetwork(Context context) {
     ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
     ShadowConnectivityManager shadowCm = Shadows.shadowOf(cm);
-    Network network = ShadowNetworkCapabilities.newInstance();
-    NetworkCapabilities nc = ShadowNetworkCapabilities.newInstance();
-    ShadowNetworkCapabilities shadowNc = Shadows.shadowOf(nc);
-    shadowNc.addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
     shadowCm.setDefaultNetworkActive(true);
-    shadowCm.setNetworkCapabilities(network, nc);
-    shadowCm.setActiveNetwork(network);
+    Network network = cm.getActiveNetwork();
+    if (network != null) {
+      NetworkCapabilities nc = ShadowNetworkCapabilities.newInstance();
+      Shadows.shadowOf(nc).addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
+      shadowCm.setNetworkCapabilities(network, nc);
+    }
+  }
+
+  private Intent getNextStartedActivity(Context context) {
+    return Shadows.shadowOf((Application) context.getApplicationContext()).getNextStartedActivity();
   }
 
   private ResolveInfo createResolveInfo(String packageName, String className) {
@@ -273,5 +270,29 @@ public class AppUtilsTest {
     info.activityInfo.applicationInfo = new ApplicationInfo();
     info.activityInfo.applicationInfo.packageName = packageName;
     return info;
+  }
+
+  static class TestWebItem implements WebItem {
+    private final String id;
+    private final String url;
+
+    TestWebItem(String id, String url) {
+      this.id = id;
+      this.url = url;
+    }
+
+    @Override public String getId() { return id; }
+    @Override public long getLongId() { return Long.parseLong(id); }
+    @Override public String getUrl() { return url; }
+    @Override public String getDisplayedTitle() { return "Title"; }
+    @Override public CharSequence getDisplayedAuthor(Context context, boolean linkify, int color) { return ""; }
+    @Override public CharSequence getDisplayedTime(Context context) { return ""; }
+    @Override public String getSource() { return ""; }
+    @Override public String getType() { return STORY_TYPE; }
+    @Override public boolean isStoryType() { return true; }
+    @Override public boolean isFavorite() { return false; }
+    @Override public void setFavorite(boolean favorite) {}
+    @Override public int describeContents() { return 0; }
+    @Override public void writeToParcel(Parcel dest, int flags) {}
   }
 }
