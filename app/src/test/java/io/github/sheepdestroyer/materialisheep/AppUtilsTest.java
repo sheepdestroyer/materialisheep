@@ -45,6 +45,22 @@ public class AppUtilsTest {
     assertFalse(AppUtils.urlEquals("", "http://example.com"));
     assertFalse(AppUtils.urlEquals("http://example.com", ""));
     assertFalse(AppUtils.urlEquals("", ""));
+
+    // Various schemas
+    assertTrue(AppUtils.urlEquals("https://example.com", "https://example.com/"));
+    assertTrue(AppUtils.urlEquals("ftp://example.com/path", "ftp://example.com/path"));
+    assertFalse(AppUtils.urlEquals("ftp://example.com", "http://example.com"));
+    assertTrue(AppUtils.urlEquals("file:///android_asset/file.html", "file:///android_asset/file.html"));
+
+    // Encodings and query parameters
+    assertTrue(AppUtils.urlEquals("http://example.com/path%20with%20spaces", "http://example.com/path%20with%20spaces"));
+    assertFalse(AppUtils.urlEquals("http://example.com/path with spaces", "http://example.com/path%20with%20spaces"));
+    assertTrue(AppUtils.urlEquals("http://example.com/?q=query", "http://example.com/?q=query"));
+    assertFalse(AppUtils.urlEquals("http://example.com?q=query", "http://example.com/?q=query"));
+
+    // Fragments
+    assertTrue(AppUtils.urlEquals("http://example.com/#fragment", "http://example.com/#fragment"));
+    assertFalse(AppUtils.urlEquals("http://example.com", "http://example.com/#fragment"));
   }
 
   @Test
