@@ -61,6 +61,39 @@ public class PreferencesTest {
   }
 
   @Test
+  public void testGetDefaultStoryView() {
+    // Default is Article
+    org.junit.Assert.assertEquals(Preferences.StoryViewMode.Article, Preferences.getDefaultStoryView(context));
+
+    // Test Comment mode
+    sharedPreferences
+        .edit()
+        .putString(
+            context.getString(R.string.pref_story_display),
+            context.getString(R.string.pref_story_display_value_comments))
+        .commit();
+    org.junit.Assert.assertEquals(Preferences.StoryViewMode.Comment, Preferences.getDefaultStoryView(context));
+
+    // Test Readability mode
+    sharedPreferences
+        .edit()
+        .putString(
+            context.getString(R.string.pref_story_display),
+            context.getString(R.string.pref_story_display_value_readability))
+        .commit();
+    org.junit.Assert.assertEquals(Preferences.StoryViewMode.Readability, Preferences.getDefaultStoryView(context));
+
+    // Test Article mode (explicitly set)
+    sharedPreferences
+        .edit()
+        .putString(
+            context.getString(R.string.pref_story_display),
+            context.getString(R.string.pref_story_display_value_article))
+        .commit();
+    org.junit.Assert.assertEquals(Preferences.StoryViewMode.Article, Preferences.getDefaultStoryView(context));
+  }
+
+  @Test
   public void testSetSortByRecent() {
     // Set to true
     Preferences.setSortByRecent(context, true);
