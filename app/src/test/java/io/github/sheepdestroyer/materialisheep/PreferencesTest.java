@@ -1,5 +1,7 @@
 package io.github.sheepdestroyer.materialisheep;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -69,5 +71,137 @@ public class PreferencesTest {
     // Set to false
     Preferences.setSortByRecent(context, false);
     assertFalse(Preferences.isSortByRecent(context));
+  }
+
+  @Test
+  public void testGetLaunchScreen() {
+    // Default value
+    assertEquals(
+        context.getString(R.string.pref_launch_screen_value_top),
+        Preferences.getLaunchScreen(context));
+    assertFalse(Preferences.isLaunchScreenLast(context));
+
+    // Custom value: last
+    sharedPreferences
+        .edit()
+        .putString(
+            context.getString(R.string.pref_launch_screen),
+            context.getString(R.string.pref_launch_screen_value_last))
+        .commit();
+    assertEquals(
+        context.getString(R.string.pref_launch_screen_value_last),
+        Preferences.getLaunchScreen(context));
+    assertTrue(Preferences.isLaunchScreenLast(context));
+
+    // Custom value: catchup
+    sharedPreferences
+        .edit()
+        .putString(
+            context.getString(R.string.pref_launch_screen),
+            context.getString(R.string.pref_launch_screen_value_best))
+        .commit();
+    assertEquals(
+        context.getString(R.string.pref_launch_screen_value_best),
+        Preferences.getLaunchScreen(context));
+    assertFalse(Preferences.isLaunchScreenLast(context));
+  }
+
+  @Test
+  public void testGetDefaultStoryView() {
+    // Default value
+    assertEquals(Preferences.StoryViewMode.Article, Preferences.getDefaultStoryView(context));
+
+    // Comment
+    sharedPreferences
+        .edit()
+        .putString(
+            context.getString(R.string.pref_story_display),
+            context.getString(R.string.pref_story_display_value_comments))
+        .commit();
+    assertEquals(Preferences.StoryViewMode.Comment, Preferences.getDefaultStoryView(context));
+
+    // Readability
+    sharedPreferences
+        .edit()
+        .putString(
+            context.getString(R.string.pref_story_display),
+            context.getString(R.string.pref_story_display_value_readability))
+        .commit();
+    assertEquals(Preferences.StoryViewMode.Readability, Preferences.getDefaultStoryView(context));
+
+    // Article
+    sharedPreferences
+        .edit()
+        .putString(
+            context.getString(R.string.pref_story_display),
+            context.getString(R.string.pref_story_display_value_article))
+        .commit();
+    assertEquals(Preferences.StoryViewMode.Article, Preferences.getDefaultStoryView(context));
+
+    // Invalid value fallback
+    sharedPreferences
+        .edit()
+        .putString(context.getString(R.string.pref_story_display), "invalid_value")
+        .commit();
+    assertEquals(Preferences.StoryViewMode.Article, Preferences.getDefaultStoryView(context));
+  }
+
+  @Test
+  public void testGetFloatFromString() {
+    // Default values
+    assertEquals(1.0f, Preferences.getLineHeight(context), 0.001f);
+    assertEquals(1.0f, Preferences.getReadabilityLineHeight(context), 0.001f);
+
+    // Valid float strings
+    sharedPreferences
+        .edit()
+        .putString(context.getString(R.string.pref_line_height), "1.5")
+        .putString(context.getString(R.string.pref_readability_line_height), "1.2")
+        .commit();
+    assertEquals(1.5f, Preferences.getLineHeight(context), 0.001f);
+    assertEquals(1.2f, Preferences.getReadabilityLineHeight(context), 0.001f);
+
+    // Invalid float strings fallback
+    sharedPreferences
+        .edit()
+        .putString(context.getString(R.string.pref_line_height), "not_a_float")
+        .putString(context.getString(R.string.pref_readability_line_height), "invalid")
+        .commit();
+    assertEquals(1.0f, Preferences.getLineHeight(context), 0.001f);
+    assertEquals(1.0f, Preferences.getReadabilityLineHeight(context), 0.001f);
+  }
+
+  @Test
+  public void testParseSwipeAction() {
+    // Default values (Save, Vote)
+    assertArrayEquals(
+        new Preferences.SwipeAction[] {
+          Preferences.SwipeAction.Save, Preferences.SwipeAction.Vote
+        },
+        Preferences.getListSwipePreferences(context));
+
+    // Valid swipe actions
+    sharedPreferences
+        .edit()
+        .putString(context.getString(R.string.pref_list_swipe_left), "Refresh")
+        .putString(context.getString(R.string.pref_list_swipe_right), "Share")
+        .commit();
+    assertArrayEquals(
+        new Preferences.SwipeAction[] {
+          Preferences.SwipeAction.Refresh, Preferences.SwipeAction.Share
+        },
+        Preferences.getListSwipePreferences(context));
+
+    // Invalid swipe actions fallback to None
+    sharedPreferences
+        .edit()
+        .putString(context.getString(R.string.pref_list_swipe_left), "UNKNOWN_ACTION")
+        .putString(context.getString(R.string.pref_list_swipe_right), "invalid")
+        .commit();
+    assertArrayEquals(
+        new Preferences.SwipeAction[] {
+          Preferences.SwipeAction.None, Preferences.SwipeAction.None
+        },
+        Preferences.getListSwipePreferences(context));
   }
 }
