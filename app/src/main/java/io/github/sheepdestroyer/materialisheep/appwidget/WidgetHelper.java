@@ -268,7 +268,7 @@ public class WidgetHelper {
         PendingIntent.getActivity(
             mContext,
             0,
-            new Intent(Intent.ACTION_VIEW),
+            new Intent(Intent.ACTION_VIEW).setPackage(mContext.getPackageName()),
             PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE));
   }
 
