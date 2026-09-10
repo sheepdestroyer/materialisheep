@@ -206,8 +206,14 @@ public class UserServicesClient implements UserServices {
          */
         // fetch submit page with given credentials
         execute(postSubmitForm(credentials.first, credentials.second))
-                .flatMap(response -> response.code() != HttpURLConnection.HTTP_MOVED_TEMP ? Observable.just(response)
-                        : Observable.error(new IOException("Login failed, received redirect")))
+                .flatMap(response -> {
+                    if (response.code() != HttpURLConnection.HTTP_MOVED_TEMP) {
+                        return Observable.just(response);
+                    } else {
+                        response.close();
+                        return Observable.error(new IOException("Login failed, received redirect"));
+                    }
+                })
                 .flatMap(response -> {
                     try {
                         return Observable.just(new String[] {

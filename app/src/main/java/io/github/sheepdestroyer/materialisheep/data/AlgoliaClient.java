@@ -17,6 +17,9 @@
 package io.github.sheepdestroyer.materialisheep.data;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import android.text.TextUtils;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -81,7 +84,7 @@ public class AlgoliaClient implements ItemManager {
                 .map(this::toItems)
                 .observeOn(mMainThreadScheduler)
                 .subscribe(listener::onResponse,
-                        t -> listener.onError(t != null ? t.getMessage() : ""));
+                        t -> listener.onError(t != null && t.getMessage() != null ? t.getMessage() : ""));
     }
 
     @Override
@@ -132,19 +135,22 @@ public class AlgoliaClient implements ItemManager {
 
     @NonNull
     private Item[] toItems(AlgoliaHits algoliaHits) {
-        if (algoliaHits == null) {
+        if (algoliaHits == null || algoliaHits.hits == null) {
             return new Item[0];
         }
         Hit[] hits = algoliaHits.hits;
-        Item[] stories = new Item[hits == null ? 0 : hits.length];
-        for (int i = 0; i < stories.length; i++) {
-            // noinspection ConstantConditions
-            HackerNewsItem item = new HackerNewsItem(
-                    Long.parseLong(hits[i].objectID));
-            item.rank = i + 1;
-            stories[i] = item;
+        List<Item> stories = new ArrayList<>(hits.length);
+        for (int i = 0; i < hits.length; i++) {
+            if (hits[i] != null && hits[i].objectID != null && TextUtils.isDigitsOnly(hits[i].objectID)) {
+                try {
+                    HackerNewsItem item = new HackerNewsItem(Long.parseLong(hits[i].objectID));
+                    item.rank = stories.size() + 1;
+                    stories.add(item);
+                } catch (NumberFormatException ignored) {
+                }
+            }
         }
-        return stories;
+        return stories.toArray(new Item[0]);
     }
 
     interface RestService {

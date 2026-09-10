@@ -280,7 +280,8 @@ public class SyncDelegate {
 
   private HackerNewsItem getFromCache(String itemId) {
     try {
-      return mHnRestService.cachedItem(itemId).execute().body();
+      Call<HackerNewsItem> call = mHnRestService.cachedItem(itemId);
+      return call != null ? call.execute().body() : null;
     } catch (IOException e) {
       return null;
     }
@@ -339,6 +340,8 @@ public class SyncDelegate {
   }
 
   void stopSync() {
+    mFinished.set(true);
+    mListener = null;
     if (mWebView != null) {
       final CacheableWebView webView = mWebView;
       mWebView = null;
@@ -386,11 +389,11 @@ public class SyncDelegate {
       }
     }
 
-    int getMax() {
+    synchronized int getMax() {
       return 1 + totalKids + (readability != null ? 1 : 0) + maxWebProgress;
     }
 
-    int getProgress() {
+    synchronized int getProgress() {
       return (self != null ? 1 : 0)
           + finishedKids
           + (readability != null && readability ? 1 : 0)
@@ -398,7 +401,7 @@ public class SyncDelegate {
     }
 
     @Synthetic
-    void finishItem(
+    synchronized void finishItem(
         @NonNull String id,
         @Nullable HackerNewsItem item,
         boolean kidsEnabled,
@@ -411,12 +414,12 @@ public class SyncDelegate {
     }
 
     @Synthetic
-    void finishReadability() {
+    synchronized void finishReadability() {
       readability = true;
     }
 
     @Synthetic
-    void updateArticle(int webProgress, int maxWebProgress) {
+    synchronized void updateArticle(int webProgress, int maxWebProgress) {
       this.webProgress = webProgress;
       this.maxWebProgress = maxWebProgress;
     }

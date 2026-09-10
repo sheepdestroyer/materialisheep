@@ -266,7 +266,10 @@ public class WidgetHelper {
     remoteViews.setPendingIntentTemplate(
         android.R.id.list,
         PendingIntent.getActivity(
-            mContext, 0, new Intent(Intent.ACTION_VIEW), PendingIntent.FLAG_IMMUTABLE));
+            mContext,
+            0,
+            new Intent(Intent.ACTION_VIEW),
+            PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE));
   }
 
   private SpannableString getSpan(int value, String format, int hotThreshold) {

@@ -65,15 +65,17 @@ public class FileDownloader {
 
         final Request request;
         try {
-            request = new Request.Builder().url(url)
-                    .addHeader("Content-Type", mimeType != null ? mimeType : "")
-                    .build();
+            Request.Builder requestBuilder = new Request.Builder().url(url);
+            if (mimeType != null && !mimeType.trim().isEmpty()) {
+                requestBuilder.addHeader("Content-Type", mimeType);
+            }
+            request = requestBuilder.build();
         } catch (IllegalArgumentException e) {
             mMainHandler.post(() -> callback.onFailure(null, new IOException(e)));
             return;
         }
 
-        final File tempFile = new File(mCacheDir, filename + ".tmp");
+        final File tempFile = new File(mCacheDir, filename + "." + java.util.UUID.randomUUID() + ".tmp");
         mCallFactory.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {

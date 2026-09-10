@@ -1,6 +1,7 @@
 package io.github.sheepdestroyer.materialisheep.widget;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -8,7 +9,10 @@ import static org.mockito.Mockito.when;
 import android.content.Context;
 import android.net.Uri;
 import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
 import androidx.test.core.app.ApplicationProvider;
+import java.io.File;
+import java.io.IOException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -60,5 +64,39 @@ public class CacheableWebViewTest {
     when(wrongExt.isForMainFrame()).thenReturn(true);
     when(wrongExt.getUrl()).thenReturn(Uri.parse("file://" + context.getCacheDir().getAbsolutePath() + "/archive_test.txt"));
     assertNull(webView.interceptRequest(wrongExt));
+  }
+
+  @Test
+  public void testInterceptRequestValidArchive() throws IOException {
+    Context context = ApplicationProvider.getApplicationContext();
+    CacheableWebView webView = new CacheableWebView(context);
+
+    File cacheFile = new File(context.getCacheDir(), "archive_test123.mht");
+    cacheFile.createNewFile();
+    try {
+      WebResourceRequest validRequest = mock(WebResourceRequest.class);
+      when(validRequest.isForMainFrame()).thenReturn(true);
+      when(validRequest.getUrl()).thenReturn(Uri.fromFile(cacheFile));
+
+      WebResourceResponse response = webView.interceptRequest(validRequest);
+      assertNotNull(response);
+    } finally {
+      cacheFile.delete();
+    }
+  }
+
+  @Test
+  public void testInterceptRequestSiblingDirectoryEscape() {
+    Context context = ApplicationProvider.getApplicationContext();
+    CacheableWebView webView = new CacheableWebView(context);
+
+    File siblingDir = new File(context.getCacheDir().getParentFile(), "cache-sibling");
+    File fakeFile = new File(siblingDir, "archive_test.mht");
+
+    WebResourceRequest siblingRequest = mock(WebResourceRequest.class);
+    when(siblingRequest.isForMainFrame()).thenReturn(true);
+    when(siblingRequest.getUrl()).thenReturn(Uri.fromFile(fakeFile));
+
+    assertNull(webView.interceptRequest(siblingRequest));
   }
 }

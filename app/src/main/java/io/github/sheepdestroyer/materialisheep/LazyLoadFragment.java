@@ -88,6 +88,7 @@ public abstract class LazyLoadFragment extends BaseFragment {
     public void onDestroyView() {
         super.onDestroyView();
         mActivityCreated = false;
+        mLoaded = false;
     }
 
     /**

@@ -153,7 +153,7 @@ public class NavFloatingActionButton extends FloatingActionButton
                   direction = velocityY < 0 ? Navigable.DIRECTION_UP : Navigable.DIRECTION_DOWN;
                 }
                 mNavigable.onNavigate(direction);
-                if (mVibrationEnabled) {
+                if (mVibrationEnabled && mVibrator != null) {
                   mVibrator.vibrate(
                       VibrationEffect.createOneShot(
                           VIBRATE_DURATION_MS, VibrationEffect.DEFAULT_AMPLITUDE));
@@ -183,7 +183,7 @@ public class NavFloatingActionButton extends FloatingActionButton
 
   @Synthetic
   void startDrag(float startX, float startY) {
-    if (mVibrationEnabled) {
+    if (mVibrationEnabled && mVibrator != null) {
       mVibrator.vibrate(
           VibrationEffect.createOneShot(
               VIBRATE_DURATION_MS * 2, VibrationEffect.DEFAULT_AMPLITUDE));
@@ -222,7 +222,7 @@ public class NavFloatingActionButton extends FloatingActionButton
       return false;
     } else if (mNextKonamiCode == KONAMI_CODE.length - 1) {
       mNextKonamiCode = 0;
-      if (mVibrationEnabled) {
+      if (mVibrationEnabled && mVibrator != null) {
         mVibrator.vibrate(
             VibrationEffect.createWaveform(
                 new long[] {0, VIBRATE_DURATION_MS * 2, 100, VIBRATE_DURATION_MS * 2}, -1));

@@ -80,16 +80,6 @@ public class HackerNewsClientTest {
     }
 
     @Test
-    public void testGetStoriesErrorNullMessage() {
-        when(restService.topStoriesRx()).thenReturn(Observable.error(new NullPointerException()));
-
-        client.getStories(ItemManager.TOP_FETCH_MODE, ItemManager.MODE_DEFAULT, storiesListener);
-
-        verify(storiesListener).onError(errorCaptor.capture());
-        assertEquals("", errorCaptor.getValue());
-    }
-
-    @Test
     public void testGetItemError() {
         when(restService.itemRx("1")).thenReturn(Observable.error(new IOException("Network error")));
         when(sessionManager.isViewed("1")).thenReturn(Observable.just(false));

@@ -26,7 +26,6 @@ import io.github.sheepdestroyer.materialisheep.BuildConfig;
 import io.github.sheepdestroyer.materialisheep.DataModule;
 import io.github.sheepdestroyer.materialisheep.annotation.Synthetic;
 import retrofit2.http.Body;
-import retrofit2.http.Headers;
 import retrofit2.http.POST;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Scheduler;

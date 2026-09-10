@@ -43,7 +43,10 @@ public class PreferencesActivity extends ThemedActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_preferences);
-        setTitle(getIntent().getIntExtra(EXTRA_TITLE, 0));
+        int titleRes = getIntent().getIntExtra(EXTRA_TITLE, 0);
+        if (titleRes != 0) {
+            setTitle(titleRes);
+        }
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
         // noinspection ConstantConditions
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME |
@@ -88,7 +91,12 @@ public class PreferencesActivity extends ThemedActivity {
 
         @Override
         public void onCreatePreferences(Bundle bundle, String s) {
-            addPreferencesFromResource(getArguments().getInt(EXTRA_PREFERENCES));
+            if (getArguments() != null) {
+                int prefRes = getArguments().getInt(EXTRA_PREFERENCES, 0);
+                if (prefRes != 0) {
+                    addPreferencesFromResource(prefRes);
+                }
+            }
         }
     }
 }

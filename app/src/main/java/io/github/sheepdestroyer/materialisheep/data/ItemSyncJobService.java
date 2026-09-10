@@ -63,8 +63,9 @@ public class ItemSyncJobService extends JobService {
     @Override
     public boolean onStopJob(JobParameters jobParameters) {
         String key = String.valueOf(jobParameters.getJobId());
-        if (mSyncDelegates.containsKey(key)) {
-            mSyncDelegates.remove(key).stopSync();
+        SyncDelegate syncDelegate = mSyncDelegates.remove(key);
+        if (syncDelegate != null) {
+            syncDelegate.stopSync();
         }
         return true;
     }

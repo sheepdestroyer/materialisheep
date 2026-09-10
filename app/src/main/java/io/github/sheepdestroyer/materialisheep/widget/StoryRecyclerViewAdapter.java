@@ -429,7 +429,12 @@ public class StoryRecyclerViewAdapter extends
 
             @Override
             public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-                return mItems.get(oldItemPosition).getLongId() == items[newItemPosition].getLongId();
+                Item oldItem = mItems.get(oldItemPosition);
+                Item newItem = items[newItemPosition];
+                if (oldItem == null || newItem == null) {
+                    return oldItem == newItem;
+                }
+                return oldItem.getLongId() == newItem.getLongId();
             }
 
             @Override

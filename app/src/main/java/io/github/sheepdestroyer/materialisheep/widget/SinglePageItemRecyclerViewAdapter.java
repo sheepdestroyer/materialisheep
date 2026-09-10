@@ -142,6 +142,7 @@ public class SinglePageItemRecyclerViewAdapter
         super.detach(context, recyclerView);
         recyclerView.removeOnScrollListener(mScrollListener);
         mColors.recycle();
+        mColors = null;
         mItemTouchHelper.attachToRecyclerView(null);
     }
 
@@ -303,7 +304,10 @@ public class SinglePageItemRecyclerViewAdapter
     }
 
     private int getThreadColor(int itemViewType) {
-        return mColorCoded && mColors != null && mColors.length() > 0 ? mColors.getColor(itemViewType % mColors.length(), 0) : 0;
+        if (!mColorCoded || mColors == null || mColors.length() == 0 || itemViewType < 0) {
+            return 0;
+        }
+        return mColors.getColor(itemViewType % mColors.length(), 0);
     }
 
     private void bindKids(final ToggleItemViewHolder holder, final Item item) {

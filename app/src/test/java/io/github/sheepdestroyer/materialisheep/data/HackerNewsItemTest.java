@@ -603,7 +603,7 @@ public class HackerNewsItemTest {
                 return null;
             }
         });
-        assertEquals(0L, itemNullParent.getParent());
+        assertEquals("0", itemNullParent.getParent());
 
         HackerNewsItem itemNonDigitParent = new HackerNewsItem(2L);
         itemNonDigitParent.populate(new ItemTest.TestItem(2L) {
@@ -612,6 +612,6 @@ public class HackerNewsItemTest {
                 return "abc";
             }
         });
-        assertEquals(0L, itemNonDigitParent.getParent());
+        assertEquals("0", itemNonDigitParent.getParent());
     }
 }

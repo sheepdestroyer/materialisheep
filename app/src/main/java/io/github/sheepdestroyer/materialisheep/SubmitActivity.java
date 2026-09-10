@@ -135,6 +135,7 @@ public class SubmitActivity extends ThemedActivity {
   protected void onDestroy() {
     super.onDestroy();
     if (mOffscreenWebView != null) {
+      mOffscreenWebView.setWebChromeClient(null);
       mOffscreenWebView.stopLoading();
       mOffscreenWebView.destroy();
       mOffscreenWebView = null;

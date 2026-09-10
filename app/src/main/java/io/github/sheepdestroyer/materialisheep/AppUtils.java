@@ -109,13 +109,23 @@ public class AppUtils {
    */
   public static void openWebUrlExternal(
       Context context, @Nullable WebItem item, String url, @Nullable CustomTabsSession session) {
+    if (TextUtils.isEmpty(url)) {
+      return;
+    }
     if (!hasConnection(context)) {
-      context.startActivity(
+      Intent offlineIntent =
           new Intent(context, OfflineWebActivity.class)
-              .putExtra(OfflineWebActivity.EXTRA_URL, url));
+              .putExtra(OfflineWebActivity.EXTRA_URL, url);
+      if (!(context instanceof Activity)) {
+        offlineIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+      }
+      context.startActivity(offlineIntent);
       return;
     }
     Intent intent = createViewIntent(context, item, url, session);
+    if (!(context instanceof Activity)) {
+      intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+    }
     String host = Uri.parse(url).getHost();
     if (host == null || !HackerNewsClient.BASE_WEB_URL.contains(host)) {
       if (intent.resolveActivity(context.getPackageManager()) != null) {
@@ -132,8 +142,12 @@ public class AppUtils {
       if (info.activityInfo.packageName.equalsIgnoreCase(context.getPackageName())) {
         continue;
       }
-      intents.add(
-          createViewIntent(context, item, url, session).setPackage(info.activityInfo.packageName));
+      Intent targetIntent =
+          createViewIntent(context, item, url, session).setPackage(info.activityInfo.packageName);
+      if (!(context instanceof Activity)) {
+        targetIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+      }
+      intents.add(targetIntent);
     }
     if (intents.isEmpty()) {
       return;
@@ -141,10 +155,14 @@ public class AppUtils {
     if (intents.size() == 1) {
       context.startActivity(intents.remove(0));
     } else {
-      context.startActivity(
+      Intent chooser =
           Intent.createChooser(intents.remove(0), context.getString(R.string.chooser_title))
               .putExtra(
-                  Intent.EXTRA_INITIAL_INTENTS, intents.toArray(new Parcelable[intents.size()])));
+                  Intent.EXTRA_INITIAL_INTENTS, intents.toArray(new Parcelable[intents.size()]));
+      if (!(context instanceof Activity)) {
+        chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+      }
+      context.startActivity(chooser);
     }
   }
 
