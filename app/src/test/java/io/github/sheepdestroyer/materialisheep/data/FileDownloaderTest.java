@@ -28,6 +28,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import okhttp3.MediaType;
+import okio.ByteString;
 
 @RunWith(RobolectricTestRunner.class)
 public class FileDownloaderTest {
@@ -60,7 +61,8 @@ public class FileDownloaderTest {
     @Test
     public void downloadFile_fileExists_callsOnSuccess() throws IOException {
         String url = "http://example.com/testfile.txt";
-        File testFile = new File(cacheDir, "testfile.txt");
+        String filename = ByteString.encodeUtf8(url).sha256().hex();
+        File testFile = new File(cacheDir, filename);
         testFile.createNewFile();
 
         fileDownloader.downloadFile(url, "text/plain", callback);
@@ -73,7 +75,8 @@ public class FileDownloaderTest {
     @Test
     public void downloadFile_networkSuccess_callsOnSuccess() throws IOException {
         String url = "http://example.com/testfile2.txt";
-        File testFile = new File(cacheDir, "testfile2.txt");
+        String filename = ByteString.encodeUtf8(url).sha256().hex();
+        File testFile = new File(cacheDir, filename);
         if(testFile.exists()) testFile.delete();
 
         doAnswer(invocation -> {
@@ -99,7 +102,8 @@ public class FileDownloaderTest {
     @Test
     public void downloadFile_networkFailure_callsOnFailure() throws IOException {
         String url = "http://example.com/testfile3.txt";
-        File testFile = new File(cacheDir, "testfile3.txt");
+        String filename = ByteString.encodeUtf8(url).sha256().hex();
+        File testFile = new File(cacheDir, filename);
         if(testFile.exists()) testFile.delete();
 
         IOException exception = new IOException("Network error");
@@ -119,7 +123,8 @@ public class FileDownloaderTest {
     @Test
     public void downloadFile_networkSuccessButIoException_callsOnFailure() throws IOException {
         String url = "http://example.com/testfile4.txt";
-        File testFile = new File(cacheDir, "testfile4.txt");
+        String filename = ByteString.encodeUtf8(url).sha256().hex();
+        File testFile = new File(cacheDir, filename);
         if(testFile.exists()) testFile.delete();
 
         doAnswer(invocation -> {
