@@ -95,6 +95,7 @@ public class CacheableWebView extends MaterialWebView {
   private void enableCache() {
     WebSettings webSettings = getSettings();
     webSettings.setAllowFileAccess(false);
+    webSettings.setAllowContentAccess(false);
     setCacheModeInternal();
   }
 
