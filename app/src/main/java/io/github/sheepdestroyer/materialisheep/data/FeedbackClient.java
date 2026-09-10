@@ -93,7 +93,6 @@ public interface FeedbackClient {
             String GITHUB_API_URL = "https://api.github.com/";
 
             @POST("repos/hidroh/materialistic/issues")
-            @Headers("Authorization: token " + BuildConfig.GITHUB_TOKEN)
             Observable<Object> createGithubIssue(@Body Issue issue);
         }
 

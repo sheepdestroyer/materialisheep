@@ -3,8 +3,8 @@ buildscript {
     ext.ksp_version = '2.3.8'
 
     repositories {
-        mavenCentral()
         google()
+        mavenCentral()
     }
 
     dependencies {
@@ -16,7 +16,7 @@ buildscript {
 
 allprojects {
     repositories {
-        mavenCentral()
         google()
+        mavenCentral()
     }
 }
