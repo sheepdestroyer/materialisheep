@@ -41,6 +41,7 @@ import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.text.style.ClickableSpan;
 import android.text.style.URLSpan;
+import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -510,6 +511,7 @@ public class AppUtils {
               true);
     } catch (SecurityException e) {
       // Permission GET_ACCOUNTS not granted, ignore
+      Log.w("AppUtils", "GET_ACCOUNTS permission not granted", e);
     }
   }
 
