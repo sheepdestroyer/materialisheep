@@ -15,8 +15,11 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 import okhttp3.Call;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
+import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(RobolectricTestRunner.class)
@@ -53,5 +56,21 @@ public class UserServicesClientTest {
         observable.test()
                 .assertError(ioException)
                 .assertNotComplete();
+    }
+
+    @Test
+    public void testParseLoginError_ioExceptionReturnsNull() throws Exception {
+        Response response = mock(Response.class);
+        ResponseBody responseBody = mock(ResponseBody.class);
+
+        when(response.body()).thenReturn(responseBody);
+        when(responseBody.string()).thenThrow(new IOException("Mock IO Exception"));
+
+        // Access the private method using reflection since we want to test it specifically
+        Method method = UserServicesClient.class.getDeclaredMethod("parseLoginError", Response.class);
+        method.setAccessible(true);
+
+        String result = (String) method.invoke(client, response);
+        assertNull(result);
     }
 }
