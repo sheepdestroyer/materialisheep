@@ -41,7 +41,9 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import java.lang.ref.WeakReference;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -109,6 +111,8 @@ public class StoryRecyclerViewAdapter extends
     final ArraySet<Item> mAdded = new ArraySet<>();
     @Synthetic
     final ArrayMap<String, Integer> mPromoted = new ArrayMap<>();
+    private final Map<String, Item> mIdToItem = new HashMap<>();
+    private final Map<String, Integer> mIdToPosition = new HashMap<>();
     @Synthetic
     int mFavoriteRevision = 1;
     private String mUsername;
@@ -128,17 +132,15 @@ public class StoryRecyclerViewAdapter extends
             notifyDataSetChanged();
             return;
         }
-        int position = NO_POSITION;
-        for (int i = 0; i < mItems.size(); i++) {
-            if (TextUtils.equals(mItems.get(i).getId(), uri.getLastPathSegment())) {
-                position = i;
-                break;
-            }
+        String id = uri.getLastPathSegment();
+        Item item = id != null ? mIdToItem.get(id) : null;
+        if (item == null) {
+            return;
         }
+        int position = getPosition(item);
         if (position == NO_POSITION) {
             return;
         }
-        Item item = mItems.get(position);
         if (FavoriteManager.Companion.isAdded(uri)) {
             item.setFavorite(true);
             item.setLocalRevision(mFavoriteRevision);
@@ -302,7 +304,11 @@ public class StoryRecyclerViewAdapter extends
 
     @Synthetic
     int getPosition(Item item) {
-        return mItems.indexOf(item);
+        if (item == null || item.getId() == null) {
+            return NO_POSITION;
+        }
+        Integer pos = mIdToPosition.get(item.getId());
+        return pos != null ? pos : NO_POSITION;
     }
 
     public SortedList<Item> getItems() {
@@ -312,7 +318,18 @@ public class StoryRecyclerViewAdapter extends
     public void setItems(Item[] items) {
         setUpdated(items);
         mItems.clear();
-        mItems.addAll(items);
+        mIdToItem.clear();
+        mIdToPosition.clear();
+        if (items != null) {
+            mItems.addAll(items);
+            for (int i = 0; i < mItems.size(); i++) {
+                Item item = mItems.get(i);
+                if (item != null && item.getId() != null) {
+                    mIdToItem.put(item.getId(), item);
+                    mIdToPosition.put(item.getId(), i);
+                }
+            }
+        }
     }
 
     public void setHighlightUpdated(boolean highlightUpdated) {
@@ -334,17 +351,14 @@ public class StoryRecyclerViewAdapter extends
     }
 
     public void toggleSave(String itemId) {
-        int position = NO_POSITION;
-        for (int i = 0; i < mItems.size(); i++) {
-            if (TextUtils.equals(mItems.get(i).getId(), itemId)) {
-                position = i;
-                break;
-            }
-        }
-        if (position == NO_POSITION) {
+        if (itemId == null) {
             return;
         }
-        toggleSave(mItems.get(position));
+        Item item = mIdToItem.get(itemId);
+        if (item == null) {
+            return;
+        }
+        toggleSave(item);
     }
 
     @Override
@@ -544,9 +558,9 @@ public class StoryRecyclerViewAdapter extends
 
     @Synthetic
     void onVoted(int position, Boolean successful) {
-        if (successful == null) {
+        if (successful == null || !successful) {
             Toast.makeText(mContext, R.string.vote_failed, Toast.LENGTH_SHORT).show();
-        } else if (successful) {
+        } else {
             Toast.makeText(mContext, R.string.voted, Toast.LENGTH_SHORT).show();
             if (position != NO_POSITION && position < getItemCount()) {
                 notifyItemChanged(position, VOTED);
@@ -616,7 +630,9 @@ public class StoryRecyclerViewAdapter extends
         @Override
         public void onDone(boolean successful) {
             // TODO update locally only, as API does not update instantly
-            mItem.incrementScore();
+            if (successful) {
+                mItem.incrementScore();
+            }
             mItem.clearPendingVoted();
             StoryRecyclerViewAdapter adapter = mAdapter.get();
             if (adapter != null && adapter.isAttached()) {
@@ -626,6 +642,7 @@ public class StoryRecyclerViewAdapter extends
 
         @Override
         public void onError(Throwable throwable) {
+            mItem.clearPendingVoted();
             StoryRecyclerViewAdapter adapter = mAdapter.get();
             if (adapter != null && adapter.isAttached()) {
                 adapter.onVoted(adapter.getPosition(mItem), null);
