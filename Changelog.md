@@ -2,6 +2,53 @@
 
 ## [UNRELEASED]
 
+### Added
+- **Unit Test Coverage Expansion**:
+  - `CacheableWebViewTest`: Positive archive loading, invalid extension/prefix rejection, sibling directory escape isolation, and disabled file/content access checks.
+  - `FileDownloaderTest`: Error handling, 404 response handling, SHA-256 cache file verification, and network failure cleanup.
+  - `SinglePageItemRecyclerViewAdapterTest`: RecyclerView item state restoration and `ParcelCompat` verification.
+  - `NavFloatingActionButtonTest`: Touch drag offsets and vibration null guards.
+  - `AppUtilsTest`: Comprehensive URL equality, external intent creation, and non-Activity context flags.
+  - `PreferencesTest`: Parsing floats, swipe actions, launch screen resolution, and default story views.
+  - `AlgoliaClientTest` & `HackerNewsClientTest`: Null-safe error messages, async error handling, and item caching.
+  - `HackerNewsItemTest`, `FavoriteTest`, `SessionManagerTest`, `AdBlockerTest`, `SubmitActivityTest`.
+
+### Changed
+- **Upgraded Build Toolchain**:
+  - Gradle: 8.12 → 9.2.1.
+  - Android Gradle Plugin (AGP): 8.9.1 → 9.2.1.
+  - Kotlin: 2.3.0 → 2.4.0.
+  - KSP: 2.3.9.
+  - `minSdkVersion`: 24 → 31 (for modern `RemoteViews` collection builder APIs).
+  - Target/Compile SDK: 36.
+- **Performance Optimizations**:
+  - `StoryRecyclerViewAdapter`: Replaced $O(N)$ linear scans with $O(1)$ ID lookup maps (`mIdToItem`, `mIdToPosition`).
+  - `ThreadPreviewRecyclerViewAdapter`: Replaced linear list contains checks with `HashSet`.
+  - `SubmitActivity`: Pre-compiled URL validation regex pattern.
+- **Modernization & Deprecations**:
+  - `WidgetHelper`: Migrated to `FLAG_UPDATE_CURRENT | FLAG_MUTABLE` on collection item pending intent templates for Android 12+ compatibility.
+  - `ThemedActivity`: Migrated from deprecated `ActivityManager.TaskDescription` constructors to modern `TaskDescription.Builder`.
+  - `SinglePageItemRecyclerViewAdapter`: Migrated `Parcel.readArrayList` to `ParcelCompat.readArrayList`.
+  - `PreferencesActivity`: Migrated from deprecated `Fragment.instantiate` to direct instantiation.
+  - `NavFloatingActionButton`: Migrated legacy `Vibrator.vibrate` calls to `VibrationEffect`.
+
+### Fixed
+- **Security**:
+  - Mitigated Local File Inclusion (LFI) in `CacheableWebView` by disabling file/content access and enforcing strict canonical directory parent checks.
+  - Mitigated path traversal in `FileDownloader` by hashing URLs to SHA-256 hex strings and sandboxing files in `cacheDir`.
+  - Prevented temporary file collision in `FileDownloader` by appending unique UUIDs.
+  - Removed exposed GitHub personal access tokens from `FeedbackClient` and `app/build.gradle`.
+  - Disabled global cleartext HTTP traffic in `network_security_config.xml`.
+- **Concurrency & Lifecycle**:
+  - `SyncDelegate`: Ensured atomic single-finish contract with `AtomicBoolean`, synchronized all `SyncProgress` progress mutators, and declared `title` as `volatile`.
+  - `ItemSyncJobService`: Implemented atomic map removal on `onStopJob`.
+  - `SubmitActivity`: Ensured offscreen `WebView` chrome client dereference and clean destruction in `onDestroy`.
+  - `LazyLoadFragment`: Reset `mLoaded` in `onDestroyView()` to prevent blank fragments when navigating back.
+  - `SinglePageItemRecyclerViewAdapter`: Fixed negative modulo remainder calculation crash in `getThreadColor()`, and dereferenced recycled `mColors`.
+  - `UserServicesClient`: Closed response bodies in `finally` blocks and on redirect errors.
+  - `AlgoliaClient`: Guarded error messages against null and validated numeric `objectID` strings.
+  - `AppUtils`: Added `Intent.FLAG_ACTIVITY_NEW_TASK` for launches from non-Activity contexts.
+
 ## [4.0] - 2026-XX-XX
 ### Added
 - Added GitHub Actions workflows for Continuous Integration and Release builds.

@@ -22,13 +22,15 @@ The project has been upgraded to a modern Android build environment with latest 
 
 - **`compileSdk`:** 36
 - **`targetSdk`:** 36
-- **`minSdk`:** 21
+- **`minSdk`:** 31
 - **`buildToolsVersion`:** The Android Gradle Plugin will automatically download the required version. Ensure the `ANDROID_HOME` environment variable is correctly set to your SDK location.
 
-### 3. Gradle
+### 3. Gradle & Kotlin
 
 - **Gradle Version:** 9.2.1
 - **Android Gradle Plugin (AGP) Version:** 9.2.1
+- **Kotlin Version:** 2.4.0
+- **KSP Version:** 2.3.9
 - The Gradle wrapper (`./gradlew`) is included in the repository and should be used for all build commands. It will automatically download the correct Gradle version. Keep dependencies up to date with the latest stable releases.
 
 ## Building the Project
