@@ -158,4 +158,18 @@ public class PreferencesTest {
         .commit();
     assertEquals(1.0f, Preferences.getLineHeight(context), 0.001f);
   }
+
+  @Test
+  public void testParseSwipeActionErrorHandling() throws Exception {
+    java.lang.reflect.Method method = Preferences.class.getDeclaredMethod("parseSwipeAction", String.class);
+    method.setAccessible(true);
+
+    // Test invalid string (IllegalArgumentException)
+    Object resultInvalid = method.invoke(null, "InvalidSwipeAction");
+    assertEquals(Preferences.SwipeAction.None, resultInvalid);
+
+    // Test null (NullPointerException)
+    Object resultNull = method.invoke(null, (String) null);
+    assertEquals(Preferences.SwipeAction.None, resultNull);
+  }
 }
