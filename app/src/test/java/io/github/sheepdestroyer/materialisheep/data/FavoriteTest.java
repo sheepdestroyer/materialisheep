@@ -87,4 +87,15 @@ public class FavoriteTest {
         Favorite[] array = Favorite.CREATOR.newArray(5);
         assertEquals(5, array.length);
     }
+
+    @Test
+    public void testSetFavorite() {
+        Favorite favorite = new Favorite("1", "http://example.com", "Title", 123456L);
+        assertTrue(favorite.isFavorite());
+        favorite.setFavorite(false);
+        assertFalse(favorite.isFavorite());
+        favorite.setFavorite(true);
+        assertTrue(favorite.isFavorite());
+    }
+
 }

@@ -1,14 +1,16 @@
 package io.github.sheepdestroyer.materialisheep;
 
+import android.os.Parcel;
+import io.github.sheepdestroyer.materialisheep.data.WebItem;
+import android.content.pm.ApplicationInfo;
+import org.robolectric.shadows.ShadowNetworkCapabilities;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
-
 import android.app.Activity;
 import android.app.Application;
 import android.content.ActivityNotFoundException;
@@ -32,27 +34,21 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.Shadows;
 import org.robolectric.shadows.ShadowConnectivityManager;
 import org.robolectric.shadows.ShadowToast;
-
 @RunWith(RobolectricTestRunner.class)
 public class AppUtilsTest {
-
   @Test
   public void testUrlEquals() {
     // Exact identical URLs
     assertTrue(AppUtils.urlEquals("http://example.com", "http://example.com"));
     assertTrue(AppUtils.urlEquals("http://example.com/", "http://example.com/"));
-
     // Identical base URLs with different trailing slash presence
     assertTrue(AppUtils.urlEquals("http://example.com", "http://example.com/"));
     assertTrue(AppUtils.urlEquals("http://example.com/", "http://example.com"));
-
     // Different URLs
     assertFalse(AppUtils.urlEquals("http://example.com", "http://anotherexample.com"));
     assertFalse(AppUtils.urlEquals("http://example.com", "https://example.com"));
-
     // Case sensitivity
     assertFalse(AppUtils.urlEquals("http://example.com", "http://EXAMPLE.com"));
-
     // Edge cases: null and empty
     assertFalse(AppUtils.urlEquals(null, "http://example.com"));
     assertFalse(AppUtils.urlEquals("http://example.com", null));
@@ -60,35 +56,29 @@ public class AppUtilsTest {
     assertFalse(AppUtils.urlEquals("", "http://example.com"));
     assertFalse(AppUtils.urlEquals("http://example.com", ""));
     assertFalse(AppUtils.urlEquals("", ""));
-
     // Various schemas
     assertTrue(AppUtils.urlEquals("https://example.com", "https://example.com/"));
     assertTrue(AppUtils.urlEquals("ftp://example.com/path", "ftp://example.com/path"));
     assertFalse(AppUtils.urlEquals("ftp://example.com", "http://example.com"));
     assertTrue(AppUtils.urlEquals("file:///android_asset/file.html", "file:///android_asset/file.html"));
-
     // Encodings and query parameters
     assertTrue(AppUtils.urlEquals("http://example.com/path%20with%20spaces", "http://example.com/path%20with%20spaces"));
     assertFalse(AppUtils.urlEquals("http://example.com/path with spaces", "http://example.com/path%20with%20spaces"));
     assertTrue(AppUtils.urlEquals("http://example.com/?q=query", "http://example.com/?q=query"));
     assertFalse(AppUtils.urlEquals("http://example.com?q=query", "http://example.com/?q=query"));
-
     // Fragments
     assertTrue(AppUtils.urlEquals("http://example.com/#fragment", "http://example.com/#fragment"));
     assertFalse(AppUtils.urlEquals("http://example.com", "http://example.com/#fragment"));
   }
-
   @Test
   public void testHasConnection() {
     Context context = ApplicationProvider.getApplicationContext();
     ConnectivityManager connectivityManager =
         (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
     ShadowConnectivityManager shadowConnectivityManager = Shadows.shadowOf(connectivityManager);
-
     // Default state might have no active network
     shadowConnectivityManager.setDefaultNetworkActive(false);
     assertFalse(AppUtils.hasConnection(context));
-
     // Since we migrated away from NetworkInfo, setting activeNetworkInfo does not mock the modern
     // APIs properly
     // on Robolectric without explicit shadow capability setting for 'getActiveNetwork' and
@@ -96,33 +86,24 @@ public class AppUtilsTest {
     // For simplicity we ensure that our implementation logic handles null inputs safely,
     // which is verified by passing the null test above.
   }
-
   @Test
   public void testGetAbbreviatedTimeSpan() {
     long now = System.currentTimeMillis();
-
     // Test Years
     assertEquals("2y", AppUtils.getAbbreviatedTimeSpan(now - (2L * 365 * DateUtils.DAY_IN_MILLIS)));
-
     // Test Weeks
     assertEquals("3w", AppUtils.getAbbreviatedTimeSpan(now - (3 * DateUtils.WEEK_IN_MILLIS)));
-
     // Test Days
     assertEquals("4d", AppUtils.getAbbreviatedTimeSpan(now - (4 * DateUtils.DAY_IN_MILLIS)));
-
     // Test Hours
     assertEquals("5h", AppUtils.getAbbreviatedTimeSpan(now - (5 * DateUtils.HOUR_IN_MILLIS)));
-
     // Test Minutes
     assertEquals("10m", AppUtils.getAbbreviatedTimeSpan(now - (10 * DateUtils.MINUTE_IN_MILLIS)));
-
     // Test edge case (just now / 0 difference)
     assertEquals("0m", AppUtils.getAbbreviatedTimeSpan(now));
-
     // Test edge case (future time)
     assertEquals("0m", AppUtils.getAbbreviatedTimeSpan(now + DateUtils.DAY_IN_MILLIS));
   }
-
   @Test
   public void testOpenPlayStore_ActivityNotFound() {
     Context context = ApplicationProvider.getApplicationContext();
@@ -133,20 +114,16 @@ public class AppUtilsTest {
             throw new ActivityNotFoundException("Activity not found");
           }
         };
-
     AppUtils.openPlayStore(wrapper);
     assertEquals(context.getString(R.string.no_playstore), ShadowToast.getTextOfLatestToast());
   }
-
   @Test
   public void testOpenWebUrlExternal_NoConnection() {
     Application baseContext = ApplicationProvider.getApplicationContext();
     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(baseContext);
     prefs.edit().putBoolean(baseContext.getString(R.string.pref_custom_tab), false).apply();
-
     ConnectivityManager mockCm = mock(ConnectivityManager.class);
     when(mockCm.getActiveNetwork()).thenReturn(null);
-
     Activity activity = Robolectric.buildActivity(Activity.class).get();
     Context context = new ContextWrapper(activity) {
       @Override
@@ -157,41 +134,31 @@ public class AppUtilsTest {
         return super.getSystemService(name);
       }
     };
-
     AppUtils.openWebUrlExternal(context, null, "http://example.com", null);
-
     Intent intent = shadowOf(activity).getNextStartedActivity();
     assertNotNull(intent);
     assertEquals(OfflineWebActivity.class.getName(), intent.getComponent().getClassName());
     assertEquals("http://example.com", intent.getStringExtra(OfflineWebActivity.EXTRA_URL));
   }
-
   @Test
   public void testOpenWebUrlExternal_WithConnection_NonHNUrl() {
     Application baseContext = ApplicationProvider.getApplicationContext();
     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(baseContext);
     prefs.edit().putBoolean(baseContext.getString(R.string.pref_custom_tab), false).apply();
-
     ConnectivityManager mockCm = mock(ConnectivityManager.class);
     Network mockNetwork = mock(Network.class);
     NetworkCapabilities mockCap = mock(NetworkCapabilities.class);
-
     when(mockCm.getActiveNetwork()).thenReturn(mockNetwork);
     when(mockCm.getNetworkCapabilities(mockNetwork)).thenReturn(mockCap);
     when(mockCap.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)).thenReturn(true);
-
     Activity activity = Robolectric.buildActivity(Activity.class).get();
-
     ShadowPackageManager shadowPm = shadowOf(activity.getPackageManager());
     Intent viewIntent = new Intent(Intent.ACTION_VIEW, android.net.Uri.parse("http://example.com"));
-
     ResolveInfo resolveInfo = new ResolveInfo();
     resolveInfo.activityInfo = new ActivityInfo();
     resolveInfo.activityInfo.packageName = "com.android.chrome";
     resolveInfo.activityInfo.name = "Browser";
-
     shadowPm.addResolveInfoForIntent(viewIntent, resolveInfo);
-
     Context context = new ContextWrapper(activity) {
       @Override
       public Object getSystemService(String name) {
@@ -201,47 +168,36 @@ public class AppUtilsTest {
         return super.getSystemService(name);
       }
     };
-
     AppUtils.openWebUrlExternal(context, null, "http://example.com", null);
-
     Intent intent = shadowOf(activity).getNextStartedActivity();
-
     assertNotNull(intent);
     assertEquals(Intent.ACTION_VIEW, intent.getAction());
     assertEquals("http://example.com", intent.getData().toString());
   }
-
   @Test
   public void testOpenWebUrlExternal_WithConnection_HNUrl() {
     Application baseContext = ApplicationProvider.getApplicationContext();
     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(baseContext);
     prefs.edit().putBoolean(baseContext.getString(R.string.pref_custom_tab), false).apply();
-
     ConnectivityManager mockCm = mock(ConnectivityManager.class);
     Network mockNetwork = mock(Network.class);
     NetworkCapabilities mockCap = mock(NetworkCapabilities.class);
-
     when(mockCm.getActiveNetwork()).thenReturn(mockNetwork);
     when(mockCm.getNetworkCapabilities(mockNetwork)).thenReturn(mockCap);
     when(mockCap.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)).thenReturn(true);
-
     Activity activity = Robolectric.buildActivity(Activity.class).get();
-
     ShadowPackageManager shadowPm = shadowOf(activity.getPackageManager());
     Intent viewIntent = new Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://news.ycombinator.com/item?id=123"));
-
     ResolveInfo selfInfo = new ResolveInfo();
     selfInfo.activityInfo = new ActivityInfo();
     selfInfo.activityInfo.packageName = activity.getPackageName();
     selfInfo.activityInfo.name = "Self";
     shadowPm.addResolveInfoForIntent(viewIntent, selfInfo);
-
     ResolveInfo otherInfo = new ResolveInfo();
     otherInfo.activityInfo = new ActivityInfo();
     otherInfo.activityInfo.packageName = "com.android.chrome";
     otherInfo.activityInfo.name = "Browser";
     shadowPm.addResolveInfoForIntent(viewIntent, otherInfo);
-
     Context context = new ContextWrapper(activity) {
       @Override
       public Object getSystemService(String name) {
@@ -251,14 +207,94 @@ public class AppUtilsTest {
         return super.getSystemService(name);
       }
     };
-
     AppUtils.openWebUrlExternal(context, null, "https://news.ycombinator.com/item?id=123", null);
-
     Intent intent = shadowOf(activity).getNextStartedActivity();
-
     assertNotNull(intent);
     assertEquals(Intent.ACTION_VIEW, intent.getAction());
     assertEquals("https://news.ycombinator.com/item?id=123", intent.getData().toString());
     assertEquals("com.android.chrome", intent.getPackage());
+  }
+  @Test
+  public void testOpenWebUrlExternal_onlineHackerNewsUrl_multipleExternalActivities() {
+    Context context = ApplicationProvider.getApplicationContext();
+    setupActiveNetwork(context);
+    PreferenceManager.getDefaultSharedPreferences(context)
+        .edit()
+        .putBoolean(context.getString(R.string.pref_custom_tab), false)
+        .commit();
+    String hnUrl = "https://news.ycombinator.com/item?id=123";
+    ShadowPackageManager shadowPackageManager = Shadows.shadowOf(context.getPackageManager());
+    ResolveInfo external1 = createResolveInfo("com.browser.one", "com.browser.one.MainActivity");
+    ResolveInfo external2 = createResolveInfo("com.browser.two", "com.browser.two.MainActivity");
+    Intent queryIntent = new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(hnUrl));
+    shadowPackageManager.addResolveInfoForIntent(queryIntent, external1);
+    shadowPackageManager.addResolveInfoForIntent(queryIntent, external2);
+    AppUtils.openWebUrlExternal(context, null, hnUrl, null);
+    Intent startedIntent = getNextStartedActivity(context);
+    assertNotNull(startedIntent);
+    assertEquals(Intent.ACTION_CHOOSER, startedIntent.getAction());
+  }
+  @Test
+  public void testOpenWebUrlExternal_customTabsEnabled() {
+    Context context = ApplicationProvider.getApplicationContext();
+    setupActiveNetwork(context);
+    PreferenceManager.getDefaultSharedPreferences(context)
+        .edit()
+        .putBoolean(context.getString(R.string.pref_custom_tab), true)
+        .commit();
+    String url = "https://example.com";
+    Intent viewIntent = new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(url));
+    ShadowPackageManager shadowPackageManager = Shadows.shadowOf(context.getPackageManager());
+    shadowPackageManager.addResolveInfoForIntent(viewIntent, createResolveInfo("com.android.chrome", "com.android.chrome.MainActivity"));
+    TestWebItem item = new TestWebItem("123", url);
+    AppUtils.openWebUrlExternal(context, item, url, null);
+    Intent startedIntent = getNextStartedActivity(context);
+    assertNotNull(startedIntent);
+    assertEquals(Intent.ACTION_VIEW, startedIntent.getAction());
+    assertEquals(url, startedIntent.getDataString());
+  }
+  private void setupActiveNetwork(Context context) {
+    ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+    ShadowConnectivityManager shadowCm = Shadows.shadowOf(cm);
+    shadowCm.setDefaultNetworkActive(true);
+    Network network = cm.getActiveNetwork();
+    if (network != null) {
+      NetworkCapabilities nc = ShadowNetworkCapabilities.newInstance();
+      Shadows.shadowOf(nc).addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
+      shadowCm.setNetworkCapabilities(network, nc);
+    }
+  }
+  private Intent getNextStartedActivity(Context context) {
+    return Shadows.shadowOf((Application) context.getApplicationContext()).getNextStartedActivity();
+  }
+  private ResolveInfo createResolveInfo(String packageName, String className) {
+    ResolveInfo info = new ResolveInfo();
+    info.activityInfo = new ActivityInfo();
+    info.activityInfo.packageName = packageName;
+    info.activityInfo.name = className;
+    info.activityInfo.applicationInfo = new ApplicationInfo();
+    info.activityInfo.applicationInfo.packageName = packageName;
+    return info;
+  }
+  static class TestWebItem implements WebItem {
+    private final String id;
+    private final String url;
+    TestWebItem(String id, String url) {
+      this.id = id;
+      this.url = url;
+    }
+    @Override public String getId() { return id; }
+    @Override public long getLongId() { return Long.parseLong(id); }
+    @Override public String getUrl() { return url; }
+    @Override public String getDisplayedTitle() { return "Title"; }
+    @Override public CharSequence getDisplayedAuthor(Context context, boolean linkify, int color) { return ""; }
+    @Override public CharSequence getDisplayedTime(Context context) { return ""; }
+    @Override public String getSource() { return ""; }
+    @Override public String getType() { return STORY_TYPE; }
+    @Override public boolean isStoryType() { return true; }
+    @Override public boolean isFavorite() { return false; }
+    @Override public void setFavorite(boolean favorite) {}
+    @Override public int describeContents() { return 0; }
+    @Override public void writeToParcel(Parcel dest, int flags) {}
   }
 }

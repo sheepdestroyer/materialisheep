@@ -1,67 +1,130 @@
 package io.github.sheepdestroyer.materialisheep.data;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-
-import java.io.IOException;
-
-import retrofit2.Call;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+import java.io.IOException;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.robolectric.RobolectricTestRunner;
+
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
+import retrofit2.Call;
+
+@RunWith(RobolectricTestRunner.class)
 public class HackerNewsClientTest {
 
     @Mock
-    private RestServiceFactory restServiceFactory;
+    RestServiceFactory factory;
     @Mock
-    private HackerNewsClient.RestService restService;
+    HackerNewsClient.RestService restService;
     @Mock
-    private SessionManager sessionManager;
+    SessionManager sessionManager;
     @Mock
-    private FavoriteManager favoriteManager;
+    FavoriteManager favoriteManager;
     @Mock
-    private Call<int[]> mockStoriesCall;
+    ResponseListener<Item[]> storiesListener;
     @Mock
-    private Call<HackerNewsItem> mockItemCall;
+    ResponseListener<Item> itemListener;
+
+    @Captor
+    ArgumentCaptor<String> errorCaptor;
 
     private HackerNewsClient client;
 
     @Before
     public void setUp() {
-        when(restServiceFactory.rxEnabled(true)).thenReturn(restServiceFactory);
-        when(restServiceFactory.create(HackerNewsClient.BASE_API_URL, HackerNewsClient.RestService.class)).thenReturn(restService);
+        MockitoAnnotations.openMocks(this);
 
-        client = new HackerNewsClient(restServiceFactory, sessionManager, favoriteManager);
-        // We do not have direct access to set mIoScheduler and mMainThreadScheduler,
-        // but the synchronous method getStories(filter, cacheMode) does not use them anyway.
+        when(factory.rxEnabled(anyBoolean())).thenReturn(factory);
+        when(factory.create(anyString(), any())).thenReturn(restService);
+
+        client = new HackerNewsClient(factory, sessionManager, favoriteManager);
+        client.mIoScheduler = Schedulers.trampoline();
+        client.mMainThreadScheduler = Schedulers.trampoline();
     }
 
     @Test
-    public void getStories_ioException_returnsEmptyArray() throws IOException {
-        when(restService.topStories()).thenReturn(mockStoriesCall);
-        when(mockStoriesCall.execute()).thenThrow(new IOException("Network error"));
+    public void testGetStoriesError() {
+        when(restService.topStoriesRx()).thenReturn(Observable.error(new IOException("Network error")));
 
-        Item[] items = client.getStories(ItemManager.TOP_FETCH_MODE, ItemManager.MODE_DEFAULT);
+        client.getStories(ItemManager.TOP_FETCH_MODE, ItemManager.MODE_DEFAULT, storiesListener);
 
-        assertNotNull(items);
-        assertEquals(0, items.length);
+        verify(storiesListener).onError(errorCaptor.capture());
+        assertEquals("Network error", errorCaptor.getValue());
     }
 
     @Test
-    public void testGetItem_IOExceptionReturnsNull() throws IOException {
-        when(restService.item(anyString())).thenReturn(mockItemCall);
-        when(mockItemCall.execute()).thenThrow(new IOException("Test exception"));
+    public void testGetStoriesErrorNullMessage() {
+        when(restService.topStoriesRx()).thenReturn(Observable.error(new NullPointerException()));
+
+        client.getStories(ItemManager.TOP_FETCH_MODE, ItemManager.MODE_DEFAULT, storiesListener);
+
+        verify(storiesListener).onError(errorCaptor.capture());
+        assertEquals("", errorCaptor.getValue());
+    }
+
+    @Test
+    public void testGetItemError() {
+        when(restService.itemRx("1")).thenReturn(Observable.error(new IOException("Network error")));
+        when(sessionManager.isViewed("1")).thenReturn(Observable.just(false));
+        when(favoriteManager.check("1")).thenReturn(Observable.just(false));
+
+        client.getItem("1", ItemManager.MODE_DEFAULT, itemListener);
+
+        verify(itemListener).onError(errorCaptor.capture());
+        assertEquals("Network error", errorCaptor.getValue());
+    }
+
+    @Test
+    public void testGetItemErrorNullMessage() {
+        when(restService.itemRx("1")).thenReturn(Observable.error(new NullPointerException()));
+        when(sessionManager.isViewed("1")).thenReturn(Observable.just(false));
+        when(favoriteManager.check("1")).thenReturn(Observable.just(false));
+
+        client.getItem("1", ItemManager.MODE_DEFAULT, itemListener);
+
+        verify(itemListener).onError(errorCaptor.capture());
+        assertEquals("", errorCaptor.getValue());
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testGetStoriesSyncError() throws IOException {
+        Call<int[]> mockCall = mock(Call.class);
+        when(mockCall.execute()).thenThrow(new IOException("Network error"));
+        when(restService.topStories()).thenReturn(mockCall);
+
+        Item[] stories = client.getStories(ItemManager.TOP_FETCH_MODE, ItemManager.MODE_DEFAULT);
+
+        assertNotNull(stories);
+        assertEquals(0, stories.length);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testGetItemSyncError() throws IOException {
+        Call<HackerNewsItem> mockCall = mock(Call.class);
+        when(mockCall.execute()).thenThrow(new IOException("Network error"));
+        when(restService.item("1")).thenReturn(mockCall);
 
         Item item = client.getItem("1", ItemManager.MODE_DEFAULT);
 
-        assertNull("getItem should return null when execute throws IOException", item);
+        assertNull(item);
     }
 }
