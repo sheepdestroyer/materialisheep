@@ -77,6 +77,7 @@ public class SyncDelegate {
   private final Context mContext;
   private ProgressListener mListener;
   private Job mJob;
+  private boolean mFinished;
   @VisibleForTesting CacheableWebView mWebView;
 
   /**
@@ -305,7 +306,10 @@ public class SyncDelegate {
 
   private void updateProgress() {
     if (mSyncProgress.getProgress() >= mSyncProgress.getMax()) { // TODO may never done
-      finish(); // TODO finish once only
+      if (!mFinished) {
+        mFinished = true;
+        finish();
+      }
     } else if (mJob.notificationEnabled) {
       showProgress();
     }

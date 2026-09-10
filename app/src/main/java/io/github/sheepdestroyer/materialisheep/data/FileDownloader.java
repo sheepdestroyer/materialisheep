@@ -12,6 +12,7 @@ import javax.inject.Inject;
 
 import io.github.sheepdestroyer.materialisheep.annotation.Synthetic;
 import okhttp3.Call;
+import okio.ByteString;
 import okhttp3.Callback;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -48,7 +49,8 @@ public class FileDownloader {
      */
     @WorkerThread
     public void downloadFile(String url, String mimeType, FileDownloaderCallback callback) {
-        File outputFile = new File(mCacheDir, new File(url).getName());
+        String filename = ByteString.encodeUtf8(url).sha256().hex();
+        File outputFile = new File(mCacheDir, filename);
         if (outputFile.exists()) {
             mMainHandler.post(() -> callback.onSuccess(outputFile.getPath()));
             return;

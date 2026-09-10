@@ -68,6 +68,10 @@ public class MaterialWebView extends android.webkit.WebView {
     reloadUrl(FILE);
   }
 
+  protected WebResourceResponse interceptRequest(WebResourceRequest request) {
+    return null;
+  }
+
   static class HistoryWebViewClient extends WebViewClient {
     private WebViewClient mClient;
 
@@ -109,6 +113,12 @@ public class MaterialWebView extends android.webkit.WebView {
     @Override
     public WebResourceResponse shouldInterceptRequest(
         android.webkit.WebView view, WebResourceRequest request) {
+      if (view instanceof MaterialWebView) {
+        WebResourceResponse response = ((MaterialWebView) view).interceptRequest(request);
+        if (response != null) {
+          return response;
+        }
+      }
       return mClient != null
           ? mClient.shouldInterceptRequest(view, request)
           : super.shouldInterceptRequest(view, request);
