@@ -35,7 +35,9 @@ public class SubmitActivityTest {
     // Invalid URLs
     assertFalse((Boolean) isUrlMethod.invoke(activity, "invalid-url"));
     assertFalse((Boolean) isUrlMethod.invoke(activity, ""));
-    assertFalse((Boolean) isUrlMethod.invoke(activity, "ftp//no-colon.com"));
+    assertFalse((Boolean) isUrlMethod.invoke(activity, "ftp://no-colon.com"));
+    assertFalse((Boolean) isUrlMethod.invoke(activity, "file:///etc/hosts"));
+    assertFalse((Boolean) isUrlMethod.invoke(activity, "javascript:alert(1)"));
     assertFalse((Boolean) isUrlMethod.invoke(activity, "ht tp://spaces.com"));
     assertFalse((Boolean) isUrlMethod.invoke(activity, (String) null));
   }

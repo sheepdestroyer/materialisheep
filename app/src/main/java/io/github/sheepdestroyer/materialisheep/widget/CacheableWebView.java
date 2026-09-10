@@ -152,16 +152,21 @@ public class CacheableWebView extends MaterialWebView {
 
   @Override
   protected WebResourceResponse interceptRequest(WebResourceRequest request) {
+    if (request == null || !request.isForMainFrame()) {
+      return null;
+    }
     Uri uri = request.getUrl();
     if (uri != null && "file".equals(uri.getScheme())) {
       String path = uri.getPath();
       if (path != null) {
         try {
           File cacheDir = getContext().getApplicationContext().getCacheDir();
-          File file = new File(path);
-          String canonicalCache = cacheDir.getCanonicalPath();
-          String canonicalFile = file.getCanonicalPath();
-          if (canonicalFile.startsWith(canonicalCache) && canonicalFile.endsWith(CACHE_EXTENSION)) {
+          File file = new File(path).getCanonicalFile();
+          File canonicalCacheDir = cacheDir.getCanonicalFile();
+          if (file.getParentFile() != null
+              && file.getParentFile().equals(canonicalCacheDir)
+              && file.getName().startsWith(CACHE_PREFIX)
+              && file.getName().endsWith(CACHE_EXTENSION)) {
             String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension("mht");
             return new WebResourceResponse(mimeType != null ? mimeType : "message/rfc822", "UTF-8", new FileInputStream(file));
           }

@@ -98,4 +98,17 @@ public class FavoriteTest {
         assertTrue(favorite.isFavorite());
     }
 
+    @Test
+    public void testEqualsAndHashCode() {
+        Favorite favorite1 = new Favorite("1", "http://example.com", "Title 1", 123456L);
+        Favorite favorite2 = new Favorite("1", "http://different.com", "Title 2", 999999L);
+        Favorite favorite3 = new Favorite("2", "http://example.com", "Title 1", 123456L);
+
+        assertEquals(favorite1, favorite1);
+        assertEquals(favorite1, favorite2);
+        assertEquals(favorite1.hashCode(), favorite2.hashCode());
+        assertFalse(favorite1.equals(favorite3));
+        assertFalse(favorite1.equals(null));
+        assertFalse(favorite1.equals("Not a Favorite"));
+    }
 }

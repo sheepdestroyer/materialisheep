@@ -22,8 +22,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 import android.text.TextUtils;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.inject.Inject;
 
@@ -37,7 +37,7 @@ public class ItemSyncJobService extends JobService {
     RestServiceFactory mFactory;
     @Inject
     ReadabilityClient mReadabilityClient;
-    private final Map<String, SyncDelegate> mSyncDelegates = new HashMap<>();
+    private final Map<String, SyncDelegate> mSyncDelegates = new ConcurrentHashMap<>();
 
     @Override
     public void onCreate() {

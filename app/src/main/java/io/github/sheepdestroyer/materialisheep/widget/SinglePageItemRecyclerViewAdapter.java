@@ -303,7 +303,7 @@ public class SinglePageItemRecyclerViewAdapter
     }
 
     private int getThreadColor(int itemViewType) {
-        return mColorCoded ? mColors.getColor(itemViewType % mColors.length(), 0) : 0;
+        return mColorCoded && mColors != null && mColors.length() > 0 ? mColors.getColor(itemViewType % mColors.length(), 0) : 0;
     }
 
     private void bindKids(final ToggleItemViewHolder holder, final Item item) {
@@ -402,7 +402,10 @@ public class SinglePageItemRecyclerViewAdapter
             if (savedList != null) {
                 addAll(0, savedList);
             }
-            expanded.addAll(source.createStringArrayList());
+            ArrayList<String> savedExpanded = source.createStringArrayList();
+            if (savedExpanded != null) {
+                expanded.addAll(savedExpanded);
+            }
         }
 
         @Override

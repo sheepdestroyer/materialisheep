@@ -168,7 +168,15 @@ class HackerNewsItem implements Item {
         descendants = info.getDescendants();
         hasNewDescendants = lastKidCount >= 0 && descendants > lastKidCount;
         lastKidCount = descendants;
-        parent = Long.parseLong(info.getParent());
+        if (info.getParent() != null && TextUtils.isDigitsOnly(info.getParent())) {
+            try {
+                parent = Long.parseLong(info.getParent());
+            } catch (NumberFormatException e) {
+                parent = 0L;
+            }
+        } else {
+            parent = 0L;
+        }
         deleted = info.isDeleted();
         dead = info.isDead();
         score = info.getScore();

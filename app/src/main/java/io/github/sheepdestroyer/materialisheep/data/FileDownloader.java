@@ -49,6 +49,13 @@ public class FileDownloader {
      */
     @WorkerThread
     public void downloadFile(String url, String mimeType, FileDownloaderCallback callback) {
+        if (callback == null) {
+            return;
+        }
+        if (url == null || url.trim().isEmpty()) {
+            mMainHandler.post(() -> callback.onFailure(null, new IOException("Invalid or empty URL")));
+            return;
+        }
         String filename = ByteString.encodeUtf8(url).sha256().hex();
         File outputFile = new File(mCacheDir, filename);
         if (outputFile.exists()) {
@@ -56,25 +63,46 @@ public class FileDownloader {
             return;
         }
 
-        final Request request = new Request.Builder().url(url)
-                .addHeader("Content-Type", mimeType)
-                .build();
+        final Request request;
+        try {
+            request = new Request.Builder().url(url)
+                    .addHeader("Content-Type", mimeType != null ? mimeType : "")
+                    .build();
+        } catch (IllegalArgumentException e) {
+            mMainHandler.post(() -> callback.onFailure(null, new IOException(e)));
+            return;
+        }
 
+        final File tempFile = new File(mCacheDir, filename + ".tmp");
         mCallFactory.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
+                if (tempFile.exists()) {
+                    tempFile.delete();
+                }
                 mMainHandler.post(() -> callback.onFailure(call, e));
             }
 
             @Override
             public void onResponse(Call call, Response response) {
-                try {
-                    BufferedSink sink = Okio.buffer(Okio.sink(outputFile));
-                    sink.writeAll(response.body().source());
-                    sink.close();
+                try (Response res = response) {
+                    if (!res.isSuccessful() || res.body() == null) {
+                        throw new IOException("Unexpected HTTP response code: " + res.code());
+                    }
+                    try (BufferedSink sink = Okio.buffer(Okio.sink(tempFile))) {
+                        sink.writeAll(res.body().source());
+                    }
+                    if (!tempFile.renameTo(outputFile)) {
+                        if (!outputFile.exists() || !outputFile.delete() || !tempFile.renameTo(outputFile)) {
+                            throw new IOException("Failed to rename temp file to " + outputFile.getPath());
+                        }
+                    }
                     mMainHandler.post(() -> callback.onSuccess(outputFile.getPath()));
                 } catch (IOException e) {
-                    this.onFailure(call, e);
+                    if (tempFile.exists()) {
+                        tempFile.delete();
+                    }
+                    onFailure(call, e);
                 }
             }
         });

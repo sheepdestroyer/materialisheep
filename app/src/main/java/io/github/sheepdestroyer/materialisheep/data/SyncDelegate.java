@@ -55,6 +55,7 @@ import io.github.sheepdestroyer.materialisheep.widget.CacheableWebView;
 import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.inject.Inject;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -77,7 +78,7 @@ public class SyncDelegate {
   private final Context mContext;
   private ProgressListener mListener;
   private Job mJob;
-  private boolean mFinished;
+  private final AtomicBoolean mFinished = new AtomicBoolean(false);
   @VisibleForTesting CacheableWebView mWebView;
 
   /**
@@ -206,8 +207,10 @@ public class SyncDelegate {
                 public void onResponse(
                     Call<HackerNewsItem> call, retrofit2.Response<HackerNewsItem> response) {
                   HackerNewsItem item;
-                  if ((item = response.body()) != null) {
+                  if (response.isSuccessful() && (item = response.body()) != null) {
                     sync(item);
+                  } else {
+                    notifyItem(itemId, null);
                   }
                 }
 
@@ -306,8 +309,7 @@ public class SyncDelegate {
 
   private void updateProgress() {
     if (mSyncProgress.getProgress() >= mSyncProgress.getMax()) { // TODO may never done
-      if (!mFinished) {
-        mFinished = true;
+      if (mFinished.compareAndSet(false, true)) {
         finish();
       }
     } else if (mJob.notificationEnabled) {

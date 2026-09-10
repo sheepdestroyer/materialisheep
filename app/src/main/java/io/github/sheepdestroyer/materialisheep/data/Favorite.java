@@ -139,6 +139,23 @@ public class Favorite implements WebItem {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Favorite favorite = (Favorite) o;
+        return itemId != null ? itemId.equals(favorite.itemId) : favorite.itemId == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return itemId != null ? itemId.hashCode() : 0;
+    }
+
+    @Override
     public int describeContents() {
         return 0;
     }

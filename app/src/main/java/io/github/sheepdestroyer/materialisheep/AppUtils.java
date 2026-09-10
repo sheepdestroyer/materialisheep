@@ -116,7 +116,8 @@ public class AppUtils {
       return;
     }
     Intent intent = createViewIntent(context, item, url, session);
-    if (!HackerNewsClient.BASE_WEB_URL.contains(Uri.parse(url).getHost())) {
+    String host = Uri.parse(url).getHost();
+    if (host == null || !HackerNewsClient.BASE_WEB_URL.contains(host)) {
       if (intent.resolveActivity(context.getPackageManager()) != null) {
         context.startActivity(intent);
       }
@@ -237,11 +238,14 @@ public class AppUtils {
   public static Intent makeSendIntentChooser(Context context, Uri data) {
     // use ACTION_SEND_MULTIPLE instead of ACTION_SEND to filter out
     // share receivers that accept only EXTRA_TEXT but not EXTRA_STREAM
+    ArrayList<Uri> streams = new ArrayList<>();
+    if (data != null) {
+      streams.add(data);
+    }
     return Intent.createChooser(
         new Intent(Intent.ACTION_SEND_MULTIPLE)
             .setType("text/plain")
-            .putParcelableArrayListExtra(
-                Intent.EXTRA_STREAM, new ArrayList<>(java.util.List.of(data))),
+            .putParcelableArrayListExtra(Intent.EXTRA_STREAM, streams),
         context.getString(R.string.share_file));
   }
 

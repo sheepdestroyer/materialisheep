@@ -593,4 +593,25 @@ public class HackerNewsItemTest {
         item.setContentExpanded(true);
         assertTrue(item.isContentExpanded());
     }
+
+    @Test
+    public void testPopulateInvalidParent() {
+        HackerNewsItem itemNullParent = new HackerNewsItem(1L);
+        itemNullParent.populate(new ItemTest.TestItem(1L) {
+            @Override
+            public String getParent() {
+                return null;
+            }
+        });
+        assertEquals(0L, itemNullParent.getParent());
+
+        HackerNewsItem itemNonDigitParent = new HackerNewsItem(2L);
+        itemNonDigitParent.populate(new ItemTest.TestItem(2L) {
+            @Override
+            public String getParent() {
+                return "abc";
+            }
+        });
+        assertEquals(0L, itemNonDigitParent.getParent());
+    }
 }

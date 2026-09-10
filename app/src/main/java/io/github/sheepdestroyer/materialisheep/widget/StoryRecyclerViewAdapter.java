@@ -138,7 +138,7 @@ public class StoryRecyclerViewAdapter extends
             return;
         }
         int position = getPosition(item);
-        if (position == NO_POSITION) {
+        if (position == NO_POSITION || position >= getItemCount()) {
             return;
         }
         if (FavoriteManager.Companion.isAdded(uri)) {
@@ -408,7 +408,7 @@ public class StoryRecyclerViewAdapter extends
     }
 
     private void setUpdated(Item[] items) {
-        if (!mHighlightUpdated || getItems() == null) {
+        if (!mHighlightUpdated || getItems() == null || items == null) {
             return;
         }
         if (mItems.size() == 0) {
@@ -439,7 +439,11 @@ public class StoryRecyclerViewAdapter extends
         }).dispatchUpdatesTo(new ListUpdateCallback() {
             @Override
             public void onInserted(int position, int count) {
-                mAdded.add(items[position]);
+                for (int i = 0; i < count; i++) {
+                    if (position + i < items.length) {
+                        mAdded.add(items[position + i]);
+                    }
+                }
                 notifyUpdated();
             }
 

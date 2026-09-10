@@ -108,10 +108,14 @@ public class UserServicesClient implements UserServices {
     public void login(String username, String password, boolean createAccount, Callback callback) {
         execute(postLogin(username, password, createAccount))
                 .flatMap(response -> {
-                    if (response.code() == HttpURLConnection.HTTP_OK) {
-                        return Observable.error(new UserServices.Exception(parseLoginError(response)));
+                    try {
+                        if (response.code() == HttpURLConnection.HTTP_OK) {
+                            return Observable.error(new UserServices.Exception(parseLoginError(response)));
+                        }
+                        return Observable.just(response.code() == HttpURLConnection.HTTP_MOVED_TEMP);
+                    } finally {
+                        response.close();
                     }
-                    return Observable.just(response.code() == HttpURLConnection.HTTP_MOVED_TEMP);
                 })
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(callback::onDone, callback::onError);
@@ -134,7 +138,13 @@ public class UserServicesClient implements UserServices {
         }
         Toast.makeText(context, R.string.sending, Toast.LENGTH_SHORT).show();
         execute(postVote(credentials.first, credentials.second, itemId))
-                .map(response -> response.code() == HttpURLConnection.HTTP_MOVED_TEMP)
+                .map(response -> {
+                    try {
+                        return response.code() == HttpURLConnection.HTTP_MOVED_TEMP;
+                    } finally {
+                        response.close();
+                    }
+                })
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(callback::onDone, callback::onError);
         return true;
@@ -157,7 +167,13 @@ public class UserServicesClient implements UserServices {
             return;
         }
         execute(postReply(parentId, text, credentials.first, credentials.second))
-                .map(response -> response.code() == HttpURLConnection.HTTP_MOVED_TEMP)
+                .map(response -> {
+                    try {
+                        return response.code() == HttpURLConnection.HTTP_MOVED_TEMP;
+                    } finally {
+                        response.close();
+                    }
+                })
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(callback::onDone, callback::onError);
     }
@@ -349,9 +365,12 @@ public class UserServicesClient implements UserServices {
 
     private String parseLoginError(Response response) {
         try {
+            if (response == null || response.body() == null) {
+                return null;
+            }
             Matcher matcher = PATTERN_CREATE_ERROR_BODY.matcher(response.body().string());
             return matcher.find() ? PATTERN_WHITESPACE.matcher(matcher.group(1)).replaceAll(" ").trim() : null;
-        } catch (IOException e) {
+        } catch (IOException | RuntimeException e) {
             return null;
         }
     }

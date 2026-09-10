@@ -57,6 +57,7 @@ public class SubmitActivity extends ThemedActivity {
   private TextInputLayout mTitleLayout;
   private TextInputLayout mContentLayout;
   private boolean mSending;
+  private WebView mOffscreenWebView;
   private final OnBackPressedCallback mOnBackPressedCallback =
       new OnBackPressedCallback(true) {
         @Override
@@ -112,8 +113,8 @@ public class SubmitActivity extends ThemedActivity {
     mContentEditText.setText(text);
     if (TextUtils.isEmpty(subject)) {
       if (isUrl(text)) {
-        WebView webView = new WebView(this);
-        webView.setWebChromeClient(
+        mOffscreenWebView = new WebView(this);
+        mOffscreenWebView.setWebChromeClient(
             new WebChromeClient() {
               @Override
               public void onReceivedTitle(WebView view, String title) {
@@ -122,12 +123,22 @@ public class SubmitActivity extends ThemedActivity {
                 }
               }
             });
-        webView.loadUrl(text);
+        mOffscreenWebView.loadUrl(text);
       } else if (!TextUtils.isEmpty(text)) {
         extractUrl(text);
       }
     }
     getOnBackPressedDispatcher().addCallback(this, mOnBackPressedCallback);
+  }
+
+  @Override
+  protected void onDestroy() {
+    super.onDestroy();
+    if (mOffscreenWebView != null) {
+      mOffscreenWebView.stopLoading();
+      mOffscreenWebView.destroy();
+      mOffscreenWebView = null;
+    }
   }
 
   /**
@@ -260,12 +271,16 @@ public class SubmitActivity extends ThemedActivity {
   }
 
   private boolean isUrl(String text) {
+    if (text == null || text.trim().isEmpty()) {
+      return false;
+    }
     try {
-      new URL(text); // try parsing
+      URL url = new URL(text); // try parsing
+      String protocol = url.getProtocol();
+      return "http".equalsIgnoreCase(protocol) || "https".equalsIgnoreCase(protocol);
     } catch (MalformedURLException e) {
       return false;
     }
-    return true;
   }
 
   private void extractUrl(String text) {

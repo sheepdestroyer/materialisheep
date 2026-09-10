@@ -154,4 +154,42 @@ public class FileDownloaderTest {
         verify(callback).onFailure(any(), any());
         testFile.delete();
     }
+
+    @Test
+    public void downloadFile_httpError_callsOnFailure() throws IOException {
+        String url = "http://example.com/notfound.txt";
+        String filename = ByteString.encodeUtf8(url).sha256().hex();
+        File testFile = new File(cacheDir, filename);
+        if (testFile.exists()) testFile.delete();
+
+        doAnswer(invocation -> {
+            Callback okHttpCallback = invocation.getArgument(0);
+            Response response = new Response.Builder()
+                .request(new Request.Builder().url(url).build())
+                .protocol(Protocol.HTTP_1_1)
+                .code(404)
+                .message("Not Found")
+                .body(ResponseBody.create(MediaType.parse("text/plain"), "Not Found"))
+                .build();
+            okHttpCallback.onResponse(call, response);
+            return null;
+        }).when(call).enqueue(any(Callback.class));
+
+        fileDownloader.downloadFile(url, "text/plain", callback);
+        ShadowLooper.idleMainLooper();
+
+        verify(callback).onFailure(any(), any());
+        assertFalse(testFile.exists());
+    }
+
+    @Test
+    public void downloadFile_invalidUrl_callsOnFailure() {
+        fileDownloader.downloadFile("", "text/plain", callback);
+        ShadowLooper.idleMainLooper();
+        verify(callback).onFailure(any(), any());
+
+        fileDownloader.downloadFile(null, "text/plain", callback);
+        ShadowLooper.idleMainLooper();
+        verify(callback, org.mockito.Mockito.atLeast(2)).onFailure(any(), any());
+    }
 }

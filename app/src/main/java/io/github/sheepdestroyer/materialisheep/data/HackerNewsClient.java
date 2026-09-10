@@ -89,7 +89,7 @@ public class HackerNewsClient implements ItemManager, UserManager {
                 .subscribeOn(mIoScheduler)
                 .observeOn(mMainThreadScheduler)
                 .subscribe(listener::onResponse,
-                        t -> listener.onError(t != null ? t.getMessage() : ""));
+                        t -> listener.onError(t != null && t.getMessage() != null ? t.getMessage() : ""));
     }
 
     @Override
@@ -127,7 +127,7 @@ public class HackerNewsClient implements ItemManager, UserManager {
                 .subscribeOn(mIoScheduler)
                 .observeOn(mMainThreadScheduler)
                 .subscribe(optionalItem -> listener.onResponse(optionalItem.orElse(null)),
-                        t -> listener.onError(t != null ? t.getMessage() : ""));
+                        t -> listener.onError(t != null && t.getMessage() != null ? t.getMessage() : ""));
 
     }
 
@@ -176,7 +176,7 @@ public class HackerNewsClient implements ItemManager, UserManager {
                 .subscribeOn(mIoScheduler)
                 .observeOn(mMainThreadScheduler)
                 .subscribe(optionalUser -> listener.onResponse(optionalUser.orElse(null)),
-                        t -> listener.onError(t.getMessage() != null ? t.getMessage() : ""));
+                        t -> listener.onError(t != null && t.getMessage() != null ? t.getMessage() : ""));
     }
 
     @NonNull
