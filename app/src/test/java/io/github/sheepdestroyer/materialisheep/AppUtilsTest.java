@@ -1,6 +1,7 @@
 package io.github.sheepdestroyer.materialisheep;
 
 import android.os.Parcel;
+import android.text.Spannable;
 import io.github.sheepdestroyer.materialisheep.data.WebItem;
 import android.content.pm.ApplicationInfo;
 import org.robolectric.shadows.ShadowNetworkCapabilities;
@@ -287,8 +288,8 @@ public class AppUtilsTest {
     @Override public long getLongId() { return Long.parseLong(id); }
     @Override public String getUrl() { return url; }
     @Override public String getDisplayedTitle() { return "Title"; }
-    @Override public CharSequence getDisplayedAuthor(Context context, boolean linkify, int color) { return ""; }
-    @Override public CharSequence getDisplayedTime(Context context) { return ""; }
+    @Override public Spannable getDisplayedAuthor(Context context, boolean linkify, int color) { return null; }
+    @Override public Spannable getDisplayedTime(Context context) { return null; }
     @Override public String getSource() { return ""; }
     @Override public String getType() { return STORY_TYPE; }
     @Override public boolean isStoryType() { return true; }
