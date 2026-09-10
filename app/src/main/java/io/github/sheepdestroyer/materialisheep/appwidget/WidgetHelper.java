@@ -16,13 +16,11 @@
 
 package io.github.sheepdestroyer.materialisheep.appwidget;
 
-import static android.content.Context.ALARM_SERVICE;
 import static android.content.Context.MODE_PRIVATE;
 import static io.github.sheepdestroyer.materialisheep.DataModule.ALGOLIA;
 import static io.github.sheepdestroyer.materialisheep.DataModule.HN;
 
 import android.app.Activity;
-import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.SearchManager;
 import android.app.job.JobInfo;
@@ -61,7 +59,6 @@ public class WidgetHelper {
   private static final int DEFAULT_FREQUENCY_HOUR = 6;
   private final Context mContext;
   private final AppWidgetManager mAppWidgetManager;
-  private final AlarmManager mAlarmManager;
   private static final String SCORE = "%1$dp";
   private static final String COMMENT = "%1$dc";
   private static final String SUBTITLE_SEPARATOR = " - ";
@@ -83,8 +80,7 @@ public class WidgetHelper {
   WidgetHelper(Context context) {
     mContext = context;
     ((MaterialisticApplication) context.getApplicationContext()).applicationComponent.inject(this);
-    mAppWidgetManager = AppWidgetManager.getInstance(context);
-    mAlarmManager = (AlarmManager) context.getSystemService(ALARM_SERVICE);
+    mAppWidgetManager = context.getSystemService(AppWidgetManager.class);
   }
 
   /**
@@ -222,7 +218,7 @@ public class WidgetHelper {
     int count = items != null ? Math.min(items.length, MAX_ITEMS) : 0;
 
     RemoteViews.RemoteCollectionItems.Builder itemsBuilder =
-        new RemoteViews.RemoteCollectionItems.Builder().setHasStableIds(true).setViewTypeCount(1);
+        new RemoteViews.RemoteCollectionItems.Builder().setHasStableIds(true);
 
     for (int i = 0; i < count; i++) {
       Item item = items[i];
