@@ -70,4 +70,38 @@ public class PreferencesTest {
     Preferences.setSortByRecent(context, false);
     assertFalse(Preferences.isSortByRecent(context));
   }
+
+  @Test
+  public void testGetLaunchScreen() {
+    // Test default value
+    org.junit.Assert.assertEquals(
+        context.getString(R.string.pref_launch_screen_value_top),
+        Preferences.getLaunchScreen(context));
+
+    // Test with a different value
+    sharedPreferences
+        .edit()
+        .putString(
+            context.getString(R.string.pref_launch_screen),
+            context.getString(R.string.pref_launch_screen_value_new))
+        .commit();
+    org.junit.Assert.assertEquals(
+        context.getString(R.string.pref_launch_screen_value_new),
+        Preferences.getLaunchScreen(context));
+  }
+
+  @Test
+  public void testIsLaunchScreenLast() {
+    // Test default value
+    assertFalse(Preferences.isLaunchScreenLast(context));
+
+    // Test with last value
+    sharedPreferences
+        .edit()
+        .putString(
+            context.getString(R.string.pref_launch_screen),
+            context.getString(R.string.pref_launch_screen_value_last))
+        .commit();
+    assertTrue(Preferences.isLaunchScreenLast(context));
+  }
 }
