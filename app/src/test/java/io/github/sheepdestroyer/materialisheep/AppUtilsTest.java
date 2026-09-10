@@ -7,9 +7,11 @@ import android.content.pm.ApplicationInfo;
 import org.robolectric.shadows.ShadowNetworkCapabilities;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
 import android.app.Activity;
@@ -21,12 +23,20 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ResolveInfo;
+import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
+import android.net.Uri;
 import android.text.format.DateUtils;
+import android.view.LayoutInflater;
+import android.view.Window;
+import android.webkit.WebSettings;
 import androidx.preference.PreferenceManager;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import java.util.ArrayList;
 import org.robolectric.Robolectric;
+import org.robolectric.RuntimeEnvironment;
 import org.robolectric.shadows.ShadowPackageManager;
 import androidx.test.core.app.ApplicationProvider;
 import org.junit.Test;
@@ -253,6 +263,137 @@ public class AppUtilsTest {
     assertNotNull(startedIntent);
     assertEquals(Intent.ACTION_VIEW, startedIntent.getAction());
     assertEquals(url, startedIntent.getDataString());
+  }
+
+  @Test
+  public void testShare() {
+    Activity activity = Robolectric.buildActivity(Activity.class).get();
+    Context context = activity;
+    ShadowPackageManager shadowPm = shadowOf(context.getPackageManager());
+    Intent sendIntent = new Intent(Intent.ACTION_SEND).setType("text/plain");
+    shadowPm.addResolveInfoForIntent(
+        sendIntent, createResolveInfo("com.test.app", "com.test.app.MainActivity"));
+
+    AppUtils.share(context, "Subject", "Text");
+    Intent startedIntent = shadowOf(activity).getNextStartedActivity();
+    assertNotNull(startedIntent);
+    assertEquals(Intent.ACTION_SEND, startedIntent.getAction());
+    assertEquals("text/plain", startedIntent.getType());
+    assertEquals("Subject", startedIntent.getStringExtra(Intent.EXTRA_SUBJECT));
+    assertEquals("Subject - Text", startedIntent.getStringExtra(Intent.EXTRA_TEXT));
+
+    AppUtils.share(context, null, "TextOnly");
+    Intent startedIntent2 = shadowOf(activity).getNextStartedActivity();
+    assertNotNull(startedIntent2);
+    assertEquals(Intent.ACTION_SEND, startedIntent2.getAction());
+    assertEquals("text/plain", startedIntent2.getType());
+    assertNull(startedIntent2.getStringExtra(Intent.EXTRA_SUBJECT));
+    assertEquals("TextOnly", startedIntent2.getStringExtra(Intent.EXTRA_TEXT));
+  }
+
+  @Test
+  @SuppressWarnings("deprecation")
+  public void testMakeSendIntentChooser() {
+    Uri uri = Uri.parse("http://example.com");
+    Intent chooser = AppUtils.makeSendIntentChooser(RuntimeEnvironment.application, uri);
+    assertNotNull(chooser);
+    assertEquals(Intent.ACTION_CHOOSER, chooser.getAction());
+    Intent target = chooser.getParcelableExtra(Intent.EXTRA_INTENT);
+    assertNotNull(target);
+    assertEquals(Intent.ACTION_SEND_MULTIPLE, target.getAction());
+    assertEquals("text/plain", target.getType());
+    ArrayList<Uri> streams = target.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+    assertNotNull(streams);
+    assertEquals(1, streams.size());
+    assertEquals(uri, streams.get(0));
+
+    Intent chooserNull = AppUtils.makeSendIntentChooser(RuntimeEnvironment.application, null);
+    assertNotNull(chooserNull);
+    assertEquals(Intent.ACTION_CHOOSER, chooserNull.getAction());
+    Intent targetNull = chooserNull.getParcelableExtra(Intent.EXTRA_INTENT);
+    assertNotNull(targetNull);
+    assertEquals(Intent.ACTION_SEND_MULTIPLE, targetNull.getAction());
+    ArrayList<Uri> streamsNull = targetNull.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+    assertNotNull(streamsNull);
+    assertTrue(streamsNull.isEmpty());
+  }
+
+  @Test
+  @SuppressWarnings("deprecation")
+  public void testIsOnWiFi() {
+    ConnectivityManager cm =
+        (ConnectivityManager)
+            RuntimeEnvironment.application.getSystemService(Context.CONNECTIVITY_SERVICE);
+    ShadowConnectivityManager shadowCm = Shadows.shadowOf(cm);
+
+    shadowCm.setDefaultNetworkActive(false);
+    assertFalse(AppUtils.isOnWiFi(RuntimeEnvironment.application));
+
+    shadowCm.setDefaultNetworkActive(true);
+    Network network = cm.getActiveNetwork();
+    if (network != null) {
+      NetworkCapabilities ncCellular = ShadowNetworkCapabilities.newInstance();
+      Shadows.shadowOf(ncCellular).addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR);
+      shadowCm.setNetworkCapabilities(network, ncCellular);
+      assertFalse(AppUtils.isOnWiFi(RuntimeEnvironment.application));
+
+      NetworkCapabilities ncWifi = ShadowNetworkCapabilities.newInstance();
+      Shadows.shadowOf(ncWifi).addTransportType(NetworkCapabilities.TRANSPORT_WIFI);
+      shadowCm.setNetworkCapabilities(network, ncWifi);
+      assertTrue(AppUtils.isOnWiFi(RuntimeEnvironment.application));
+    }
+
+    Context nullCmContext = mock(Context.class);
+    when(nullCmContext.getSystemService(Context.CONNECTIVITY_SERVICE)).thenReturn(null);
+    assertFalse(AppUtils.isOnWiFi(nullCmContext));
+  }
+
+  @Test
+  public void testRestart() {
+    Activity activity = mock(Activity.class);
+    AppUtils.restart(activity, false);
+    verify(activity).recreate();
+  }
+
+  @Test
+  public void testToggleFab() {
+    FloatingActionButton fab = mock(FloatingActionButton.class);
+    AppUtils.toggleFab(fab, true);
+    verify(fab).setTag(null);
+    verify(fab).show();
+
+    AppUtils.toggleFab(fab, false);
+    verify(fab).setTag(FabAwareScrollBehavior.HIDDEN);
+    verify(fab).hide();
+  }
+
+  @Test
+  public void testSetStatusBarColor() {
+    Window window = mock(Window.class);
+    AppUtils.setStatusBarColor(window, Color.RED);
+    verify(window).setStatusBarColor(Color.RED);
+  }
+
+  @Test
+  public void testToggleWebViewZoom() {
+    WebSettings webSettings = mock(WebSettings.class);
+
+    AppUtils.toggleWebViewZoom(webSettings, true);
+    verify(webSettings).setSupportZoom(true);
+    verify(webSettings).setBuiltInZoomControls(true);
+    verify(webSettings).setDisplayZoomControls(false);
+
+    AppUtils.toggleWebViewZoom(webSettings, false);
+    verify(webSettings).setSupportZoom(false);
+    verify(webSettings).setBuiltInZoomControls(false);
+    verify(webSettings).setDisplayZoomControls(false);
+  }
+
+  @Test
+  @SuppressWarnings("deprecation")
+  public void testCreateLayoutInflater() {
+    LayoutInflater inflater = AppUtils.createLayoutInflater(RuntimeEnvironment.application);
+    assertNotNull(inflater);
   }
   private void setupActiveNetwork(Context context) {
     ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
