@@ -16,7 +16,6 @@
 
 package io.github.sheepdestroyer.materialisheep;
 
-import android.content.Context;
 import android.os.Bundle;
 import androidx.lifecycle.ViewModelProvider;
 

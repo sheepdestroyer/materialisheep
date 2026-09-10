@@ -27,7 +27,9 @@ import android.view.ViewGroup;
 import io.github.sheepdestroyer.materialisheep.MaterialisticApplication;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import io.github.sheepdestroyer.materialisheep.AppUtils;
 import io.github.sheepdestroyer.materialisheep.ItemActivity;
@@ -37,7 +39,7 @@ import io.github.sheepdestroyer.materialisheep.data.ItemManager;
 
 public class ThreadPreviewRecyclerViewAdapter extends ItemRecyclerViewAdapter<SubmissionViewHolder> {
     private final List<Item> mItems = new ArrayList<>();
-    private final List<String> mExpanded = new ArrayList<>();
+    private final Set<String> mExpanded = new HashSet<>();
     private int mLevelIndicatorWidth;
     private final String mUsername;
 

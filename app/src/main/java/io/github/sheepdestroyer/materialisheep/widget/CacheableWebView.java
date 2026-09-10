@@ -21,12 +21,17 @@ import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.webkit.MimeTypeMap;
 import android.webkit.WebChromeClient;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebViewClient;
 import androidx.annotation.CallSuper;
 import io.github.sheepdestroyer.materialisheep.AppUtils;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Map;
 
 public class CacheableWebView extends MaterialWebView {
@@ -89,7 +94,7 @@ public class CacheableWebView extends MaterialWebView {
 
   private void enableCache() {
     WebSettings webSettings = getSettings();
-    webSettings.setAllowFileAccess(true);
+    webSettings.setAllowFileAccess(false);
     setCacheModeInternal();
   }
 
@@ -142,6 +147,29 @@ public class CacheableWebView extends MaterialWebView {
         + CACHE_PREFIX
         + name
         + CACHE_EXTENSION;
+  }
+
+  @Override
+  protected WebResourceResponse interceptRequest(WebResourceRequest request) {
+    Uri uri = request.getUrl();
+    if (uri != null && "file".equals(uri.getScheme())) {
+      String path = uri.getPath();
+      if (path != null) {
+        try {
+          File cacheDir = getContext().getApplicationContext().getCacheDir();
+          File file = new File(path);
+          String canonicalCache = cacheDir.getCanonicalPath();
+          String canonicalFile = file.getCanonicalPath();
+          if (canonicalFile.startsWith(canonicalCache) && canonicalFile.endsWith(CACHE_EXTENSION)) {
+            String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension("mht");
+            return new WebResourceResponse(mimeType != null ? mimeType : "message/rfc822", "UTF-8", new FileInputStream(file));
+          }
+        } catch (IOException e) {
+          // ignore
+        }
+      }
+    }
+    return null;
   }
 
   public static class ArchiveClient extends WebChromeClient {
