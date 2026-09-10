@@ -21,8 +21,8 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.os.Build;
 import androidx.annotation.NonNull;
+import androidx.core.os.ParcelCompat;
 import androidx.collection.LongSparseArray;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -396,16 +396,12 @@ public class SinglePageItemRecyclerViewAdapter
             addAll(0, list);
         }
 
-        @SuppressWarnings({"unchecked", "deprecation"})
         @Synthetic
         SavedState(Parcel source) {
-            ArrayList<Item> savedList;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                savedList = source.readArrayList(Item.class.getClassLoader(), Item.class);
-            } else {
-                savedList = source.readArrayList(Item.class.getClassLoader());
+            ArrayList<Item> savedList = ParcelCompat.readArrayList(source, Item.class.getClassLoader(), Item.class);
+            if (savedList != null) {
+                addAll(0, savedList);
             }
-            addAll(0, savedList);
             expanded.addAll(source.createStringArrayList());
         }
 
