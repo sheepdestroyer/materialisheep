@@ -22,6 +22,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -483,7 +484,7 @@ public class Preferences {
             try {
                 info = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
             } catch (PackageManager.NameNotFoundException e) {
-                // no op
+                Log.w("Preferences", "Failed to get package info", e);
             }
             // considered seen if first time install or last seen release is up to date
             if (info != null && info.firstInstallTime == info.lastUpdateTime) {

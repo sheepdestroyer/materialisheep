@@ -42,6 +42,8 @@ import android.widget.Toast;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -106,6 +108,8 @@ public class StoryRecyclerViewAdapter extends
     @Synthetic
     final SortedList<Item> mItems = new SortedList<>(Item.class, mSortedListCallback);
     @Synthetic
+    final Map<String, Integer> mItemPositions = new HashMap<>();
+    @Synthetic
     final ArraySet<Item> mAdded = new ArraySet<>();
     @Synthetic
     final ArrayMap<String, Integer> mPromoted = new ArrayMap<>();
@@ -128,13 +132,8 @@ public class StoryRecyclerViewAdapter extends
             notifyDataSetChanged();
             return;
         }
-        int position = NO_POSITION;
-        for (int i = 0; i < mItems.size(); i++) {
-            if (TextUtils.equals(mItems.get(i).getId(), uri.getLastPathSegment())) {
-                position = i;
-                break;
-            }
-        }
+        Integer pos = mItemPositions.get(uri.getLastPathSegment());
+        int position = pos != null ? pos : NO_POSITION;
         if (position == NO_POSITION) {
             return;
         }
@@ -313,6 +312,10 @@ public class StoryRecyclerViewAdapter extends
         setUpdated(items);
         mItems.clear();
         mItems.addAll(items);
+        mItemPositions.clear();
+        for (int i = 0; i < mItems.size(); i++) {
+            mItemPositions.put(mItems.get(i).getId(), i);
+        }
     }
 
     public void setHighlightUpdated(boolean highlightUpdated) {
@@ -334,13 +337,8 @@ public class StoryRecyclerViewAdapter extends
     }
 
     public void toggleSave(String itemId) {
-        int position = NO_POSITION;
-        for (int i = 0; i < mItems.size(); i++) {
-            if (TextUtils.equals(mItems.get(i).getId(), itemId)) {
-                position = i;
-                break;
-            }
-        }
+        Integer pos = mItemPositions.get(itemId);
+        int position = pos != null ? pos : NO_POSITION;
         if (position == NO_POSITION) {
             return;
         }
@@ -615,8 +613,9 @@ public class StoryRecyclerViewAdapter extends
 
         @Override
         public void onDone(boolean successful) {
-            // TODO update locally only, as API does not update instantly
-            mItem.incrementScore();
+            if (successful) {
+                mItem.incrementScore();
+            }
             mItem.clearPendingVoted();
             StoryRecyclerViewAdapter adapter = mAdapter.get();
             if (adapter != null && adapter.isAttached()) {
