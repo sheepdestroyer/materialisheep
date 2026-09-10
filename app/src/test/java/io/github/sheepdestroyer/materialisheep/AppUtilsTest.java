@@ -4,12 +4,27 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.robolectric.Shadows.shadowOf;
+
+import android.app.Activity;
+import android.app.Application;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
+import android.content.pm.ResolveInfo;
 import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.text.format.DateUtils;
+import androidx.preference.PreferenceManager;
+import org.robolectric.Robolectric;
+import org.robolectric.shadows.ShadowPackageManager;
 import androidx.test.core.app.ApplicationProvider;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -121,5 +136,129 @@ public class AppUtilsTest {
 
     AppUtils.openPlayStore(wrapper);
     assertEquals(context.getString(R.string.no_playstore), ShadowToast.getTextOfLatestToast());
+  }
+
+  @Test
+  public void testOpenWebUrlExternal_NoConnection() {
+    Application baseContext = ApplicationProvider.getApplicationContext();
+    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(baseContext);
+    prefs.edit().putBoolean(baseContext.getString(R.string.pref_custom_tab), false).apply();
+
+    ConnectivityManager mockCm = mock(ConnectivityManager.class);
+    when(mockCm.getActiveNetwork()).thenReturn(null);
+
+    Activity activity = Robolectric.buildActivity(Activity.class).get();
+    Context context = new ContextWrapper(activity) {
+      @Override
+      public Object getSystemService(String name) {
+        if (Context.CONNECTIVITY_SERVICE.equals(name)) {
+          return mockCm;
+        }
+        return super.getSystemService(name);
+      }
+    };
+
+    AppUtils.openWebUrlExternal(context, null, "http://example.com", null);
+
+    Intent intent = shadowOf(activity).getNextStartedActivity();
+    assertNotNull(intent);
+    assertEquals(OfflineWebActivity.class.getName(), intent.getComponent().getClassName());
+    assertEquals("http://example.com", intent.getStringExtra(OfflineWebActivity.EXTRA_URL));
+  }
+
+  @Test
+  public void testOpenWebUrlExternal_WithConnection_NonHNUrl() {
+    Application baseContext = ApplicationProvider.getApplicationContext();
+    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(baseContext);
+    prefs.edit().putBoolean(baseContext.getString(R.string.pref_custom_tab), false).apply();
+
+    ConnectivityManager mockCm = mock(ConnectivityManager.class);
+    Network mockNetwork = mock(Network.class);
+    NetworkCapabilities mockCap = mock(NetworkCapabilities.class);
+
+    when(mockCm.getActiveNetwork()).thenReturn(mockNetwork);
+    when(mockCm.getNetworkCapabilities(mockNetwork)).thenReturn(mockCap);
+    when(mockCap.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)).thenReturn(true);
+
+    Activity activity = Robolectric.buildActivity(Activity.class).get();
+
+    ShadowPackageManager shadowPm = shadowOf(activity.getPackageManager());
+    Intent viewIntent = new Intent(Intent.ACTION_VIEW, android.net.Uri.parse("http://example.com"));
+
+    ResolveInfo resolveInfo = new ResolveInfo();
+    resolveInfo.activityInfo = new ActivityInfo();
+    resolveInfo.activityInfo.packageName = "com.android.chrome";
+    resolveInfo.activityInfo.name = "Browser";
+
+    shadowPm.addResolveInfoForIntent(viewIntent, resolveInfo);
+
+    Context context = new ContextWrapper(activity) {
+      @Override
+      public Object getSystemService(String name) {
+        if (Context.CONNECTIVITY_SERVICE.equals(name)) {
+          return mockCm;
+        }
+        return super.getSystemService(name);
+      }
+    };
+
+    AppUtils.openWebUrlExternal(context, null, "http://example.com", null);
+
+    Intent intent = shadowOf(activity).getNextStartedActivity();
+
+    assertNotNull(intent);
+    assertEquals(Intent.ACTION_VIEW, intent.getAction());
+    assertEquals("http://example.com", intent.getData().toString());
+  }
+
+  @Test
+  public void testOpenWebUrlExternal_WithConnection_HNUrl() {
+    Application baseContext = ApplicationProvider.getApplicationContext();
+    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(baseContext);
+    prefs.edit().putBoolean(baseContext.getString(R.string.pref_custom_tab), false).apply();
+
+    ConnectivityManager mockCm = mock(ConnectivityManager.class);
+    Network mockNetwork = mock(Network.class);
+    NetworkCapabilities mockCap = mock(NetworkCapabilities.class);
+
+    when(mockCm.getActiveNetwork()).thenReturn(mockNetwork);
+    when(mockCm.getNetworkCapabilities(mockNetwork)).thenReturn(mockCap);
+    when(mockCap.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)).thenReturn(true);
+
+    Activity activity = Robolectric.buildActivity(Activity.class).get();
+
+    ShadowPackageManager shadowPm = shadowOf(activity.getPackageManager());
+    Intent viewIntent = new Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://news.ycombinator.com/item?id=123"));
+
+    ResolveInfo selfInfo = new ResolveInfo();
+    selfInfo.activityInfo = new ActivityInfo();
+    selfInfo.activityInfo.packageName = activity.getPackageName();
+    selfInfo.activityInfo.name = "Self";
+    shadowPm.addResolveInfoForIntent(viewIntent, selfInfo);
+
+    ResolveInfo otherInfo = new ResolveInfo();
+    otherInfo.activityInfo = new ActivityInfo();
+    otherInfo.activityInfo.packageName = "com.android.chrome";
+    otherInfo.activityInfo.name = "Browser";
+    shadowPm.addResolveInfoForIntent(viewIntent, otherInfo);
+
+    Context context = new ContextWrapper(activity) {
+      @Override
+      public Object getSystemService(String name) {
+        if (Context.CONNECTIVITY_SERVICE.equals(name)) {
+          return mockCm;
+        }
+        return super.getSystemService(name);
+      }
+    };
+
+    AppUtils.openWebUrlExternal(context, null, "https://news.ycombinator.com/item?id=123", null);
+
+    Intent intent = shadowOf(activity).getNextStartedActivity();
+
+    assertNotNull(intent);
+    assertEquals(Intent.ACTION_VIEW, intent.getAction());
+    assertEquals("https://news.ycombinator.com/item?id=123", intent.getData().toString());
+    assertEquals("com.android.chrome", intent.getPackage());
   }
 }
