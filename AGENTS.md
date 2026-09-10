@@ -4,7 +4,7 @@ This document provides instructions for agents and automated systems to work wit
 
 ## Development Environment Setup
 
-The project has been upgraded to a modern Android build environment. Strict adherence to these versions is required to ensure a successful build.
+The project has been upgraded to a modern Android build environment with latest dependencies.
 
 ### 1. Java Development Kit (JDK)
 
@@ -28,9 +28,8 @@ The project has been upgraded to a modern Android build environment. Strict adhe
 ### 3. Gradle
 
 - **Gradle Version:** 9.2.1
-- **Android Gradle Plugin (AGP) Version:** 8.9.1
-- **Kotlin Version:** 2.3.0
-- The Gradle wrapper (`./gradlew`) is included in the repository and should be used for all build commands. It will automatically download the correct Gradle version.
+- **Android Gradle Plugin (AGP) Version:** 9.2.1
+- The Gradle wrapper (`./gradlew`) is included in the repository and should be used for all build commands. It will automatically download the correct Gradle version. Keep dependencies up to date with the latest stable releases.
 
 ## Building the Project
 
