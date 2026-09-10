@@ -41,6 +41,7 @@ import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.text.style.ClickableSpan;
 import android.text.style.URLSpan;
+import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -57,6 +58,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StyleRes;
 import androidx.browser.customtabs.CustomTabsIntent;
+import androidx.browser.customtabs.CustomTabColorSchemeParams;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.browser.customtabs.CustomTabsSession;
 import androidx.core.content.ContextCompat;
 import androidx.core.util.Pair;
@@ -73,10 +78,7 @@ import io.github.sheepdestroyer.materialisheep.widget.PopupMenu;
 import java.util.ArrayList;
 import java.util.List;
 
-@SuppressWarnings({
-  "WeakerAccess",
-  "deprecation"
-}) // TODO: Uses deprecated SystemUI, Custom Tabs APIs
+@SuppressWarnings("WeakerAccess")
 @PublicApi
 /**
  * A utility class providing common functions for the application. This includes methods for
@@ -510,6 +512,7 @@ public class AppUtils {
               true);
     } catch (SecurityException e) {
       // Permission GET_ACCOUNTS not granted, ignore
+      Log.w("AppUtils", "GET_ACCOUNTS permission not granted", e);
     }
   }
 
@@ -858,13 +861,12 @@ public class AppUtils {
     if (Preferences.customTabsEnabled(context)) {
       CustomTabsIntent.Builder builder =
           new CustomTabsIntent.Builder(session)
-              .setToolbarColor(
-                  ContextCompat.getColor(
-                      context,
-                      AppUtils.getThemedResId(context, androidx.appcompat.R.attr.colorPrimary)))
+              .setDefaultColorSchemeParams(
+                  new CustomTabColorSchemeParams.Builder().setToolbarColor(
+                      ContextCompat.getColor(context, AppUtils.getThemedResId(context, androidx.appcompat.R.attr.colorPrimary))).build())
               .setShowTitle(true)
-              .enableUrlBarHiding()
-              .addDefaultShareMenuItem();
+              .setUrlBarHidingEnabled(true)
+              .setShareState(CustomTabsIntent.SHARE_STATE_ON);
       if (item != null) {
         builder.addMenuItem(
             context.getString(R.string.comments),
@@ -928,28 +930,22 @@ public class AppUtils {
 
   static class SystemUiHelper {
     private final Window window;
-    private final int originalUiFlags;
     private boolean enabled = true;
 
     SystemUiHelper(Window window) {
       this.window = window;
-      this.originalUiFlags = window.getDecorView().getSystemUiVisibility();
     }
 
-    @SuppressLint("InlinedApi")
     void setFullscreen(boolean fullscreen) {
       if (!enabled) {
         return;
       }
+      WindowInsetsControllerCompat controller = WindowCompat.getInsetsController(window, window.getDecorView());
       if (fullscreen) {
-        window
-            .getDecorView()
-            .setSystemUiVisibility(
-                originalUiFlags
-                    | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+        controller.hide(WindowInsetsCompat.Type.navigationBars());
+        controller.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
       } else {
-        window.getDecorView().setSystemUiVisibility(originalUiFlags);
+        controller.show(WindowInsetsCompat.Type.navigationBars());
       }
     }
 

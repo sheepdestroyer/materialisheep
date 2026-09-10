@@ -1,6 +1,7 @@
 package io.github.sheepdestroyer.materialisheep.data;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -24,7 +25,6 @@ import org.robolectric.RobolectricTestRunner;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import retrofit2.Call;
-import retrofit2.Response;
 
 @RunWith(RobolectricTestRunner.class)
 public class HackerNewsClientTest {
@@ -71,7 +71,7 @@ public class HackerNewsClientTest {
 
     @Test
     public void testGetStoriesErrorNullMessage() {
-        when(restService.topStoriesRx()).thenReturn(Observable.error(new RuntimeException()));
+        when(restService.topStoriesRx()).thenReturn(Observable.error(new NullPointerException()));
 
         client.getStories(ItemManager.TOP_FETCH_MODE, ItemManager.MODE_DEFAULT, storiesListener);
 
@@ -93,7 +93,7 @@ public class HackerNewsClientTest {
 
     @Test
     public void testGetItemErrorNullMessage() {
-        when(restService.itemRx("1")).thenReturn(Observable.error(new RuntimeException()));
+        when(restService.itemRx("1")).thenReturn(Observable.error(new NullPointerException()));
         when(sessionManager.isViewed("1")).thenReturn(Observable.just(false));
         when(favoriteManager.check("1")).thenReturn(Observable.just(false));
 
@@ -112,6 +112,7 @@ public class HackerNewsClientTest {
 
         Item[] stories = client.getStories(ItemManager.TOP_FETCH_MODE, ItemManager.MODE_DEFAULT);
 
+        assertNotNull(stories);
         assertEquals(0, stories.length);
     }
 
