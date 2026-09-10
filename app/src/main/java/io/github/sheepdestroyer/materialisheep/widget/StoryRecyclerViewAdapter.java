@@ -613,8 +613,9 @@ public class StoryRecyclerViewAdapter extends
 
         @Override
         public void onDone(boolean successful) {
-            // TODO update locally only, as API does not update instantly
-            mItem.incrementScore();
+            if (successful) {
+                mItem.incrementScore();
+            }
             mItem.clearPendingVoted();
             StoryRecyclerViewAdapter adapter = mAdapter.get();
             if (adapter != null && adapter.isAttached()) {
