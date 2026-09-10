@@ -3,6 +3,7 @@ buildscript {
     ext.ksp_version = '2.3.8'
 
     repositories {
+        maven { url 'https://maven-central.storage-download.googleapis.com/maven2/' }
         mavenCentral()
         google()
     }
@@ -16,6 +17,7 @@ buildscript {
 
 allprojects {
     repositories {
+        maven { url 'https://maven-central.storage-download.googleapis.com/maven2/' }
         mavenCentral()
         google()
     }
