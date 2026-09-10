@@ -1,5 +1,6 @@
 package io.github.sheepdestroyer.materialisheep;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -61,6 +62,39 @@ public class PreferencesTest {
   }
 
   @Test
+  public void testGetDefaultStoryView() {
+    // Default is Article
+    org.junit.Assert.assertEquals(Preferences.StoryViewMode.Article, Preferences.getDefaultStoryView(context));
+
+    // Test Comment mode
+    sharedPreferences
+        .edit()
+        .putString(
+            context.getString(R.string.pref_story_display),
+            context.getString(R.string.pref_story_display_value_comments))
+        .commit();
+    org.junit.Assert.assertEquals(Preferences.StoryViewMode.Comment, Preferences.getDefaultStoryView(context));
+
+    // Test Readability mode
+    sharedPreferences
+        .edit()
+        .putString(
+            context.getString(R.string.pref_story_display),
+            context.getString(R.string.pref_story_display_value_readability))
+        .commit();
+    org.junit.Assert.assertEquals(Preferences.StoryViewMode.Readability, Preferences.getDefaultStoryView(context));
+
+    // Test Article mode (explicitly set)
+    sharedPreferences
+        .edit()
+        .putString(
+            context.getString(R.string.pref_story_display),
+            context.getString(R.string.pref_story_display_value_article))
+        .commit();
+    org.junit.Assert.assertEquals(Preferences.StoryViewMode.Article, Preferences.getDefaultStoryView(context));
+  }
+
+  @Test
   public void testSetSortByRecent() {
     // Set to true
     Preferences.setSortByRecent(context, true);
@@ -69,5 +103,73 @@ public class PreferencesTest {
     // Set to false
     Preferences.setSortByRecent(context, false);
     assertFalse(Preferences.isSortByRecent(context));
+  }
+
+  @Test
+  public void testGetLaunchScreen() {
+    // Test default value
+    org.junit.Assert.assertEquals(
+        context.getString(R.string.pref_launch_screen_value_top),
+        Preferences.getLaunchScreen(context));
+
+    // Test with a different value
+    sharedPreferences
+        .edit()
+        .putString(
+            context.getString(R.string.pref_launch_screen),
+            context.getString(R.string.pref_launch_screen_value_new))
+        .commit();
+    org.junit.Assert.assertEquals(
+        context.getString(R.string.pref_launch_screen_value_new),
+        Preferences.getLaunchScreen(context));
+  }
+
+  @Test
+  public void testIsLaunchScreenLast() {
+    // Test default value
+    assertFalse(Preferences.isLaunchScreenLast(context));
+
+    // Test with last value
+    sharedPreferences
+        .edit()
+        .putString(
+            context.getString(R.string.pref_launch_screen),
+            context.getString(R.string.pref_launch_screen_value_last))
+        .commit();
+    assertTrue(Preferences.isLaunchScreenLast(context));
+  }
+
+  @Test
+  public void testGetFloatFromStringErrorHandling() {
+    // Test default value (NullPointerException case inside getFloatFromString)
+    assertEquals(1.0f, Preferences.getLineHeight(context), 0.001f);
+
+    // Test valid float string
+    sharedPreferences
+        .edit()
+        .putString(context.getString(R.string.pref_line_height), "2.5")
+        .commit();
+    assertEquals(2.5f, Preferences.getLineHeight(context), 0.001f);
+
+    // Test invalid non-float string (NumberFormatException case inside getFloatFromString)
+    sharedPreferences
+        .edit()
+        .putString(context.getString(R.string.pref_line_height), "not_a_float")
+        .commit();
+    assertEquals(1.0f, Preferences.getLineHeight(context), 0.001f);
+  }
+
+  @Test
+  public void testParseSwipeActionErrorHandling() throws Exception {
+    java.lang.reflect.Method method = Preferences.class.getDeclaredMethod("parseSwipeAction", String.class);
+    method.setAccessible(true);
+
+    // Test invalid string (IllegalArgumentException)
+    Object resultInvalid = method.invoke(null, "InvalidSwipeAction");
+    assertEquals(Preferences.SwipeAction.None, resultInvalid);
+
+    // Test null (NullPointerException)
+    Object resultNull = method.invoke(null, (String) null);
+    assertEquals(Preferences.SwipeAction.None, resultNull);
   }
 }
