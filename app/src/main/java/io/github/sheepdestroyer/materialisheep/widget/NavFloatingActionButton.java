@@ -167,7 +167,7 @@ public class NavFloatingActionButton extends FloatingActionButton
                 if (mNavigable == null) {
                   return;
                 }
-                startDrag(e.getX(), e.getY());
+                startDrag(e.getRawX() - getX(), e.getRawY() - getY());
               }
             });
     // noinspection Convert2Lambda
@@ -197,7 +197,7 @@ public class NavFloatingActionButton extends FloatingActionButton
             switch (motionEvent.getAction()) {
               case MotionEvent.ACTION_MOVE:
                 mMoved = true;
-                view.setX(motionEvent.getRawX() - startX); // TODO compensate shift
+                view.setX(motionEvent.getRawX() - startX);
                 view.setY(motionEvent.getRawY() - startY);
                 break;
               case MotionEvent.ACTION_CANCEL:
