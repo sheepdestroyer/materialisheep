@@ -2,6 +2,15 @@
 
 ## [UNRELEASED]
 
+## [0.3.2] - 2026-09-11
+
+### Added
+- **Canonical Release Key & Persistent Signing**:
+  - Fully integrated persistent PKCS#12 signing keystore for all official GitHub releases.
+  - Releases are signed with the canonical key (`CN=MaterialiSheep, OU=sheepdestroyer, O=sheepdestroyer, C=US`) backed up locally and configured in GitHub Actions secrets.
+  - Ensures reliable direct in-place updates (`adb install -r`) across all future versions.
+  - Pruned legacy/ephemeral-key release APKs from GitHub.
+
 ## [0.3.1] - 2026-09-11
 
 ### Added
