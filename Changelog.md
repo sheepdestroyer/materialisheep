@@ -2,6 +2,9 @@
 
 ## [UNRELEASED]
 
+### Changed
+- **Modernized Versioning**: Replaced legacy upstream version 3.3 and build number 79 with dynamic git-derived version name and monotonically increasing commit-based version code.
+
 ## [0.2.2] - 2026-09-11
 
 ### Added

@@ -9,7 +9,6 @@ android {
         applicationId "io.github.sheepdestroyer.materialisheep"
         minSdkVersion 31
         targetSdkVersion 36
-        versionCode 79
         def gitHash = { ->
             try {
                 def hash = "git rev-parse --short HEAD".execute().text.trim()
@@ -18,9 +17,28 @@ android {
                 "unknown"
             }
         }()
-        versionName "3.3-" + gitHash
+        def gitVersionCode = { ->
+            try {
+                def count = "git rev-list --count HEAD".execute().text.trim().toInteger()
+                return count > 79 ? count : 80
+            } catch (Exception e) {
+                return 80
+            }
+        }()
+        def gitVersionName = { ->
+            try {
+                def desc = "git describe --tags --always".execute().text.trim()
+                if (!desc.isEmpty()) {
+                    return desc.replaceFirst("^v", "")
+                }
+            } catch (Exception e) {
+            }
+            return "0.2.2"
+        }()
+        versionCode gitVersionCode
+        versionName gitVersionName
         buildConfigField "String", "GIT_HASH", "\"${gitHash}\""
-        buildConfigField "int", "LATEST_RELEASE", "77"
+        buildConfigField "int", "LATEST_RELEASE", "${gitVersionCode}"
 
         proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'),
                 'proguard-rules.pro',
