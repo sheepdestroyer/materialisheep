@@ -105,7 +105,7 @@ android {
 
 ext {
     okHttpVersion = '5.4.0'
-    daggerVersion = '2.59'
+    daggerVersion = '2.60.1'
     retrofitVersion = '3.0.0'
     roomVersion = '2.8.4'
     lifecycleVersion = '2.11.0'
