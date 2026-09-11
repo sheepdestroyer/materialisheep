@@ -5,6 +5,8 @@
 ## Feature Parity & Cleanup
 - [x] Review PRs for code quality and memory leaks <!-- id: 10 -->
 - [x] Fix Gradle Deprecation Warnings (Issue #46) <!-- id: 21 -->
+- [x] Add comprehensive unit test coverage for AndroidUtils, Preferences, and AppUtils <!-- id: 22 -->
+- [x] Remove unused HackerNewsItem parts array and clean up ItemActivity deprecations <!-- id: 23 -->
 
 ## Deprecation Refactoring (Long-term)
 - [x] **Phase 1: Fragment API Modernization** <!-- id: 17 -->
@@ -15,7 +17,7 @@
 - [ ] **Phase 2: System & Device API Migration** <!-- id: 18 -->
     - [ ] Migrate `NetworkInfo` to `ConnectivityManager.NetworkCallback`
     - [x] Update `Vibrator` usage to `VibrationEffect`
-    - [ ] Adopt `WindowMetrics` and `WindowInsetsController`
+    - [x] Adopt `WindowMetrics` and `WindowInsetsController`
     - [ ] Implement Edge-to-Edge (replace `setStatusBarColor`)
 - [ ] **Phase 3: Widget & View Cleanup** <!-- id: 19 -->
     - [x] Update `RemoteViews` adapter API
