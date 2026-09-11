@@ -11,6 +11,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.anyBoolean;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -30,7 +32,9 @@ import android.content.pm.ResolveInfo;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
+import android.net.Uri;
 import android.text.format.DateUtils;
+import android.view.ContextThemeWrapper;
 import androidx.preference.PreferenceManager;
 import org.robolectric.Robolectric;
 import org.robolectric.shadows.ShadowPackageManager;
@@ -283,6 +287,12 @@ public class AppUtilsTest {
     when(hnItem.getUrl()).thenReturn("https://news.ycombinator.com/item?id=123");
     assertTrue(AppUtils.isHackerNewsUrl(hnItem));
 
+    // Valid HN URL format with mismatched ID
+    WebItem mismatchedItem = mock(WebItem.class);
+    when(mismatchedItem.getId()).thenReturn("123");
+    when(mismatchedItem.getUrl()).thenReturn("https://news.ycombinator.com/item?id=999");
+    assertFalse(AppUtils.isHackerNewsUrl(mismatchedItem));
+
     WebItem nonHnItem = mock(WebItem.class);
     when(nonHnItem.getId()).thenReturn("123");
     when(nonHnItem.getUrl()).thenReturn("https://example.com");
@@ -340,12 +350,24 @@ public class AppUtilsTest {
     // Intent with web URL missing altParamId
     Intent noParamIntent = new Intent().setData(Uri.parse("https://example.com"));
     assertNull(AppUtils.getDataUriId(noParamIntent, "id"));
+
+    // Intent with web URL and empty altParamId value
+    Intent emptyParamIntent = new Intent().setData(Uri.parse("https://news.ycombinator.com/item?id="));
+    assertEquals("", AppUtils.getDataUriId(emptyParamIntent, "id"));
+
+    // Intent with null altParamId
+    Intent nullAltParamIntent = new Intent().setData(Uri.parse("https://news.ycombinator.com/item?id=456"));
+    assertNull(AppUtils.getDataUriId(nullAltParamIntent, null));
+
+    // Intent with non-hierarchical/opaque URI
+    Intent opaqueUriIntent = new Intent().setData(Uri.parse("mailto:test@example.com"));
+    assertNull(AppUtils.getDataUriId(opaqueUriIntent, "id"));
   }
 
   @Test
   public void testGetThemedResId() {
-    Context context = ApplicationProvider.getApplicationContext();
-    context.setTheme(R.style.AppTheme);
+    Context context =
+        new ContextThemeWrapper(ApplicationProvider.getApplicationContext(), R.style.AppTheme);
     int resId = AppUtils.getThemedResId(context, androidx.appcompat.R.attr.colorPrimary);
     assertTrue(resId > 0);
   }
@@ -355,31 +377,46 @@ public class AppUtilsTest {
     AppBarLayout appBarLayout = mock(AppBarLayout.class);
     Navigable navigable = mock(Navigable.class);
 
-    // Direction down when bottom == 0: calls navigable.onNavigate directly
+    // Direction down when bottom == 0: calls navigable.onNavigate directly, never setExpanded
     when(appBarLayout.getBottom()).thenReturn(0);
     AppUtils.navigate(Navigable.DIRECTION_DOWN, appBarLayout, navigable);
     verify(navigable).onNavigate(Navigable.DIRECTION_DOWN);
     verify(appBarLayout, never()).setExpanded(anyBoolean(), anyBoolean());
 
-    // Direction down when bottom > 0: calls appBarLayout.setExpanded(false, true)
+    // Direction down when bottom > 0: calls appBarLayout.setExpanded(false, true), never navigable.onNavigate
+    clearInvocations(appBarLayout, navigable);
     when(appBarLayout.getBottom()).thenReturn(100);
     AppUtils.navigate(Navigable.DIRECTION_DOWN, appBarLayout, navigable);
     verify(appBarLayout).setExpanded(false, true);
-    verify(navigable, times(1)).onNavigate(Navigable.DIRECTION_DOWN);
+    verify(navigable, never()).onNavigate(anyInt());
 
-    // Direction right when bottom == 0: calls navigable.onNavigate directly
+    // Direction right when bottom == 0: calls navigable.onNavigate directly, never setExpanded
+    clearInvocations(appBarLayout, navigable);
     when(appBarLayout.getBottom()).thenReturn(0);
     AppUtils.navigate(Navigable.DIRECTION_RIGHT, appBarLayout, navigable);
     verify(navigable).onNavigate(Navigable.DIRECTION_RIGHT);
+    verify(appBarLayout, never()).setExpanded(anyBoolean(), anyBoolean());
 
-    // Direction right when bottom > 0: calls appBarLayout.setExpanded(false, true)
+    // Direction right when bottom > 0: calls appBarLayout.setExpanded(false, true), never navigable.onNavigate
+    clearInvocations(appBarLayout, navigable);
     when(appBarLayout.getBottom()).thenReturn(50);
     AppUtils.navigate(Navigable.DIRECTION_RIGHT, appBarLayout, navigable);
-    verify(appBarLayout, times(2)).setExpanded(false, true);
+    verify(appBarLayout).setExpanded(false, true);
+    verify(navigable, never()).onNavigate(anyInt());
 
-    // Direction up: calls navigable.onNavigate directly regardless of bottom
+    // Direction up: calls navigable.onNavigate directly regardless of bottom, never setExpanded
+    clearInvocations(appBarLayout, navigable);
+    when(appBarLayout.getBottom()).thenReturn(100);
     AppUtils.navigate(Navigable.DIRECTION_UP, appBarLayout, navigable);
     verify(navigable).onNavigate(Navigable.DIRECTION_UP);
+    verify(appBarLayout, never()).setExpanded(anyBoolean(), anyBoolean());
+
+    // Direction left: calls navigable.onNavigate directly regardless of bottom, never setExpanded
+    clearInvocations(appBarLayout, navigable);
+    when(appBarLayout.getBottom()).thenReturn(100);
+    AppUtils.navigate(Navigable.DIRECTION_LEFT, appBarLayout, navigable);
+    verify(navigable).onNavigate(Navigable.DIRECTION_LEFT);
+    verify(appBarLayout, never()).setExpanded(anyBoolean(), anyBoolean());
   }
 
   @Test
