@@ -4,12 +4,13 @@
 
 ### Added
 - **Unit Test Coverage Expansion**:
+  - `AndroidUtilsTest`: Comprehensive unit test suite for `AndroidUtils.TextUtils.equals` (null checks, length differences, CharSequence/String variants) and `AndroidUtils.TextUtils.isEmpty`.
+  - `AppUtilsTest`: Added coverage for resource dimensions (`getDimension`, `getDimensionInDp`), HN URL validation (`isHackerNewsUrl`), item/user URI creation (`createItemUri`, `createUserUri`), intent data ID extraction (`getDataUriId`), themed attribute resolution (`getThemedResId`), navigation orchestration (`navigate`), display height (`getDisplayHeight`), sharing intent resolution (`share`), chooser intents (`makeSendIntentChooser`), connectivity verification (`isOnWiFi`), activity restart (`restart`), FAB visibility toggles (`toggleFab`), status bar color & dimming (`setStatusBarColor`, `setStatusBarDim`), WebView zoom controls (`toggleWebViewZoom`), and custom layout inflater instantiation (`createLayoutInflater`).
+  - `PreferencesTest`: Added coverage for username management (`getUsername`, `setUsername`), ad-block toggling (`adBlockEnabled`), and comment draft management (`saveDraft`, `getDraft`, `deleteDraft`, `clearDrafts`).
   - `CacheableWebViewTest`: Positive archive loading, invalid extension/prefix rejection, sibling directory escape isolation, and disabled file/content access checks.
   - `FileDownloaderTest`: Error handling, 404 response handling, SHA-256 cache file verification, and network failure cleanup.
   - `SinglePageItemRecyclerViewAdapterTest`: RecyclerView item state restoration and `ParcelCompat` verification.
   - `NavFloatingActionButtonTest`: Touch drag offsets and vibration null guards.
-  - `AppUtilsTest`: Comprehensive URL equality, external intent creation, and non-Activity context flags.
-  - `PreferencesTest`: Parsing floats, swipe actions, launch screen resolution, and default story views.
   - `AlgoliaClientTest` & `HackerNewsClientTest`: Null-safe error messages, async error handling, and item caching.
   - `HackerNewsItemTest`, `FavoriteTest`, `SessionManagerTest`, `AdBlockerTest`, `SubmitActivityTest`.
 
@@ -31,9 +32,12 @@
   - `SinglePageItemRecyclerViewAdapter`: Migrated `Parcel.readArrayList` to `ParcelCompat.readArrayList`.
   - `PreferencesActivity`: Migrated from deprecated `Fragment.instantiate` to direct instantiation.
   - `NavFloatingActionButton`: Migrated legacy `Vibrator.vibrate` calls to `VibrationEffect`.
+  - `HackerNewsItem`: Removed obsolete `@Keep private long[] parts;` array and dead code annotations.
+  - `ItemActivity`: Removed obsolete `@SuppressWarnings("deprecation")` annotation following migration to `BundleCompat` and `IntentCompat`.
 
 ### Fixed
-- **Security**:
+- **Security & Robustness**:
+  - `AppUtils`: Hardened `getDataUriId` against null intents, null `altParamId`, and non-hierarchical/opaque URIs (`data.isHierarchical()`).
   - Mitigated Local File Inclusion (LFI) in `CacheableWebView` by disabling file/content access and enforcing strict canonical directory parent checks.
   - Mitigated path traversal in `FileDownloader` by hashing URLs to SHA-256 hex strings and sandboxing files in `cacheDir`.
   - Prevented temporary file collision in `FileDownloader` by appending unique UUIDs.
