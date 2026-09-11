@@ -2,6 +2,16 @@
 
 ## [UNRELEASED]
 
+## [0.3.1] - 2026-09-11
+
+### Added
+- **Persistent Release Key Signing**:
+  - Configured persistent PKCS#12 release keystore signing in GitHub Actions secrets (`RELEASE_KEYSTORE_BASE64`, `RELEASE_KEYSTORE_PASSWORD`, `RELEASE_KEY_ALIAS`, `RELEASE_KEY_PASSWORD`).
+  - Added support in `app/build.gradle` for `signingConfigs.release` reading environment variables with automatic fallback to debug for local builds without keys.
+  - Updated `.github/workflows/release.yml` with automated keystore decoding, release key signing, verbose certificate verification (`apksigner verify --print-certs`), and post-build secret cleanup.
+  - Enabled full-history checkout (`fetch-depth: 0`) in release workflow for accurate git tag and commit count versioning.
+  - Ensures all future release APKs share the identical persistent signing certificate, enabling seamless in-place `adb install -r` updates without uninstalling.
+
 ## [0.3.0] - 2026-09-11
 
 ### Changed
