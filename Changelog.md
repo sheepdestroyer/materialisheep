@@ -2,6 +2,8 @@
 
 ## [UNRELEASED]
 
+## [0.2] - 2026-09-11
+
 ### Added
 - **Unit Test Coverage Expansion**:
   - `AndroidUtilsTest`: Comprehensive unit test suite for `AndroidUtils.TextUtils.equals` (null checks, length differences, CharSequence/String variants) and `AndroidUtils.TextUtils.isEmpty`.
