@@ -1,23 +1,21 @@
 package io.github.sheepdestroyer.materialisheep;
 
-import android.os.Parcel;
-import android.text.Spannable;
-import io.github.sheepdestroyer.materialisheep.data.WebItem;
-import android.content.pm.ApplicationInfo;
-import org.robolectric.shadows.ShadowNetworkCapabilities;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
+
 import android.app.Activity;
 import android.app.Application;
 import android.content.ActivityNotFoundException;
@@ -26,6 +24,7 @@ import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Color;
@@ -33,24 +32,35 @@ import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.Uri;
+import android.os.Parcel;
+import android.text.Spannable;
 import android.text.format.DateUtils;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.Window;
 import android.webkit.WebSettings;
+
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import java.util.ArrayList;
-import org.robolectric.Robolectric;
-import org.robolectric.shadows.ShadowPackageManager;
 import androidx.test.core.app.ApplicationProvider;
+
+import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import io.github.sheepdestroyer.materialisheep.data.WebItem;
+
+import java.util.ArrayList;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.Shadows;
 import org.robolectric.shadows.ShadowConnectivityManager;
+import org.robolectric.shadows.ShadowNetworkCapabilities;
+import org.robolectric.shadows.ShadowPackageManager;
 import org.robolectric.shadows.ShadowToast;
+
 @RunWith(RobolectricTestRunner.class)
 public class AppUtilsTest {
   @Test
@@ -269,6 +279,170 @@ public class AppUtilsTest {
     assertNotNull(startedIntent);
     assertEquals(Intent.ACTION_VIEW, startedIntent.getAction());
     assertEquals(url, startedIntent.getDataString());
+  }
+
+  @Test
+  public void testGetDimension() {
+    Context context = ApplicationProvider.getApplicationContext();
+    float dimension = AppUtils.getDimension(context, R.style.AppTheme, R.attr.contentTextSize);
+    assertTrue(dimension > 0);
+  }
+
+  @Test
+  public void testGetDimensionInDp() {
+    Context context = ApplicationProvider.getApplicationContext();
+    int marginDp = AppUtils.getDimensionInDp(context, R.dimen.margin);
+    assertTrue(marginDp >= 0);
+    assertEquals(8, marginDp);
+  }
+
+  @Test
+  public void testIsHackerNewsUrl() {
+    WebItem hnItem = mock(WebItem.class);
+    when(hnItem.getId()).thenReturn("123");
+    when(hnItem.getUrl()).thenReturn("https://news.ycombinator.com/item?id=123");
+    assertTrue(AppUtils.isHackerNewsUrl(hnItem));
+
+    // Valid HN URL format with mismatched ID
+    WebItem mismatchedItem = mock(WebItem.class);
+    when(mismatchedItem.getId()).thenReturn("123");
+    when(mismatchedItem.getUrl()).thenReturn("https://news.ycombinator.com/item?id=999");
+    assertFalse(AppUtils.isHackerNewsUrl(mismatchedItem));
+
+    WebItem nonHnItem = mock(WebItem.class);
+    when(nonHnItem.getId()).thenReturn("123");
+    when(nonHnItem.getUrl()).thenReturn("https://example.com");
+    assertFalse(AppUtils.isHackerNewsUrl(nonHnItem));
+
+    WebItem nullUrlItem = mock(WebItem.class);
+    when(nullUrlItem.getId()).thenReturn("123");
+    when(nullUrlItem.getUrl()).thenReturn(null);
+    assertFalse(AppUtils.isHackerNewsUrl(nullUrlItem));
+
+    WebItem emptyUrlItem = mock(WebItem.class);
+    when(emptyUrlItem.getId()).thenReturn("123");
+    when(emptyUrlItem.getUrl()).thenReturn("");
+    assertFalse(AppUtils.isHackerNewsUrl(emptyUrlItem));
+  }
+
+  @Test
+  public void testCreateItemUri() {
+    Uri uri = AppUtils.createItemUri("123");
+    assertNotNull(uri);
+    assertEquals(BuildConfig.APPLICATION_ID, uri.getScheme());
+    assertEquals("item", uri.getAuthority());
+    assertEquals("123", uri.getLastPathSegment());
+    assertEquals(BuildConfig.APPLICATION_ID + "://item/123", uri.toString());
+  }
+
+  @Test
+  public void testCreateUserUri() {
+    Uri uri = AppUtils.createUserUri("sheep");
+    assertNotNull(uri);
+    assertEquals(BuildConfig.APPLICATION_ID, uri.getScheme());
+    assertEquals("user", uri.getAuthority());
+    assertEquals("sheep", uri.getLastPathSegment());
+    assertEquals(BuildConfig.APPLICATION_ID + "://user/sheep", uri.toString());
+  }
+
+  @Test
+  public void testGetDataUriId() {
+    // Null intent returns null
+    assertNull(AppUtils.getDataUriId(null, "id"));
+
+    // Intent without data returns null
+    Intent emptyIntent = new Intent();
+    assertNull(AppUtils.getDataUriId(emptyIntent, "id"));
+
+    // Intent with item data URI matching application scheme
+    Intent itemIntent = new Intent().setData(AppUtils.createItemUri("123"));
+    assertEquals("123", AppUtils.getDataUriId(itemIntent, "id"));
+
+    // Intent with user data URI matching application scheme
+    Intent userIntent = new Intent().setData(AppUtils.createUserUri("sheep"));
+    assertEquals("sheep", AppUtils.getDataUriId(userIntent, "id"));
+
+    // Intent with web URL and altParamId
+    Intent webIntent = new Intent().setData(Uri.parse("https://news.ycombinator.com/item?id=456"));
+    assertEquals("456", AppUtils.getDataUriId(webIntent, "id"));
+
+    // Intent with web URL missing altParamId
+    Intent noParamIntent = new Intent().setData(Uri.parse("https://example.com"));
+    assertNull(AppUtils.getDataUriId(noParamIntent, "id"));
+
+    // Intent with web URL and empty altParamId value
+    Intent emptyParamIntent = new Intent().setData(Uri.parse("https://news.ycombinator.com/item?id="));
+    assertEquals("", AppUtils.getDataUriId(emptyParamIntent, "id"));
+
+    // Intent with null altParamId
+    Intent nullAltParamIntent = new Intent().setData(Uri.parse("https://news.ycombinator.com/item?id=456"));
+    assertNull(AppUtils.getDataUriId(nullAltParamIntent, null));
+
+    // Intent with non-hierarchical/opaque URI
+    Intent opaqueUriIntent = new Intent().setData(Uri.parse("mailto:test@example.com"));
+    assertNull(AppUtils.getDataUriId(opaqueUriIntent, "id"));
+  }
+
+  @Test
+  public void testGetThemedResId() {
+    Context context =
+        new ContextThemeWrapper(ApplicationProvider.getApplicationContext(), R.style.AppTheme);
+    int resId = AppUtils.getThemedResId(context, androidx.appcompat.R.attr.colorPrimary);
+    assertTrue(resId > 0);
+  }
+
+  @Test
+  public void testNavigate() {
+    AppBarLayout appBarLayout = mock(AppBarLayout.class);
+    Navigable navigable = mock(Navigable.class);
+
+    // Direction down when bottom == 0: calls navigable.onNavigate directly, never setExpanded
+    when(appBarLayout.getBottom()).thenReturn(0);
+    AppUtils.navigate(Navigable.DIRECTION_DOWN, appBarLayout, navigable);
+    verify(navigable).onNavigate(Navigable.DIRECTION_DOWN);
+    verify(appBarLayout, never()).setExpanded(anyBoolean(), anyBoolean());
+
+    // Direction down when bottom > 0: calls appBarLayout.setExpanded(false, true), never navigable.onNavigate
+    clearInvocations(appBarLayout, navigable);
+    when(appBarLayout.getBottom()).thenReturn(100);
+    AppUtils.navigate(Navigable.DIRECTION_DOWN, appBarLayout, navigable);
+    verify(appBarLayout).setExpanded(false, true);
+    verify(navigable, never()).onNavigate(anyInt());
+
+    // Direction right when bottom == 0: calls navigable.onNavigate directly, never setExpanded
+    clearInvocations(appBarLayout, navigable);
+    when(appBarLayout.getBottom()).thenReturn(0);
+    AppUtils.navigate(Navigable.DIRECTION_RIGHT, appBarLayout, navigable);
+    verify(navigable).onNavigate(Navigable.DIRECTION_RIGHT);
+    verify(appBarLayout, never()).setExpanded(anyBoolean(), anyBoolean());
+
+    // Direction right when bottom > 0: calls appBarLayout.setExpanded(false, true), never navigable.onNavigate
+    clearInvocations(appBarLayout, navigable);
+    when(appBarLayout.getBottom()).thenReturn(50);
+    AppUtils.navigate(Navigable.DIRECTION_RIGHT, appBarLayout, navigable);
+    verify(appBarLayout).setExpanded(false, true);
+    verify(navigable, never()).onNavigate(anyInt());
+
+    // Direction up: calls navigable.onNavigate directly regardless of bottom, never setExpanded
+    clearInvocations(appBarLayout, navigable);
+    when(appBarLayout.getBottom()).thenReturn(100);
+    AppUtils.navigate(Navigable.DIRECTION_UP, appBarLayout, navigable);
+    verify(navigable).onNavigate(Navigable.DIRECTION_UP);
+    verify(appBarLayout, never()).setExpanded(anyBoolean(), anyBoolean());
+
+    // Direction left: calls navigable.onNavigate directly regardless of bottom, never setExpanded
+    clearInvocations(appBarLayout, navigable);
+    when(appBarLayout.getBottom()).thenReturn(100);
+    AppUtils.navigate(Navigable.DIRECTION_LEFT, appBarLayout, navigable);
+    verify(navigable).onNavigate(Navigable.DIRECTION_LEFT);
+    verify(appBarLayout, never()).setExpanded(anyBoolean(), anyBoolean());
+  }
+
+  @Test
+  public void testGetDisplayHeight() {
+    Context context = ApplicationProvider.getApplicationContext();
+    int height = AppUtils.getDisplayHeight(context);
+    assertTrue(height > 0);
   }
 
   @Test
