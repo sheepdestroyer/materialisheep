@@ -827,7 +827,7 @@ public class AppUtils {
    * @param altParamId The alternate parameter ID to use.
    * @return The ID from the URI.
    */
-  public static String getDataUriId(@NonNull Intent intent, String altParamId) {
+  public static String getDataUriId(@Nullable Intent intent, @Nullable String altParamId) {
     if (intent == null || intent.getData() == null) {
       return null;
     }
