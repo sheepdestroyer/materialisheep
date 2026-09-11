@@ -2,6 +2,7 @@ package io.github.sheepdestroyer.materialisheep;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
@@ -24,6 +25,7 @@ public class PreferencesTest {
     context = ApplicationProvider.getApplicationContext();
     sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
     Preferences.reset(context);
+    Preferences.clearDrafts(context);
   }
 
   @Test
@@ -171,5 +173,64 @@ public class PreferencesTest {
     // Test null (NullPointerException)
     Object resultNull = method.invoke(null, (String) null);
     assertEquals(Preferences.SwipeAction.None, resultNull);
+  }
+
+  @Test
+  public void testUsername() {
+    // Verify initial getUsername(context) is null
+    assertNull(Preferences.getUsername(context));
+
+    // setUsername(context, "sheep") returns "sheep"
+    Preferences.setUsername(context, "sheep");
+    assertEquals("sheep", Preferences.getUsername(context));
+
+    // setUsername(context, null) clears it or returns null
+    Preferences.setUsername(context, null);
+    assertNull(Preferences.getUsername(context));
+  }
+
+  @Test
+  public void testAdBlockEnabled() {
+    // Test default value
+    assertTrue(Preferences.adBlockEnabled(context));
+
+    // Disable ad block
+    sharedPreferences
+        .edit()
+        .putBoolean(context.getString(R.string.pref_ad_block), false)
+        .commit();
+    assertFalse(Preferences.adBlockEnabled(context));
+
+    // Re-enable ad block
+    sharedPreferences
+        .edit()
+        .putBoolean(context.getString(R.string.pref_ad_block), true)
+        .commit();
+    assertTrue(Preferences.adBlockEnabled(context));
+  }
+
+  @Test
+  public void testDraftManagement() {
+    // Verify getDraft on unknown ID returns null
+    assertNull(Preferences.getDraft(context, "unknown"));
+
+    // Save draft and verify
+    Preferences.saveDraft(context, "123", "my comment draft");
+    assertEquals("my comment draft", Preferences.getDraft(context, "123"));
+
+    // Delete draft and verify
+    Preferences.deleteDraft(context, "123");
+    assertNull(Preferences.getDraft(context, "123"));
+
+    // Save draft on "456" and "789"
+    Preferences.saveDraft(context, "456", "draft 456");
+    Preferences.saveDraft(context, "789", "draft 789");
+    assertEquals("draft 456", Preferences.getDraft(context, "456"));
+    assertEquals("draft 789", Preferences.getDraft(context, "789"));
+
+    // Call clearDrafts(context) and verify both return null
+    Preferences.clearDrafts(context);
+    assertNull(Preferences.getDraft(context, "456"));
+    assertNull(Preferences.getDraft(context, "789"));
   }
 }
