@@ -47,7 +47,7 @@ import androidx.test.core.app.ApplicationProvider;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import io.github.sheepdestroyer/materialisheep.data.WebItem;
+import io.github.sheepdestroyer.materialisheep.data.WebItem;
 
 import java.util.ArrayList;
 
