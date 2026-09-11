@@ -25,8 +25,8 @@ The Release workflow is defined in the file `.github/workflows/release.yml`. It 
 
 1.  **Sets up the environment:** It sets up an Ubuntu environment with Java 21 and the Android SDK (API level 36).
 2.  **Caches dependencies:** It caches the Gradle dependencies to speed up future builds.
-3.  **Builds a release APK:** It builds a release APK using the command `./gradlew assembleRelease`.
-4.  **Uploads the APK:** It uploads the generated APK as a release artifact.
+3.  **Builds and signs a release APK:** It builds the release APK using `./gradlew assembleRelease` (signed and zip-aligned).
+4.  **Verifies and Publishes the APK:** It verifies the APK signature via `apksigner`, packages it as `materialisheep-<tag>.apk`, uploads it as a workflow artifact, and attaches it directly to the published GitHub Release.
 
 This workflow automates the process of building a release APK whenever a new version is tagged.
 

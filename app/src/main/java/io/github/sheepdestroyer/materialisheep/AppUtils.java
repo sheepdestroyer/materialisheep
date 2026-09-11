@@ -827,15 +827,17 @@ public class AppUtils {
    * @param altParamId The alternate parameter ID to use.
    * @return The ID from the URI.
    */
-  public static String getDataUriId(@NonNull Intent intent, String altParamId) {
-    if (intent.getData() == null) {
+  public static String getDataUriId(@Nullable Intent intent, @Nullable String altParamId) {
+    if (intent == null || intent.getData() == null) {
       return null;
     }
-    if (TextUtils.equals(intent.getData().getScheme(), BuildConfig.APPLICATION_ID)) {
-      return intent.getData().getLastPathSegment();
-    } else { // web URI
-      return intent.getData().getQueryParameter(altParamId);
+    Uri data = intent.getData();
+    if (TextUtils.equals(data.getScheme(), BuildConfig.APPLICATION_ID)) {
+      return data.getLastPathSegment();
+    } else if (altParamId != null && data.isHierarchical()) {
+      return data.getQueryParameter(altParamId);
     }
+    return null;
   }
 
   /**
