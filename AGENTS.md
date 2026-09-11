@@ -20,7 +20,7 @@ The project has been upgraded to a modern Android build environment with latest 
 
 ### 2. Android SDK
 
-- **`compileSdk`:** 36
+- **`compileSdk`:** 37
 - **`targetSdk`:** 36
 - **`minSdk`:** 31
 - **`buildToolsVersion`:** The Android Gradle Plugin will automatically download the required version. Ensure the `ANDROID_HOME` environment variable is correctly set to your SDK location.

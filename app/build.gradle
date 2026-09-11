@@ -3,7 +3,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'com.google.devtools.ksp'
 
 android {
-    compileSdk 36
+    compileSdk 37
 
     defaultConfig {
         applicationId "io.github.sheepdestroyer.materialisheep"
@@ -104,7 +104,7 @@ android {
 }
 
 ext {
-    okHttpVersion = '5.4.0'
+    okHttpVersion = '5.5.0'
     daggerVersion = '2.60.1'
     retrofitVersion = '3.0.0'
     roomVersion = '2.8.4'
