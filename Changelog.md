@@ -2,6 +2,11 @@
 
 ## [UNRELEASED]
 
+## [0.2.2] - 2026-09-11
+
+### Added
+- **APK Signing & Verification**: Configured `signingConfigs.debug` for release builds in `app/build.gradle` and added automated `apksigner` verification and fallback in `.github/workflows/release.yml` so release APKs are installable out of the box via `adb install` without certificate errors.
+
 ## [0.2.1] - 2026-09-11
 
 ### Changed
