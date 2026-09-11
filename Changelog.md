@@ -2,8 +2,17 @@
 
 ## [UNRELEASED]
 
+## [0.3.0] - 2026-09-11
+
 ### Changed
 - **Modernized Versioning**: Replaced legacy upstream version 3.3 and build number 79 with dynamic git-derived version name and monotonically increasing commit-based version code.
+- **Toolchain & Dependency Upgrades**:
+  - `compileSdk`: 36 → 37.
+  - Kotlin: 2.4.0 → 2.4.20 (`kotlin-gradle-plugin` and `kotlin-bom`).
+  - OkHttp: 5.4.0 → 5.5.0.
+  - Dagger: 2.59 → 2.60.1.
+  - AndroidX AppCompat: 1.7.1 → 1.8.0.
+- **CI/CD Quality Gates**: Enabled branch protection and mandatory merge gating on CI check failures (`test` and `build`).
 
 ## [0.2.2] - 2026-09-11
 
