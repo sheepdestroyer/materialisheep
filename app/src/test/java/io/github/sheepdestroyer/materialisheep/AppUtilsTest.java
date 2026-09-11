@@ -1,10 +1,5 @@
 package io.github.sheepdestroyer.materialisheep;
 
-import android.os.Parcel;
-import android.text.Spannable;
-import io.github.sheepdestroyer.materialisheep.data.WebItem;
-import android.content.pm.ApplicationInfo;
-import org.robolectric.shadows.ShadowNetworkCapabilities;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -20,7 +15,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
-import com.google.android.material.appbar.AppBarLayout;
+
 import android.app.Activity;
 import android.app.Application;
 import android.content.ActivityNotFoundException;
@@ -29,6 +24,7 @@ import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Color;
@@ -36,24 +32,35 @@ import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.Uri;
+import android.os.Parcel;
+import android.text.Spannable;
 import android.text.format.DateUtils;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.Window;
 import android.webkit.WebSettings;
+
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import java.util.ArrayList;
-import org.robolectric.Robolectric;
-import org.robolectric.shadows.ShadowPackageManager;
 import androidx.test.core.app.ApplicationProvider;
+
+import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import io.github.sheepdestroyer/materialisheep.data.WebItem;
+
+import java.util.ArrayList;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.Shadows;
 import org.robolectric.shadows.ShadowConnectivityManager;
+import org.robolectric.shadows.ShadowNetworkCapabilities;
+import org.robolectric.shadows.ShadowPackageManager;
 import org.robolectric.shadows.ShadowToast;
+
 @RunWith(RobolectricTestRunner.class)
 public class AppUtilsTest {
   @Test
@@ -275,7 +282,7 @@ public class AppUtilsTest {
   }
 
   @Test
-public void testGetDimension() {
+  public void testGetDimension() {
     Context context = ApplicationProvider.getApplicationContext();
     float dimension = AppUtils.getDimension(context, R.style.AppTheme, R.attr.contentTextSize);
     assertTrue(dimension > 0);
@@ -340,6 +347,9 @@ public void testGetDimension() {
 
   @Test
   public void testGetDataUriId() {
+    // Null intent returns null
+    assertNull(AppUtils.getDataUriId(null, "id"));
+
     // Intent without data returns null
     Intent emptyIntent = new Intent();
     assertNull(AppUtils.getDataUriId(emptyIntent, "id"));
@@ -433,7 +443,9 @@ public void testGetDimension() {
     Context context = ApplicationProvider.getApplicationContext();
     int height = AppUtils.getDisplayHeight(context);
     assertTrue(height > 0);
+  }
 
+  @Test
   public void testShare() {
     Activity activity = Robolectric.buildActivity(Activity.class).get();
     Context context = activity;

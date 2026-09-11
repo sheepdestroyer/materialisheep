@@ -828,10 +828,10 @@ public class AppUtils {
    * @return The ID from the URI.
    */
   public static String getDataUriId(@NonNull Intent intent, String altParamId) {
-    Uri data = intent.getData();
-    if (data == null) {
+    if (intent == null || intent.getData() == null) {
       return null;
     }
+    Uri data = intent.getData();
     if (TextUtils.equals(data.getScheme(), BuildConfig.APPLICATION_ID)) {
       return data.getLastPathSegment();
     } else if (altParamId != null && data.isHierarchical()) {
