@@ -2,6 +2,9 @@
 
 ## [UNRELEASED]
 
+### Changed
+- **Release Automation**: Updated `.github/workflows/release.yml` to package and publish `materialisheep-<tag>.apk` directly to GitHub Releases with atomic asset creation.
+
 ## [0.2] - 2026-09-11
 
 ### Added

@@ -5,6 +5,9 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -30,8 +33,25 @@ jobs:
         run: chmod +x gradlew
       - name: Build release APK
         run: ./gradlew assembleRelease
-      - name: Upload release APK
+      - name: Prepare named release APK
+        run: |
+          APK_NAME="materialisheep-${{ github.ref_name }}.apk"
+          cp app/build/outputs/apk/release/app-release-unsigned.apk "${APK_NAME}"
+          echo "APK_NAME=${APK_NAME}" >> $GITHUB_ENV
+      - name: Upload release APK artifact
         uses: actions/upload-artifact@v6
         with:
-          name: app-release
-          path: app/build/outputs/apk/release/app-release-unsigned.apk
+          name: ${{ env.APK_NAME }}
+          path: ${{ env.APK_NAME }}
+      - name: Publish GitHub Release with APK Asset
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if gh release view "${{ github.ref_name }}" >/dev/null 2>&1; then
+            echo "Release ${{ github.ref_name }} already exists. Attempting to upload asset..."
+            gh release upload "${{ github.ref_name }}" "${{ env.APK_NAME }}" --clobber || true
+          else
+            gh release create "${{ github.ref_name }}" "${{ env.APK_NAME }}" \
+              --title "${{ github.ref_name }}" \
+              --generate-notes
+          fi
